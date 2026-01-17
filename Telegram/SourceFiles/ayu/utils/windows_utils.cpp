@@ -47,7 +47,7 @@ void processIcon(QString shortcut, QString iconPath) {
 }
 
 void processLegacy(const QString &appdata, const QString &iconPath) {
-	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Telegram Desktop.lnk";
+	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/UzbekGram Desktop.lnk";
 	if (!QFile::exists(shortcut)) {
 		shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Telegram.lnk";
 	}
@@ -139,7 +139,7 @@ void processNewShortcuts(const QString &iconPath) {
 		return;
 	}
 
-	const auto shortcut = path + u"Telegram Desktop/Telegram.lnk"_q;
+	const auto shortcut = path + u"UzbekGram Desktop/Telegram.lnk"_q;
 	const auto native = QDir::toNativeSeparators(path).toStdWString();
 
 	DWORD attributes = GetFileAttributes(native.c_str());

@@ -52,7 +52,7 @@ rpl::producer<TextWithEntities> Text() {
 } // namespace
 
 void AboutBox(not_null<Ui::GenericBox*> box, Window::SessionController* controller) {
-	box->setTitle(rpl::single(u"Telegram Desktop"_q));
+	box->setTitle(rpl::single(u"UzbekGram Desktop"_q));
 
 	auto layout = box->verticalLayout();
 

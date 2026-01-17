@@ -119,7 +119,7 @@ void AyuMain::setupContent(not_null<Window::SessionController*> controller) {
 	content->add(
 		object_ptr<Ui::FlatLabel>(
 			content,
-			rpl::single(QString("Telegram Desktop v") + QString::fromLatin1(AppVersionStr)),
+			rpl::single(QString("UzbekGram Desktop v") + QString::fromLatin1(AppVersionStr)),
 			st::boxTitle),
 		style::al_top);
 

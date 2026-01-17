@@ -381,7 +381,7 @@ MainMenu::MainMenu(
 	parentResized();
 
 	_telegram->setMarkedText(tr::link(
-		u"Telegram Desktop"_q,
+		u"UzbekGram Desktop"_q,
 		u"https://telegram.org"_q));
 	_telegram->setLinksTrusted();
 	_version->setMarkedText(
