@@ -1,127 +1,14 @@
-# AyuGram
-
-*version without donations, third-party servers, badges, and other garbage*
-
-![AyuGram Logo](.github/AyuGram.png) ![AyuChan](.github/AyuChan.png)
+# UzbekGram Desktop ✅
+![UzbekGram Logo](.github/uzbekgram.png) uzbekgram ![UzbekChan](.github/uzbekchan.png) uzbekchan
 
 [ English  |   [Русский](README-RU.md) ]
 
 ## Features
 
-- Full ghost mode (flexible)
-- Messages history
-- Anti-recall
-- Font customization
-- Streamer mode
-- Local Telegram Premium
-- Translator
-- Media preview & quick reaction on force click (macOS)
-- Enhanced appearance
-
-And many more. Check out [Telegram](https://telegram.org/) for more information.
-
-<h3>
-  <details>
-    <summary>Preview</summary>
-    <table>
-      <tr>
-        <td><img src='.github/demos/demo1.png' width='268' alt='Preferences'></td>
-        <td><img src='.github/demos/demo2.png' width='268' alt='AyuGram Options'></td>
-        <td><img src='.github/demos/demo3.png' width='268' alt='Message Filters'></td>
-      </tr>
-      <tr>
-        <td><img src='.github/demos/demo4.png' width='268' alt='Appearance'></td>
-        <td><img src='.github/demos/demo5.png' width='268' alt='Chats'></td>
-      </tr>
-    </table>
-  </details>
-</h3>
-
-## Downloads
-
-### Windows
-
-#### Official
-
-You can download prebuilt Windows binary from the [Telegram channel](https://t.me/telegram).
-
-#### Winget
-
-```bash
-winget install RadolynLabs.AyuGramDesktop
-```
-
-#### Scoop
-
-```bash
-scoop bucket add extras
-scoop install ayugram
-```
-
-#### Self-built
-
-Follow [official guide](https://github.com/AyuGram/AyuGramDesktop/blob/dev/docs/building-win-x64.md) if you want to
-build by yourself.
-
-### macOS
-
-#### Official
-
-You can download prebuilt macOS package from [Releases tab](https://github.com/AyuGram/AyuGramDesktop/releases).
-
-#### Homebrew
-
-```bash
-brew install --cask ayugram
-```
-
-### Arch Linux
-
-#### From source (recommended)
-
-Install `ayugram-desktop` from [AUR](https://aur.archlinux.org/packages/ayugram-desktop).
-
-#### Prebuilt binaries
-
-Install `ayugram-desktop-bin` from [AUR](https://aur.archlinux.org/packages/ayugram-desktop-bin).
-
-Note: these binaries aren't officially maintained by us.
-
-### NixOS
-
-See [this repository](https://github.com/ayugram-port/ayugram-desktop) for installation manual.
-
-### ALT Linux
-
-[Sisyphus](https://packages.altlinux.org/en/sisyphus/srpms/ayugram-desktop/)
-
-### Gentoo Linux
-
-See [this repository](https://github.com/OverLessArtem/ayugram-ebuild-gentoo) for installation manual.
-
-### EPM
-
-`epm play ayugram`
-
-### Any other Linux distro
-
-Flatpak: https://github.com/0FL01/AyuGramDesktop-flatpak
-
-Or follow the [official guide](https://github.com/AyuGram/AyuGramDesktop/blob/dev/docs/building-linux.md).
-
-### Remarks for Windows
-
-Make sure you have these components installed with VS Build Tools:
-
-- C++ MFC latest (x86 & x64)
-- C++ ATL latest (x86 & x64)
-- latest Windows 11 SDK
-
-## Donation
-
-Enjoy using **AyuGram**? Consider sending us a tip!
-
-[Support Telegram here.](https://telegram.org/)
+- shalava mod✅
+- shalama mega mod✅
+- mega ultra super shalava mod✅
+- uzbekchan✅✅✅
 
 ## Credits
 
