@@ -129,11 +129,12 @@ set(ayugram_files
         ayu/utils/taptic_engine/platform/taptic_engine_dummy.h
         ayu/utils/taptic_engine/platform/taptic_engine_mac.mm
         ayu/utils/taptic_engine/platform/taptic_engine_mac.h
-        ayu/ui/ayu_logo.cpp
-        ayu/ui/ayu_logo.h
-        ayu/ui/utils/ayu_profile_values.cpp
-        ayu/ui/utils/ayu_profile_values.h
-        ayu/ui/utils/color_cut_quantizer.cpp
+            ayu/ui/ayu_logo.cpp
+            ayu/ui/ayu_logo.h
+            ayu/ui/shalava_overlay.cpp
+                ayu/ui/shalava_overlay.h
+                ayu/ui/utils/ayu_profile_values.cpp
+                ayu/ui/utils/ayu_profile_values.h        ayu/ui/utils/color_cut_quantizer.cpp
         ayu/ui/utils/color_cut_quantizer.h
         ayu/ui/utils/color_utils.cpp
         ayu/ui/utils/color_utils.h
