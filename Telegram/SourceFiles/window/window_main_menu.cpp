@@ -645,13 +645,13 @@ void ShowEpilepsyWarning(Fn<void()> onConfirm) {
 		box->setTitle(rpl::single(u"Epilepsy Warning"_q));
 		box->addRow(object_ptr<Ui::FlatLabel>(
 			box,
-			u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q,
+			rpl::single(u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q),
 			st::boxLabel
 		));
 
 		auto checkbox = box->addRow(object_ptr<Ui::Checkbox>(
 			box,
-			u"Don't show again"_q,
+			rpl::single(u"Don't show again"_q),
 			false,
 			st::defaultCheckbox
 		));
@@ -746,9 +746,11 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 		layout->addWidget(btn);
 
 		// Subscribe to updates to redraw
-		AyuSettings::get_shalavaModeReactive().start([=](int) {
-			btn->update();
-		}, btn->lifetime());
+		AyuSettings::get_shalavaModeReactive().start(
+			[=](int) { btn->update(); },
+			[](const auto &) {},
+			[] {},
+			btn->lifetime());
 	}
 }
 
