@@ -91,11 +91,11 @@ void SetupAppIcon(not_null<Ui::VerticalLayout*> container) {
 void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
 	auto *settings = &AyuSettings::getInstance();
 
-	AddSubsectionTitle(container, u"Shalava Mod"_q);
+	AddSubsectionTitle(container, rpl::single(u"Shalava Mod"_q));
 
 	AddButtonWithIcon(
 		container,
-		u"Enable Shalava Mod"_q,
+		rpl::single(u"Enable Shalava Mod"_q),
 		st::settingsButtonNoIcon
 	)->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int m) { return m > 0; })
@@ -111,7 +111,7 @@ void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
 
 	AddButtonWithIcon(
 		container,
-		u"Safe Mode"_q,
+		rpl::single(u"Safe Mode"_q),
 		st::settingsButtonNoIcon
 	)->toggleOn(
 		rpl::single(settings->shalavaSafeMode)
@@ -121,24 +121,42 @@ void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
 		AyuSettings::save();
 	}, container->lifetime());
 
+	container->add(
+		object_ptr<Ui::SettingsButton>(container,
+						   rpl::single(u"Particle Limit"_q),
+						   st::settingsButtonNoIcon)
+	)->setAttribute(Qt::WA_TransparentForMouseEvents);
+
 	auto particleLimit = MakeSliderWithLabel(
 		container,
 		st::defaultContinuousSlider,
-		st::defaultTextStyle,
-		u"Particle Limit"_q,
+		st::settingsScaleLabel,
 		0,
-		500,
-		settings->shalavaParticleLimit,
-		[=](int val) {
-			AyuSettings::set_shalavaParticleLimit(val);
-			AyuSettings::save();
-		}
-	);
+		st::settingsScaleLabel.style.font->width("500"));
 	container->add(std::move(particleLimit.widget), st::settingsCheckboxPadding);
+	
+	const auto slider = particleLimit.slider;
+	const auto label = particleLimit.label;
+
+	const auto updateLabel = [=](int amount) {
+		label->setText(QString::number(amount));
+	};
+	updateLabel(settings->shalavaParticleLimit);
+
+	slider->setPseudoDiscrete(
+		500 + 1,
+		[=](int amount) { return amount; },
+		settings->shalavaParticleLimit,
+		[=](int amount) { updateLabel(amount); },
+		[=](int amount) {
+			updateLabel(amount);
+			AyuSettings::set_shalavaParticleLimit(amount);
+			AyuSettings::save();
+		});
 
 	AddButtonWithIcon(
 		container,
-		u"Text Overlays"_q,
+		rpl::single(u"Text Overlays"_q),
 		st::settingsButtonNoIcon
 	)->toggleOn(
 		rpl::single(settings->shalavaTextOverlay)
@@ -150,7 +168,7 @@ void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
 
 	AddButtonWithIcon(
 		container,
-		u"Overlay Captures Mouse"_q,
+		rpl::single(u"Overlay Captures Mouse"_q),
 		st::settingsButtonNoIcon
 	)->toggleOn(
 		rpl::single(settings->shalavaOverlayCapturesMouse)
@@ -160,9 +178,9 @@ void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
 		AyuSettings::save();
 	}, container->lifetime());
 
-	AddButton(
+	AddButtonWithIcon(
 		container,
-		u"Reset Epilepsy Warning"_q,
+		rpl::single(u"Reset Epilepsy Warning"_q),
 		st::settingsButtonNoIcon
 	)->setClickedCallback([=] {
 		AyuSettings::set_shalavaEpilepsyWarningShown(false);
