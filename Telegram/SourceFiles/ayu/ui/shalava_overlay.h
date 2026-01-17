@@ -4,6 +4,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QPixmap>
 #include <vector>
+#include <rpl/lifetime.h>
 
 namespace Ayu {
 namespace Ui {
@@ -21,6 +22,8 @@ protected:
 	bool event(QEvent *e) override;
 
 private:
+	rpl::lifetime _lifetime;
+
 	struct Particle {
 		float x, y;
 		float vx, vy;

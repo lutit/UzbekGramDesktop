@@ -40,7 +40,7 @@ ShalavaOverlay::ShalavaOverlay(QWidget *parent) : QWidget(parent) {
         },
         [](const auto &) {},
         [] {},
-        lifetime()
+        _lifetime
     );
 }
 
