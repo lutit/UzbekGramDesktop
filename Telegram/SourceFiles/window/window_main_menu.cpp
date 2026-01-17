@@ -7,6 +7,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "window/window_main_menu.h"
 
+#include <QtWidgets/QHBoxLayout>
+#include "ui/widgets/checkbox.h"
+
 #include "apiwrap.h"
 #include "base/event_filter.h"
 #include "base/qt_signal_producer.h"
@@ -635,7 +638,125 @@ void MainMenu::showFinished() {
 	_showFinished = true;
 }
 
+namespace {
+
+void ShowEpilepsyWarning(Fn<void()> onConfirm) {
+	auto box = Box([=](not_null<Ui::GenericBox*> box) {
+		box->setTitle(u"Epilepsy Warning"_q);
+		box->addRow(object_ptr<Ui::FlatLabel>(
+			box,
+			u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q,
+			st::boxLabel
+		));
+
+		auto checkbox = box->addRow(object_ptr<Ui::Checkbox>(
+			box,
+			u"Don't show again"_q,
+			false,
+			st::defaultCheckbox
+		));
+
+		box->addButton(tr::lng_box_ok(), [=] {
+			if (checkbox->checked()) {
+				AyuSettings::set_shalavaEpilepsyWarningShown(true);
+			}
+			onConfirm();
+			box->closeBox();
+		});
+		box->addButton(tr::lng_cancel(), [=] {
+			box->closeBox();
+		});
+	});
+	Ui::show(std::move(box));
+}
+
+class ShalavaButton : public Ui::AbstractButton {
+public:
+	ShalavaButton(QWidget *parent, int mode) : AbstractButton(parent), _mode(mode) {
+		_icon.load(":/gui/art/ayu/shalava/ghost.svg");
+	}
+
+protected:
+	void paintEvent(QPaintEvent *e) override {
+		QPainter p(this);
+		if (isOver() || isDown()) {
+			p.fillRect(rect(), st::windowBgOver);
+		}
+
+		bool active = (AyuSettings::get_shalavaModeReactive().current() == _mode);
+		if (active) {
+			p.fillRect(rect(), st::windowBgOver); // Highlight
+		}
+
+		// Draw icon
+		if (!_icon.isNull()) {
+			auto modeColor = (_mode == 1) ? Qt::green : (_mode == 2) ? Qt::yellow : Qt::red;
+			if (active) {
+				// p.setOpacity(1.0);
+			} else {
+				p.setOpacity(0.5);
+			}
+
+			// Draw icon centered
+			p.drawPixmap((width() - _icon.width()) / 2, (height() - _icon.height()) / 2, 24, 24, _icon);
+
+			// Draw mode dot
+			p.setOpacity(1.0);
+			p.setBrush(modeColor);
+			p.setPen(Qt::NoPen);
+			p.drawEllipse(width()/2 - 2, height()/2 + 8, 4, 4);
+		}
+	}
+
+private:
+	int _mode;
+	QPixmap _icon;
+};
+
+void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
+	auto wrap = container->add(object_ptr<Ui::RpWidget>(container));
+	wrap->resize(container->width(), 40);
+
+	auto layout = new QHBoxLayout(wrap);
+	layout->setContentsMargins(10, 5, 10, 5);
+	layout->setSpacing(10);
+
+	for (int i = 1; i <= 3; ++i) {
+		auto btn = new ShalavaButton(wrap, i);
+		btn->setClickedCallback([=] {
+			int current = AyuSettings::get_shalavaModeReactive().current();
+			if (current == i) {
+				AyuSettings::set_shalavaMode(0);
+				AyuSettings::save();
+			} else {
+				auto doSwitch = [=] {
+					AyuSettings::set_shalavaMode(i);
+					AyuSettings::save();
+				};
+
+				auto &settings = AyuSettings::getInstance();
+				if (i == 3 && !settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
+					ShowEpilepsyWarning(doSwitch);
+				} else {
+					doSwitch();
+				}
+			}
+			wrap->update(); // Redraw buttons
+		});
+		layout->addWidget(btn);
+
+		// Subscribe to updates to redraw
+		AyuSettings::get_shalavaModeReactive().changes() | rpl::start_with_next([=] {
+			btn->update();
+		}, btn->lifetime());
+	}
+}
+
+} // namespace
+
 void MainMenu::setupMenu() {
+	SetupShalavaButtons(_menu);
+
 	using namespace Settings;
 
 	const auto &settings = AyuSettings::getInstance();

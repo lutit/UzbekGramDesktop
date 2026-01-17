@@ -34,5 +34,9 @@
         <file alias="icons/ayu/donates/solana.svg">../../icons/ayu/donates/solana.svg</file>
         <file alias="icons/ayu/donates/tron.svg">../../icons/ayu/donates/tron.svg</file>
         <file alias="icons/ayu/donates/support_logo.svg">../../icons/ayu/donates/support_logo.svg</file>
+        <file alias="art/ayu/shalava/ghost.svg">../../art/ayu/shalava/ghost.svg</file>
+        <file alias="art/ayu/shalava/star.svg">../../art/ayu/shalava/star.svg</file>
+        <file alias="art/ayu/shalava/checkmark.svg">../../art/ayu/shalava/checkmark.svg</file>
+        <file alias="art/ayu/shalava/uzbekchan.svg">../../art/ayu/shalava/uzbekchan.svg</file>
     </qresource>
 </RCC>

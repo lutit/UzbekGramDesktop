@@ -42,6 +42,8 @@ rpl::variable<int> showPeerIdReactive;
 
 rpl::variable<QString> translationProviderReactive;
 
+rpl::variable<int> shalavaModeReactive;
+
 rpl::event_stream<> filtersUpdateReactive; // triggered on adding / editing filter
 
 rpl::event_stream<> historyUpdateReactive;
@@ -140,6 +142,8 @@ void postinitialize() {
 	editedMarkReactive = settings->editedMark;
 	showPeerIdReactive = settings->showPeerId;
 	translationProviderReactive = settings->translationProvider;
+
+	shalavaModeReactive = settings->shalavaMode;
 
 	ghostModeEnabled = ghostModeEnabled_util(settings.value());
 
@@ -350,6 +354,14 @@ AyuGramSettings::AyuGramSettings() {
 	adaptiveCoverColor = true;
 
 	crashReporting = true;
+
+	shalavaMode = 0;
+	shalavaSafeMode = false;
+	shalavaParticleLimit = 100;
+	shalavaTextOverlay = true;
+	shalavaEpilepsyWarningShown = false;
+	shalavaOverlayCapturesMouse = false;
+	shalavaPerformanceQuality = 0;
 }
 
 void set_sendReadMessages(bool val) {
@@ -745,6 +757,39 @@ void triggerHistoryUpdate() {
 
 rpl::producer<> get_historyUpdateReactive() {
 	return historyUpdateReactive.events();
+}
+
+void set_shalavaMode(int val) {
+	settings->shalavaMode = val;
+	shalavaModeReactive = val;
+}
+
+void set_shalavaSafeMode(bool val) {
+	settings->shalavaSafeMode = val;
+}
+
+void set_shalavaParticleLimit(int val) {
+	settings->shalavaParticleLimit = val;
+}
+
+void set_shalavaTextOverlay(bool val) {
+	settings->shalavaTextOverlay = val;
+}
+
+void set_shalavaEpilepsyWarningShown(bool val) {
+	settings->shalavaEpilepsyWarningShown = val;
+}
+
+void set_shalavaOverlayCapturesMouse(bool val) {
+	settings->shalavaOverlayCapturesMouse = val;
+}
+
+void set_shalavaPerformanceQuality(int val) {
+	settings->shalavaPerformanceQuality = val;
+}
+
+rpl::producer<int> get_shalavaModeReactive() {
+	return shalavaModeReactive.value();
 }
 
 }

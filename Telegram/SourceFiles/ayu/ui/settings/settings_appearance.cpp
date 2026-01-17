@@ -10,6 +10,7 @@
 #include "ayu/ayu_settings.h"
 #include "ayu/ui/boxes/font_selector.h"
 #include "ayu/ui/components/icon_picker.h"
+#include "ui/widgets/continuous_sliders.h"
 #include "inline_bots/bot_attach_web_view.h"
 #include "main/main_session.h"
 #include "settings/settings_common.h"
@@ -85,6 +86,92 @@ void SetupAppIcon(not_null<Ui::VerticalLayout*> container) {
 	AddDividerText(container, tr::ayu_HideNotificationBadgeDescription());
 	AddSkip(container);
 #endif
+}
+
+void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
+	auto *settings = &AyuSettings::getInstance();
+
+	AddSubsectionTitle(container, u"Shalava Mod"_q);
+
+	AddButtonWithIcon(
+		container,
+		u"Enable Shalava Mod"_q,
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int m) { return m > 0; })
+	)->toggledValue(
+	) | rpl::on_next([=](bool enabled) {
+		if (enabled && settings->shalavaMode == 0) {
+			AyuSettings::set_shalavaMode(1);
+		} else if (!enabled) {
+			AyuSettings::set_shalavaMode(0);
+		}
+		AyuSettings::save();
+	}, container->lifetime());
+
+	AddButtonWithIcon(
+		container,
+		u"Safe Mode"_q,
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		rpl::single(settings->shalavaSafeMode)
+	)->toggledValue(
+	) | rpl::on_next([=](bool val) {
+		AyuSettings::set_shalavaSafeMode(val);
+		AyuSettings::save();
+	}, container->lifetime());
+
+	auto particleLimit = MakeSliderWithLabel(
+		container,
+		st::defaultContinuousSlider,
+		st::defaultTextStyle,
+		u"Particle Limit"_q,
+		0,
+		500,
+		settings->shalavaParticleLimit,
+		[=](int val) {
+			AyuSettings::set_shalavaParticleLimit(val);
+			AyuSettings::save();
+		}
+	);
+	container->add(std::move(particleLimit.widget), st::settingsCheckboxPadding);
+
+	AddButtonWithIcon(
+		container,
+		u"Text Overlays"_q,
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		rpl::single(settings->shalavaTextOverlay)
+	)->toggledValue(
+	) | rpl::on_next([=](bool val) {
+		AyuSettings::set_shalavaTextOverlay(val);
+		AyuSettings::save();
+	}, container->lifetime());
+
+	AddButtonWithIcon(
+		container,
+		u"Overlay Captures Mouse"_q,
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		rpl::single(settings->shalavaOverlayCapturesMouse)
+	)->toggledValue(
+	) | rpl::on_next([=](bool val) {
+		AyuSettings::set_shalavaOverlayCapturesMouse(val);
+		AyuSettings::save();
+	}, container->lifetime());
+
+	AddButton(
+		container,
+		u"Reset Epilepsy Warning"_q,
+		st::settingsButtonNoIcon
+	)->setClickedCallback([=] {
+		AyuSettings::set_shalavaEpilepsyWarningShown(false);
+		AyuSettings::save();
+	});
+
+	AddSkip(container);
+	AddDivider(container);
+	AddSkip(container);
 }
 
 void SetupAppearance(not_null<Ui::VerticalLayout*> container, not_null<Window::SessionController*> controller) {
@@ -534,6 +621,7 @@ void AyuAppearance::setupContent(not_null<Window::SessionController*> controller
 	SetupAppearance(content, controller);
 	SetupChatFolders(content);
 	SetupTrayElements(content);
+	SetupShalavaSettings(content);
 	SetupDrawerElements(content, controller);
 	AddSkip(content);
 

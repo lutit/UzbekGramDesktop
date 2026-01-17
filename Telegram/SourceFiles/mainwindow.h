@@ -35,6 +35,12 @@ class BoxContent;
 class LayerStackWidget;
 } // namespace Ui
 
+namespace Ayu {
+namespace Ui {
+class ShalavaOverlay;
+}
+}
+
 class MediaPreviewWidget;
 
 extern const char kOptionAutoScrollInactiveChat[];
@@ -132,6 +138,8 @@ private:
 	object_ptr<MainWidget> _main = { nullptr };
 	base::unique_qptr<Ui::LayerStackWidget> _layer;
 	object_ptr<Window::MediaPreviewWidget> _mediaPreview = { nullptr };
+
+	object_ptr<Ayu::Ui::ShalavaOverlay> _shalavaOverlay = { nullptr };
 
 	object_ptr<Window::Theme::WarningWidget> _testingThemeWarning = { nullptr };
 

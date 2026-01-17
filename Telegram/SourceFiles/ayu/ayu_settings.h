@@ -162,6 +162,14 @@ public:
 	bool adaptiveCoverColor;
 
 	bool crashReporting;
+
+	int shalavaMode;
+	bool shalavaSafeMode;
+	int shalavaParticleLimit;
+	bool shalavaTextOverlay;
+	bool shalavaEpilepsyWarningShown;
+	bool shalavaOverlayCapturesMouse;
+	int shalavaPerformanceQuality;
 };
 
 void set_sendReadMessages(bool val);
@@ -270,6 +278,16 @@ void set_adaptiveCoverColor(bool val);
 
 void set_crashReporting(bool val);
 
+void set_shalavaMode(int val);
+void set_shalavaSafeMode(bool val);
+void set_shalavaParticleLimit(int val);
+void set_shalavaTextOverlay(bool val);
+void set_shalavaEpilepsyWarningShown(bool val);
+void set_shalavaOverlayCapturesMouse(bool val);
+void set_shalavaPerformanceQuality(int val);
+
+rpl::producer<int> get_shalavaModeReactive();
+
 inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nlohmann_json_t) {
 	NLOHMANN_JSON_TO(sendReadMessages)
 	NLOHMANN_JSON_TO(sendReadStories)
@@ -365,6 +383,13 @@ inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nloh
 	NLOHMANN_JSON_TO(openaiSystemPrompt)
 	NLOHMANN_JSON_TO(adaptiveCoverColor)
 	NLOHMANN_JSON_TO(crashReporting)
+	NLOHMANN_JSON_TO(shalavaMode)
+	NLOHMANN_JSON_TO(shalavaSafeMode)
+	NLOHMANN_JSON_TO(shalavaParticleLimit)
+	NLOHMANN_JSON_TO(shalavaTextOverlay)
+	NLOHMANN_JSON_TO(shalavaEpilepsyWarningShown)
+	NLOHMANN_JSON_TO(shalavaOverlayCapturesMouse)
+	NLOHMANN_JSON_TO(shalavaPerformanceQuality)
 }
 
 inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nlohmann_json_t) {
@@ -463,6 +488,13 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nl
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(openaiSystemPrompt)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(adaptiveCoverColor)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(crashReporting)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaMode)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaSafeMode)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaParticleLimit)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaTextOverlay)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaEpilepsyWarningShown)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaOverlayCapturesMouse)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaPerformanceQuality)
 }
 
 AyuGramSettings &getInstance();
