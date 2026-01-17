@@ -4,6 +4,7 @@
 #include <QtGui/QResizeEvent>
 #include <QtCore/QRandomGenerator>
 #include <QtGui/QPainterPath>
+#include <QtCore/QTimer>
 
 namespace Ayu {
 namespace Ui {
@@ -31,11 +32,23 @@ ShalavaOverlay::ShalavaOverlay(QWidget *parent) : QWidget(parent) {
     _ghostIcon.load(":/gui/art/ayu/shalava/ghost.svg");
 
     updateSettings();
+
+    // Subscribe to settings changes
+    AyuSettings::get_shalavaModeReactive().start(
+        [=](int mode) {
+            updateSettings(); // Refresh all settings including mode
+        },
+        [](const auto &) {},
+        [] {},
+        lifetime()
+    );
 }
 
 void ShalavaOverlay::updateSettings() {
     auto &settings = AyuSettings::getInstance();
-    _mode = settings.shalavaMode;
+    int newMode = settings.shalavaMode;
+    
+    // Check if other settings changed that might require updates
     _safeMode = settings.shalavaSafeMode;
     _particleLimit = settings.shalavaParticleLimit;
     _textOverlay = settings.shalavaTextOverlay;
@@ -43,30 +56,30 @@ void ShalavaOverlay::updateSettings() {
     
     setAttribute(Qt::WA_TransparentForMouseEvents, !_captureMouse);
     
-    if (_mode > 0 && !_timer.isActive()) {
-        _timer.start();
-    } else if (_mode == 0) {
-        _timer.stop();
-        _particles.clear();
-        update();
+    if (newMode != _mode) {
+        setMode(newMode);
+    } else {
+        // If mode is same but other settings changed, ensure timer state
+        if (_mode > 0 && !_timer.isActive()) {
+            _timer.start();
+        }
     }
 }
 
 void ShalavaOverlay::setMode(int mode) {
-    if (_mode != mode) {
-        _mode = mode;
-        if (_mode == 0) {
-             _particles.clear();
-             _timer.stop();
-             update();
-        } else {
-             if (!_timer.isActive()) _timer.start();
-        }
-        // Save to settings? Or assume caller does it. Caller should do it.
+    _mode = mode;
+    if (_mode == 0) {
+            _particles.clear();
+            _timer.stop();
+            update();
+    } else {
+            if (!_timer.isActive()) _timer.start();
     }
 }
 
 void ShalavaOverlay::updateParticles() {
+    if (width() <= 0 || height() <= 0) return;
+
     // Mode specific logic
     int targetParticles = 0;
     float speedMult = 1.0f;
@@ -125,6 +138,8 @@ void ShalavaOverlay::updateParticles() {
 }
 
 void ShalavaOverlay::spawnParticle() {
+    if (width() <= 0 || height() <= 0) return;
+
     Particle p;
     p.x = randomFloat(0, width());
     p.y = randomFloat(0, height());
@@ -167,8 +182,11 @@ void ShalavaOverlay::spawnParticle() {
 
 void ShalavaOverlay::paintEvent(QPaintEvent *e) {
     if (_mode == 0) return;
+    if (!isVisible()) return;
 
     QPainter p(this);
+    if (!p.isActive()) return;
+
     p.setRenderHint(QPainter::Antialiasing);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
     
@@ -197,9 +215,11 @@ void ShalavaOverlay::paintEvent(QPaintEvent *e) {
                 p.setPen(QPen(Qt::red)); // bold red text
                 QFont f = p.font();
                 f.setBold(true);
-                f.setPixelSize(s);
-                p.setFont(f);
-                p.drawText(QRectF(-s*5, -s, s*10, s*2), Qt::AlignCenter, part.text);
+                if (s > 0) {
+                    f.setPixelSize(s);
+                    p.setFont(f);
+                    p.drawText(QRectF(-s*5, -s, s*10, s*2), Qt::AlignCenter, part.text);
+                }
                 break;
         }
         
