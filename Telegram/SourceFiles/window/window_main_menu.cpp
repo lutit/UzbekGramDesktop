@@ -642,7 +642,7 @@ namespace {
 
 void ShowEpilepsyWarning(Fn<void()> onConfirm) {
 	auto box = Box([=](not_null<Ui::GenericBox*> box) {
-		box->setTitle(u"Epilepsy Warning"_q);
+		box->setTitle(rpl::single(u"Epilepsy Warning"_q));
 		box->addRow(object_ptr<Ui::FlatLabel>(
 			box,
 			u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q,
@@ -683,7 +683,7 @@ protected:
 			p.fillRect(rect(), st::windowBgOver);
 		}
 
-		bool active = (AyuSettings::get_shalavaModeReactive().current() == _mode);
+		bool active = (AyuSettings::getInstance().shalavaMode == _mode);
 		if (active) {
 			p.fillRect(rect(), st::windowBgOver); // Highlight
 		}
@@ -724,7 +724,7 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 	for (int i = 1; i <= 3; ++i) {
 		auto btn = new ShalavaButton(wrap, i);
 		btn->setClickedCallback([=] {
-			int current = AyuSettings::get_shalavaModeReactive().current();
+			int current = AyuSettings::getInstance().shalavaMode;
 			if (current == i) {
 				AyuSettings::set_shalavaMode(0);
 				AyuSettings::save();
@@ -746,7 +746,7 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 		layout->addWidget(btn);
 
 		// Subscribe to updates to redraw
-		AyuSettings::get_shalavaModeReactive().changes() | rpl::start_with_next([=] {
+		AyuSettings::get_shalavaModeReactive().start([=](int) {
 			btn->update();
 		}, btn->lifetime());
 	}
