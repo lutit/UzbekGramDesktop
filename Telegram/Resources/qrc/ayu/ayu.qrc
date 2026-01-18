@@ -38,5 +38,6 @@
         <file alias="art/ayu/shalava/star.svg">../../art/ayu/shalava/star.svg</file>
         <file alias="art/ayu/shalava/checkmark.svg">../../art/ayu/shalava/checkmark.svg</file>
         <file alias="art/ayu/shalava/uzbekchan.svg">../../art/ayu/shalava/uzbekchan.svg</file>
+        <file alias="art/uzbekchan.png">../../art/uzbekchan.png</file>
     </qresource>
 </RCC>

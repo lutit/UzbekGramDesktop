@@ -33,6 +33,11 @@ bool HandleSupport(
 	const Match &match,
 	const QVariant &context);
 
+bool HandleUzbek(
+	Window::SessionController *controller,
+	const Match &match,
+	const QVariant &context);
+
 bool TryHandleSpotify(const QString &url);
 
 }
