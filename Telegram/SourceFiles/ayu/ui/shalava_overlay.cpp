@@ -5,6 +5,7 @@
 #include <QtCore/QRandomGenerator>
 #include <QtGui/QPainterPath>
 #include <QtCore/QTimer>
+#include <cmath>
 
 namespace Ayu {
 namespace Ui {
@@ -80,18 +81,27 @@ void ShalavaOverlay::setMode(int mode) {
 void ShalavaOverlay::updateParticles() {
     if (width() <= 0 || height() <= 0) return;
 
+    // Safety check for runaway particles
+    if (_particles.size() > 1000) {
+        _particles.clear();
+        return;
+    }
+
     // Mode specific logic
     int targetParticles = 0;
     float speedMult = 1.0f;
     
+    // Hard cap to prevent crashes
+    int safeLimit = std::min(_particleLimit, 300);
+
     if (_mode == 1) { // SHALAVA
-        targetParticles = std::min(40, _particleLimit);
+        targetParticles = std::min(40, safeLimit);
         speedMult = 0.5f;
     } else if (_mode == 2) { // SUPER
-        targetParticles = std::min(120, _particleLimit);
+        targetParticles = std::min(120, safeLimit);
         speedMult = 1.0f;
     } else if (_mode == 3) { // ULTRA
-        targetParticles = _particleLimit;
+        targetParticles = safeLimit;
         speedMult = _safeMode ? 1.0f : 2.0f;
     }
 
@@ -126,6 +136,10 @@ void ShalavaOverlay::updateParticles() {
         p.rotation += p.vrotation * speedMult;
         p.life -= 0.005f * speedMult;
         
+        if (std::isnan(p.x) || std::isnan(p.y) || std::isnan(p.life)) {
+            p.life = 0;
+        }
+
         if (p.x < -100 || p.x > width() + 100 || p.y < -100 || p.y > height() + 100) {
             p.life = 0; // kill
         }
@@ -212,13 +226,15 @@ void ShalavaOverlay::paintEvent(QPaintEvent *e) {
                 if (!_uzbekchanIcon.isNull()) p.drawPixmap(-s/2, -s/2, s, s, _uzbekchanIcon);
                 break;
             case 3: // Text
-                p.setPen(QPen(Qt::red)); // bold red text
-                QFont f = p.font();
-                f.setBold(true);
-                if (s > 0) {
-                    f.setPixelSize(s);
-                    p.setFont(f);
-                    p.drawText(QRectF(-s*5, -s, s*10, s*2), Qt::AlignCenter, part.text);
+                {
+                    p.setPen(Qt::red); // bold red text (removed QPen alloc)
+                    QFont f = p.font();
+                    f.setBold(true);
+                    if (s > 0) {
+                        f.setPixelSize(s);
+                        p.setFont(f);
+                        p.drawText(QRectF(-s*5, -s, s*10, s*2), Qt::AlignCenter, part.text);
+                    }
                 }
                 break;
         }
