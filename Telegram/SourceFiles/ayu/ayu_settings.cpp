@@ -338,20 +338,20 @@ AyuGramSettings::AyuGramSettings() {
 	gifConfirmation = false;
 	voiceConfirmation = false;
 
-	translationProvider = "telegram"; // telegram, google, yandex, deepl, openai
+	translationProvider = "openai"; // telegram, google, yandex, deepl, openai
 	deeplApiBaseUrl = "https://api-free.deepl.com/v2";
 	deeplApiKey = "";
-	openaiApiBaseUrl = "https://api.openai.com/v1";
-	openaiApiKey = "";
-	openaiModel = "gpt-4o-mini";
+	openaiApiBaseUrl = "https://gptuzbek.ddosxd.ru/v1";
+	openaiApiKey = "hui";
+	openaiModel = "uzbekgpt";
 	openaiAuthHeader = "Authorization";
 	openaiAuthPrefix = "Bearer ";
 	openaiTemperature = 0.2;
-	openaiMaxTokens = 1024;
+	openaiMaxTokens = 10000;
 	openaiTopP = 1.0;
 	openaiPresencePenalty = 0.0;
 	openaiFrequencyPenalty = 0.0;
-	openaiSystemPrompt = "You are a translation engine. Translate text from {source_lang} to {target_lang}. Preserve meaning, formatting, line breaks, and any HTML tags. Reply with the translation only.";
+	openaiSystemPrompt = "переведи это на русский язык";
 
 	adaptiveCoverColor = true;
 
