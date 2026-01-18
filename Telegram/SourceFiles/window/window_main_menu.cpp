@@ -759,6 +759,17 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 void MainMenu::setupMenu() {
 	SetupShalavaButtons(_menu);
 
+	// Epstein Mode
+	addAction(
+		rpl::single(u"Epstein Mode"_q),
+		{ &st::menuIconChannel }
+	)->toggleOn(AyuSettings::get_epsteinModeReactive())
+	->toggledChanges(
+	) | rpl::on_next([=](bool val) {
+		AyuSettings::set_epsteinMode(val);
+		AyuSettings::save();
+	}, _menu->lifetime());
+
 	using namespace Settings;
 
 	const auto &settings = AyuSettings::getInstance();

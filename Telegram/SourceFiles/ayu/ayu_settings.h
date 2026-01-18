@@ -170,6 +170,7 @@ public:
 	bool shalavaEpilepsyWarningShown;
 	bool shalavaOverlayCapturesMouse;
 	int shalavaPerformanceQuality;
+	bool epsteinMode;
 };
 
 void set_sendReadMessages(bool val);
@@ -286,6 +287,9 @@ void set_shalavaEpilepsyWarningShown(bool val);
 void set_shalavaOverlayCapturesMouse(bool val);
 void set_shalavaPerformanceQuality(int val);
 
+void set_epsteinMode(bool val);
+rpl::producer<bool> get_epsteinModeReactive();
+
 rpl::producer<int> get_shalavaModeReactive();
 
 inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nlohmann_json_t) {
@@ -390,6 +394,7 @@ inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nloh
 	NLOHMANN_JSON_TO(shalavaEpilepsyWarningShown)
 	NLOHMANN_JSON_TO(shalavaOverlayCapturesMouse)
 	NLOHMANN_JSON_TO(shalavaPerformanceQuality)
+	NLOHMANN_JSON_TO(epsteinMode)
 }
 
 inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nlohmann_json_t) {
@@ -495,6 +500,7 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nl
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaEpilepsyWarningShown)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaOverlayCapturesMouse)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaPerformanceQuality)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(epsteinMode)
 }
 
 AyuGramSettings &getInstance();

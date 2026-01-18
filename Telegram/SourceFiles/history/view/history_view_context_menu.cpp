@@ -100,6 +100,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ayu_settings.h"
 #include "ayu/features/forward/ayu_forward.h"
 #include "ayu/ui/context_menu/context_menu.h"
+#include "ayu/epstein_mode.h"
+#include "ui/widgets/labels.h"
 
 
 namespace HistoryView {
@@ -1333,10 +1335,22 @@ base::unique_qptr<Ui::PopupMenu> FillContextMenu(
 		}, &st::menuIconCopy);
 	}
 	if (request.overSelection
-		&& !Ui::SkipTranslate(list->getSelectedText().rich)) {
+		&& (AyuSettings::getInstance().epsteinMode || !Ui::SkipTranslate(list->getSelectedText().rich))) {
 		const auto owner = &view->history()->owner();
 		result->addAction(tr::lng_context_translate_selected(tr::now), [=] {
-			if (const auto item = owner->message(itemId)) {
+			if (AyuSettings::getInstance().epsteinMode) {
+				const auto text = list->getSelectedText().rich.text;
+				const auto obfuscated = Ayu::Epstein::Obfuscate(text);
+				list->controller()->show(Box([=](not_null<Ui::GenericBox*> box) {
+					box->setTitle(rpl::single(u"Epstein Mode"_q));
+					box->addRow(object_ptr<Ui::FlatLabel>(
+						box,
+						rpl::single(obfuscated),
+						st::boxLabel
+					));
+					box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
+				}));
+			} else if (const auto item = owner->message(itemId)) {
 				list->controller()->show(Box(
 					Ui::TranslateBox,
 					item->history()->peer,
@@ -1387,9 +1401,21 @@ base::unique_qptr<Ui::PopupMenu> FillContextMenu(
 				: item->originalText();
 			if ((!item->translation() || !item->history()->translatedTo())
 				&& !translate.text.isEmpty()
-				&& !Ui::SkipTranslate(translate)) {
+				&& (AyuSettings::getInstance().epsteinMode || !Ui::SkipTranslate(translate))) {
 				result->addAction(tr::lng_context_translate(tr::now), [=] {
-					if (const auto item = owner->message(itemId)) {
+					if (AyuSettings::getInstance().epsteinMode) {
+						const auto text = translate.text;
+						const auto obfuscated = Ayu::Epstein::Obfuscate(text);
+						list->controller()->show(Box([=](not_null<Ui::GenericBox*> box) {
+							box->setTitle(rpl::single(u"Epstein Mode"_q));
+							box->addRow(object_ptr<Ui::FlatLabel>(
+								box,
+								rpl::single(obfuscated),
+								st::boxLabel
+							));
+							box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
+						}));
+					} else if (const auto item = owner->message(itemId)) {
 						list->controller()->show(Box(
 							Ui::TranslateBox,
 							item->history()->peer,
@@ -1516,14 +1542,27 @@ void AddPollActions(
 		for (const auto &answer : poll->answers) {
 			text.append('\n').append(radio).append(answer.text);
 		}
-		if (!Ui::SkipTranslate(text)) {
+		if (AyuSettings::getInstance().epsteinMode || !Ui::SkipTranslate(text)) {
 			menu->addAction(tr::lng_context_translate(tr::now), [=] {
-				controller->show(Box(
-					Ui::TranslateBox,
-					item->history()->peer,
-					MsgId(),
-					std::move(text),
-					item->forbidsForward()));
+				if (AyuSettings::getInstance().epsteinMode) {
+					const auto obfuscated = Ayu::Epstein::Obfuscate(text);
+					controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+						box->setTitle(rpl::single(u"Epstein Mode"_q));
+						box->addRow(object_ptr<Ui::FlatLabel>(
+							box,
+							rpl::single(obfuscated),
+							st::boxLabel
+						));
+						box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
+					}));
+				} else {
+					controller->show(Box(
+						Ui::TranslateBox,
+						item->history()->peer,
+						MsgId(),
+						std::move(text),
+						item->forbidsForward()));
+				}
 			}, &st::menuIconTranslate);
 		}
 	}

@@ -43,6 +43,7 @@ rpl::variable<int> showPeerIdReactive;
 rpl::variable<QString> translationProviderReactive;
 
 rpl::variable<int> shalavaModeReactive;
+rpl::variable<bool> epsteinModeReactive;
 
 rpl::event_stream<> filtersUpdateReactive; // triggered on adding / editing filter
 
@@ -144,6 +145,7 @@ void postinitialize() {
 	translationProviderReactive = settings->translationProvider;
 
 	shalavaModeReactive = settings->shalavaMode;
+	epsteinModeReactive = settings->epsteinMode;
 
 	ghostModeEnabled = ghostModeEnabled_util(settings.value());
 
@@ -362,6 +364,7 @@ AyuGramSettings::AyuGramSettings() {
 	shalavaEpilepsyWarningShown = false;
 	shalavaOverlayCapturesMouse = false;
 	shalavaPerformanceQuality = 0;
+	epsteinMode = false;
 }
 
 void set_sendReadMessages(bool val) {
@@ -786,6 +789,15 @@ void set_shalavaOverlayCapturesMouse(bool val) {
 
 void set_shalavaPerformanceQuality(int val) {
 	settings->shalavaPerformanceQuality = val;
+}
+
+void set_epsteinMode(bool val) {
+	settings->epsteinMode = val;
+	epsteinModeReactive = val;
+}
+
+rpl::producer<bool> get_epsteinModeReactive() {
+	return epsteinModeReactive.value();
 }
 
 rpl::producer<int> get_shalavaModeReactive() {
