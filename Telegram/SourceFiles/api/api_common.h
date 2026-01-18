@@ -74,6 +74,8 @@ struct MessageToSend {
 	SendAction action;
 	TextWithTags textWithTags;
 	Data::WebPageDraft webPage;
+	bool shamalaSkipped = false;
+	QString originalText;
 };
 
 struct RemoteFileInfo {

@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "history/view/controls/history_view_compose_controls.h"
 
+#include "ayu/shamala_chat.h"
 #include "base/call_delayed.h"
 #include "base/event_filter.h"
 #include "base/platform/base_platform_info.h"
@@ -3777,7 +3778,12 @@ void ComposeControls::editMessage(not_null<HistoryItem*> item) {
 	if (!isEditingMessage()) {
 		saveFieldToHistoryLocalDraft();
 	}
-	const auto editData = PrepareEditText(item);
+	auto editData = PrepareEditText(item);
+	if (const auto original = Ayu::ShamalaChat::instance().getOriginal(item->fullId()); !original.isEmpty()) {
+		editData.text = original;
+		editData.tags.clear();
+	}
+
 	const auto cursor = MessageCursor{
 		int(editData.text.size()),
 		int(editData.text.size()),

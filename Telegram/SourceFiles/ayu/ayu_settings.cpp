@@ -145,6 +145,7 @@ void postinitialize() {
 	translationProviderReactive = settings->translationProvider;
 
 	shalavaModeReactive = settings->shalavaMode;
+	shalavaChatModeReactive = settings->shalavaChatMode;
 	epsteinModeReactive = settings->epsteinMode;
 
 	ghostModeEnabled = ghostModeEnabled_util(settings.value());
@@ -364,6 +365,7 @@ AyuGramSettings::AyuGramSettings() {
 	shalavaEpilepsyWarningShown = false;
 	shalavaOverlayCapturesMouse = false;
 	shalavaPerformanceQuality = 0;
+	shalavaChatMode = false;
 	epsteinMode = false;
 }
 
@@ -791,6 +793,11 @@ void set_shalavaPerformanceQuality(int val) {
 	settings->shalavaPerformanceQuality = val;
 }
 
+void set_shalavaChatMode(bool val) {
+	settings->shalavaChatMode = val;
+	shalavaChatModeReactive = val;
+}
+
 void set_epsteinMode(bool val) {
 	settings->epsteinMode = val;
 	epsteinModeReactive = val;
@@ -802,6 +809,10 @@ rpl::producer<bool> get_epsteinModeReactive() {
 
 rpl::producer<int> get_shalavaModeReactive() {
 	return shalavaModeReactive.value();
+}
+
+rpl::producer<bool> get_shalavaChatModeReactive() {
+	return shalavaChatModeReactive.value();
 }
 
 }

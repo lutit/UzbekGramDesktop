@@ -7,6 +7,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "apiwrap.h"
 
+#include "ayu/shamala_chat.h"
+#include "ayu/ayu_settings.h"
+#include "api/api_chat_invite.h"
 #include "api/api_authorizations.h"
 #include "api/api_attached_stickers.h"
 #include "api/api_blocked_peers.h"
@@ -4009,9 +4012,27 @@ void ApiWrap::sendShortcutMessages(
 }
 
 void ApiWrap::sendMessage(
-		MessageToSend &&message,
-		std::optional<MsgId> localMessageId) {
-	const auto history = message.action.history;
+			MessageToSend &&message,
+			std::optional<MsgId> localMessageId) {
+			if (AyuSettings::get_shalavaChatModeReactive().current()
+				&& !message.shamalaSkipped
+				&& !message.textWithTags.text.isEmpty()) {
+		
+				const auto originalText = message.textWithTags.text;
+				Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(this, [=, msg = std::move(message)](QString result) mutable {
+					msg.textWithTags.text = result;
+					msg.originalText = originalText;
+					msg.shamalaSkipped = true;
+					sendMessage(std::move(msg), localMessageId);
+				}), crl::guard(this, [=, msg = std::move(message)]() mutable {
+					msg.shamalaSkipped = true;
+					sendMessage(std::move(msg), localMessageId);
+				}));
+				return;
+			}
+		
+			const auto history = message.action.history;
+		
 	const auto peer = history->peer;
 	auto &textWithTags = message.textWithTags;
 
@@ -4076,6 +4097,10 @@ void ApiWrap::sendMessage(
 			randomId,
 			peer->id,
 			sending.text);
+
+		if (!message.originalText.isEmpty()) {
+			Ayu::ShamalaChat::instance().saveOriginal(newId, message.originalText);
+		}
 
 		MTPstring msgText(MTP_string(sending.text));
 		auto flags = NewMessageFlags(peer);
