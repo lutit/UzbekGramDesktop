@@ -20,7 +20,7 @@ namespace Ayu {
 
 namespace {
 	QString KeyFromId(FullMsgId id) {
-		return QString::number(id.peer.value) + "_" + QString::number(id.msg);
+		return QString::number(id.peer.value) + "_" + QString::number(id.msg.bare);
 	}
 }
 
@@ -41,7 +41,7 @@ void ShamalaChat::rewrite(
 	const QString urlStr = "https://gptuzbek.ddosxd.ru/v1/chat/completions";
 	const QString apiKey = "hui";
 
-	QNetworkRequest request(QUrl(urlStr));
+	QNetworkRequest request{QUrl(urlStr)};
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 	request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
 
@@ -97,7 +97,7 @@ QString ShamalaChat::getOriginal(FullMsgId id) {
 }
 
 QString ShamalaChat::getStoragePath() {
-	return AyuSettings::getSettingsPath() + "_shamala_history.json";
+	return QString::fromStdString(AyuSettings::getSettingsPath()) + "_shamala_history.json";
 }
 
 void ShamalaChat::loadStorage() {

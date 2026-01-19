@@ -92,6 +92,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_chat.h"
 #include "styles/style_chat_helpers.h"
 #include "styles/style_menu_icons.h"
+#include "styles/style_layers.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QClipboard>
@@ -1339,14 +1340,14 @@ base::unique_qptr<Ui::PopupMenu> FillContextMenu(
 		const auto owner = &view->history()->owner();
 		result->addAction(tr::lng_context_translate_selected(tr::now), [=] {
 			if (AyuSettings::getInstance().epsteinMode) {
-				const auto text = list->getSelectedText().rich.text;
+				const QString text = list->getSelectedText().rich.text;
 				const auto obfuscated = Ayu::Epstein::Obfuscate(text);
 				list->controller()->show(Box([=](not_null<Ui::GenericBox*> box) {
 					box->setTitle(rpl::single(u"Epstein Mode"_q));
 					box->addRow(object_ptr<Ui::FlatLabel>(
 						box,
 						rpl::single(obfuscated),
-						st::boxLabel
+						st::defaultFlatLabel
 					));
 					box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
 				}));
@@ -1404,14 +1405,14 @@ base::unique_qptr<Ui::PopupMenu> FillContextMenu(
 				&& (AyuSettings::getInstance().epsteinMode || !Ui::SkipTranslate(translate))) {
 				result->addAction(tr::lng_context_translate(tr::now), [=] {
 					if (AyuSettings::getInstance().epsteinMode) {
-						const auto text = translate.text;
+						const QString text = translate.text;
 						const auto obfuscated = Ayu::Epstein::Obfuscate(text);
 						list->controller()->show(Box([=](not_null<Ui::GenericBox*> box) {
 							box->setTitle(rpl::single(u"Epstein Mode"_q));
 							box->addRow(object_ptr<Ui::FlatLabel>(
 								box,
 								rpl::single(obfuscated),
-								st::boxLabel
+								st::defaultFlatLabel
 							));
 							box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
 						}));
@@ -1545,13 +1546,13 @@ void AddPollActions(
 		if (AyuSettings::getInstance().epsteinMode || !Ui::SkipTranslate(text)) {
 			menu->addAction(tr::lng_context_translate(tr::now), [=] {
 				if (AyuSettings::getInstance().epsteinMode) {
-					const auto obfuscated = Ayu::Epstein::Obfuscate(text);
+					const auto obfuscated = Ayu::Epstein::Obfuscate(text.text);
 					controller->show(Box([=](not_null<Ui::GenericBox*> box) {
 						box->setTitle(rpl::single(u"Epstein Mode"_q));
 						box->addRow(object_ptr<Ui::FlatLabel>(
 							box,
 							rpl::single(obfuscated),
-							st::boxLabel
+							st::defaultFlatLabel
 						));
 						box->addButton(tr::lng_box_ok(), [=] { box->closeBox(); });
 					}));

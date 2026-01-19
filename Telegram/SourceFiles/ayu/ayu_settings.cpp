@@ -43,6 +43,7 @@ rpl::variable<int> showPeerIdReactive;
 rpl::variable<QString> translationProviderReactive;
 
 rpl::variable<int> shalavaModeReactive;
+rpl::variable<bool> shalavaChatModeReactive;
 rpl::variable<bool> epsteinModeReactive;
 
 rpl::event_stream<> filtersUpdateReactive; // triggered on adding / editing filter

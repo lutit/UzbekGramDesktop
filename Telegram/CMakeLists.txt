@@ -138,6 +138,7 @@ set(ayugram_files
         ayu/shamala_chat.cpp
         ayu/shamala_chat.h
         ayu/ui/ayu_logo.cpp
+        ayu/ui/utils/ayu_profile_values.cpp
         ayu/ui/utils/ayu_profile_values.h
         ayu/ui/utils/color_cut_quantizer.cpp
         ayu/ui/utils/color_cut_quantizer.h

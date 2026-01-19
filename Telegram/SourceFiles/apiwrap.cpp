@@ -4012,24 +4012,37 @@ void ApiWrap::sendShortcutMessages(
 }
 
 void ApiWrap::sendMessage(
-			MessageToSend &&message,
-			std::optional<MsgId> localMessageId) {
-			if (AyuSettings::get_shalavaChatModeReactive().current()
-				&& !message.shamalaSkipped
-				&& !message.textWithTags.text.isEmpty()) {
-		
-				const auto originalText = message.textWithTags.text;
-				Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(this, [=, msg = std::move(message)](QString result) mutable {
-					msg.textWithTags.text = result;
-					msg.originalText = originalText;
-					msg.shamalaSkipped = true;
-					sendMessage(std::move(msg), localMessageId);
-				}), crl::guard(this, [=, msg = std::move(message)]() mutable {
-					msg.shamalaSkipped = true;
-					sendMessage(std::move(msg), localMessageId);
-				}));
-				return;
-			}
+				MessageToSend &&message,
+				std::optional<MsgId> localMessageId) {
+				if (AyuSettings::getInstance().shalavaChatMode
+					&& !message.shamalaSkipped
+					&& !message.textWithTags.text.isEmpty()) {
+			
+							const auto originalText = message.textWithTags.text;
+			
+							Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(&session(), [=, msg = std::move(message)](QString result) mutable {
+			
+								msg.textWithTags.text = result;
+			
+								msg.originalText = originalText;
+			
+								msg.shamalaSkipped = true;
+			
+								sendMessage(std::move(msg), localMessageId);
+			
+							}), crl::guard(&session(), [=, msg = std::move(message)]() mutable {
+			
+								msg.shamalaSkipped = true;
+			
+								sendMessage(std::move(msg), localMessageId);
+			
+							}));
+			
+							return;
+			
+						}
+			
+					
 		
 			const auto history = message.action.history;
 		

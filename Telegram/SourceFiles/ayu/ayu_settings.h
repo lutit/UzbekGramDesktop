@@ -172,8 +172,6 @@ public:
 	int shalavaPerformanceQuality;
 	bool shalavaChatMode;
 	bool epsteinMode;
-
-	AyuGramSettings();
 };
 
 void set_sendReadMessages(bool val);
@@ -514,6 +512,8 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nl
 }
 
 AyuGramSettings &getInstance();
+
+std::string getSettingsPath();
 
 void load();
 void save();
