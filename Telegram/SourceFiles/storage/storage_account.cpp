@@ -2314,6 +2314,9 @@ void Account::writeInstalledStickers() {
 	using SetFlag = Data::StickersSetFlag;
 
 	writeStickerSets(_installedStickersKey, [](const Data::StickersSet &set) {
+		if (set.id != Data::Stickers::UzbekAllowedSetId) {
+			return StickerSetCheckResult::Skip;
+		}
 		if (set.id == Data::Stickers::CloudRecentSetId
 			|| set.id == Data::Stickers::FavedSetId
 			|| set.id == Data::Stickers::CloudRecentAttachedSetId
@@ -2342,17 +2345,10 @@ void Account::writeFeaturedStickers() {
 	using SetFlag = Data::StickersSetFlag;
 
 	writeStickerSets(_featuredStickersKey, [](const Data::StickersSet &set) {
-		if (set.id == Data::Stickers::CloudRecentSetId
-			|| set.id == Data::Stickers::FavedSetId
-			|| set.id == Data::Stickers::CloudRecentAttachedSetId
-			|| set.id == Data::Stickers::CollectibleSetId) {
-			// separate files for them
+		if (set.id != Data::Stickers::UzbekAllowedSetId) {
 			return StickerSetCheckResult::Skip;
-		} else if ((set.flags & SetFlag::Special)
-			|| !(set.flags & SetFlag::Featured)
-			|| (set.type() != Data::StickersType::Stickers)) {
-			return StickerSetCheckResult::Skip;
-		} else if (set.flags & SetFlag::NotLoaded) { // waiting to receive
+		}
+		if (set.flags & SetFlag::NotLoaded) { // waiting to receive
 			return StickerSetCheckResult::Abort;
 		} else if (set.stickers.isEmpty()) {
 			return StickerSetCheckResult::Skip;

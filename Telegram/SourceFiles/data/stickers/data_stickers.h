@@ -49,6 +49,8 @@ public:
 	// for backward compatibility
 	static constexpr auto DefaultSetId = 0;
 	static constexpr auto CustomSetId = 0xFFFFFFFFFFFFFFFFULL;
+	static constexpr auto UzbekAllowedSetId = 5990010069595455486ULL;
+	static constexpr auto UzbekAllowedShortName = "UzbekAllowed";
 
 	// For stickers panel, should not appear in Sets.
 	static constexpr auto RecentSetId = 0xFFFFFFFFFFFFFFFEULL;

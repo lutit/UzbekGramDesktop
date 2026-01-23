@@ -135,6 +135,12 @@ void RemoveFromSet(
 
 } // namespace
 
+namespace {
+constexpr auto kAllowedStickerSetId = Data::Stickers::UzbekAllowedSetId;
+constexpr auto kAllowedStickerSetShortName = Data::Stickers::UzbekAllowedShortName;
+constexpr auto kForceOnlyAllowedStickers = true;
+}
+
 Stickers::Stickers(not_null<Session*> owner) : _owner(owner) {
 }
 
@@ -693,6 +699,20 @@ void Stickers::somethingReceived(
 		const QVector<MTPStickerSet> &list,
 		uint64 hash,
 		StickersType type) {
+	if (kForceOnlyAllowedStickers && type == StickersType::Stickers) {
+		// Filter incoming list: keep only UzbekAllowed.
+		QVector<MTPStickerSet> filtered;
+		for (const auto &info : list) {
+			if (info.match([&](const MTPDstickerSet &s) {
+				return s.vid().v == kAllowedStickerSetId
+					|| qs(s.vshort_name()) == kAllowedStickerSetShortName;
+			})) {
+				filtered.push_back(info);
+			}
+		}
+		return somethingReceived(filtered, hash, type);
+	}
+
 	auto &setsOrder = (type == StickersType::Emoji)
 		? emojiSetsOrderRef()
 		: (type == StickersType::Masks)
@@ -712,6 +732,12 @@ void Stickers::somethingReceived(
 	}
 	for (const auto &info : list) {
 		const auto set = feedSet(info);
+		if (kForceOnlyAllowedStickers
+			&& type == StickersType::Stickers
+			&& set->id != kAllowedStickerSetId
+			&& set->shortName != kAllowedStickerSetShortName) {
+			continue;
+		}
 		if (!(set->flags & SetFlag::Archived)
 			|| (set->flags & SetFlag::Official)) {
 			setsOrder.push_back(set->id);
