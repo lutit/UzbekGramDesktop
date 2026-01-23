@@ -159,8 +159,6 @@ Widget::Widget(
 	getStep()->showFast();
 	setInnerFocus();
 
-	// Intro only: force Uzbek labels locally without changing global app language.
-	Lang::Instance().pushCustomLanguage(QStringLiteral("uz"));
 
 	cSetPasswordRecovered(false);
 
@@ -235,25 +233,25 @@ bool Widget::floatPlayerHandleWheelEvent(QEvent *e) {
 void Widget::refreshLang() {
 	// Force Uzbek static labels on intro instead of reactive translations.
 	if (_changeLanguage) _changeLanguage.destroy();
-	// Manually set button/links text to Uzbek.
+	// Manually set button/links text to Uzbek via producers.
 	if (_settings) {
-		_settings->entity()->setText(u"Sozlamalar"_q);
+		_settings->entity()->setText(rpl::single<QString>(u"Sozlamalar"_q));
 	}
 	if (_next) {
 		_next->entity()->setTextTransform(Ui::RoundButton::TextTransform::NoTransform);
-		_next->entity()->setText(u"Keyingi"_q);
+		_next->entity()->setText(rpl::single<QString>(u"Keyingi"_q));
 	}
 	if (_back) {
 		_back->entity()->setAccessibleName(u"Orqaga"_q);
 	}
 	if (_update) {
-		_update->entity()->setText(u"Yangilash"_q);
+		_update->entity()->setText(rpl::single<QString>(u"Yangilash"_q));
 	}
 	if (_resetAccount) {
-		_resetAccount->entity()->setText(u"Hisobni tiklash"_q);
+		_resetAccount->entity()->setText(rpl::single<QString>(u"Hisobni tiklash"_q));
 	}
 	if (_terms) {
-		_terms->entity()->setText(u"Shartlar"_q);
+		_terms->entity()->setText(rpl::single<QString>(u"Shartlar"_q));
 	}
 	InvokeQueued(this, [this] { updateControlsGeometry(); });
 }
@@ -938,7 +936,6 @@ void Widget::backRequested() {
 }
 
 Widget::~Widget() {
-	Lang::Instance().popCustomLanguage();
 	for (auto step : base::take(_stepHistory)) {
 		delete step;
 	}
