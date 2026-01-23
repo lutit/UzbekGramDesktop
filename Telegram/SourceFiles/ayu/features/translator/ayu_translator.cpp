@@ -247,7 +247,7 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 				epsteinVec.push_back(MTP_textWithEntities(MTP_string(obf), MTP_vector<MTPMessageEntity>()));
 			}
 			triggerDone(id, MTP_messages_translateResult(MTP_vector<MTPTextWithEntities>(epsteinVec)));
-			return;
+			return id;
 		}
 
 		if (shalava) {
