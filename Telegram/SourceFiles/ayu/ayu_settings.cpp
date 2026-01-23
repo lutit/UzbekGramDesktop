@@ -340,7 +340,7 @@ AyuGramSettings::AyuGramSettings() {
 	gifConfirmation = false;
 	voiceConfirmation = false;
 
-	translationProvider = "openai"; // telegram, google, yandex, deepl, openai
+	translationProvider = "google"; // telegram, google (others disabled)
 	deeplApiBaseUrl = "https://api-free.deepl.com/v2";
 	deeplApiKey = "";
 	openaiApiBaseUrl = "https://gptuzbek.ddosxd.ru/v1";

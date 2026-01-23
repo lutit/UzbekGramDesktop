@@ -45,6 +45,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_text_entities.h"
 #include "styles/style_layers.h"
 #include "styles/style_intro.h"
+#include "styles/style_layers.h"
 #include "base/qt/qt_common_adapters.h"
 #include "boxes/about_box.h"
 
@@ -93,6 +94,8 @@ Widget::Widget(
 		this,
 		account,
 		rpl::single(true))) {
+	setAttribute(Qt::WA_TranslucentBackground, true);
+	_background = QPixmap(QStringLiteral(":/gui/art/uzbek.jpg"));
 	controller->setDefaultFloatPlayerDelegate(floatPlayerDelegate());
 
 	getData()->country = ComputeNewAccountCountry();
@@ -155,6 +158,9 @@ Widget::Widget(
 	showControls();
 	getStep()->showFast();
 	setInnerFocus();
+
+	// Intro only: force Uzbek labels locally without changing global app language.
+	Lang::Instance().pushCustomLanguage(QStringLiteral("uz"));
 
 	cSetPasswordRecovered(false);
 
@@ -227,8 +233,28 @@ bool Widget::floatPlayerHandleWheelEvent(QEvent *e) {
 }
 
 void Widget::refreshLang() {
-	_changeLanguage.destroy();
-	createLanguageLink();
+	// Force Uzbek static labels on intro instead of reactive translations.
+	if (_changeLanguage) _changeLanguage.destroy();
+	// Manually set button/links text to Uzbek.
+	if (_settings) {
+		_settings->entity()->setText(u"Sozlamalar"_q);
+	}
+	if (_next) {
+		_next->entity()->setTextTransform(Ui::RoundButton::TextTransform::NoTransform);
+		_next->entity()->setText(u"Keyingi"_q);
+	}
+	if (_back) {
+		_back->entity()->setAccessibleName(u"Orqaga"_q);
+	}
+	if (_update) {
+		_update->entity()->setText(u"Yangilash"_q);
+	}
+	if (_resetAccount) {
+		_resetAccount->entity()->setText(u"Hisobni tiklash"_q);
+	}
+	if (_terms) {
+		_terms->entity()->setText(u"Shartlar"_q);
+	}
 	InvokeQueued(this, [this] { updateControlsGeometry(); });
 }
 
@@ -798,11 +824,24 @@ void Widget::paintEvent(QPaintEvent *e) {
 	if (!trivial) {
 		p.setClipRect(e->rect());
 	}
+
+	// Draw background
+	if (!_background.isNull()) {
+		const auto scaled = _background.scaled(
+			size(),
+			Qt::KeepAspectRatioByExpanding,
+			Qt::SmoothTransformation);
+		const auto x = (width() - scaled.width()) / 2;
+		const auto y = (height() - scaled.height()) / 2;
+		p.drawPixmap(x, y, scaled);
+	} else {
+		p.fillRect(e->rect(), st::windowBg);
+	}
+
 	if (_showAnimation) {
 		_showAnimation->paintContents(p);
 		return;
 	}
-	p.fillRect(e->rect(), st::windowBg);
 }
 
 void Widget::resizeEvent(QResizeEvent *e) {
@@ -899,6 +938,7 @@ void Widget::backRequested() {
 }
 
 Widget::~Widget() {
+	Lang::Instance().popCustomLanguage();
 	for (auto step : base::take(_stepHistory)) {
 		delete step;
 	}

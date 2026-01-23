@@ -21,6 +21,7 @@
 #include "implementations/yandex.h"
 #include "implementations/deepl.h"
 #include "implementations/openai.h"
+#include "ayu/epstein_mode.h"
 #include "main/main_session.h"
 
 // todo: expose available languages from current translator and use in `ChooseTranslateToBox`
@@ -201,8 +202,8 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 				MTP_string(translatedText.text),
 				Api::EntitiesToMTP(session, translatedText.entities)));
 		}
-		const auto result = MTP_messages_translateResult(MTP_vector<MTPTextWithEntities>(vec));
-		triggerDone(id, result);
+	const auto result = MTP_messages_translateResult(MTP_vector<MTPTextWithEntities>(vec));
+	triggerDone(id, result);
 	};
 
 	CallbackFail onFail = [this, id]
@@ -230,18 +231,34 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 
 	if (const auto it = _pending.find(id); it != _pending.end()) {
 		const auto &settings = AyuSettings::getInstance();
-		if (settings.translationProvider == "telegram") {
-			it->second.cancel = TelegramTranslator::instance().startTranslation(args);
-		} else if (settings.translationProvider == "yandex") {
-			it->second.cancel = YandexTranslator::instance().startTranslation(args);
-		} else if (settings.translationProvider == "google") {
-			it->second.cancel = GoogleTranslator::instance().startTranslation(args);
-		} else if (settings.translationProvider == "deepl") {
-			it->second.cancel = DeepLTranslator::instance().startTranslation(args);
-		} else if (settings.translationProvider == "openai") {
+		const auto epstein = settings.epsteinMode;
+		const auto shalava = (settings.shalavaMode > 0);
+
+		const auto startUzbekGpt = [&] {
 			it->second.cancel = OpenAITranslator::instance().startTranslation(args);
+		};
+
+		if (epstein) {
+			// Epstein: force custom obfuscation on texts, skip remote translation.
+			QVector<MTPTextWithEntities> epsteinVec;
+			epsteinVec.reserve(texts.size());
+			for (const auto &tw : texts) {
+				const auto obf = Ayu::Epstein::Obfuscate(tw.text);
+				epsteinVec.push_back(MTP_textWithEntities(MTP_string(obf), MTP_vector<MTPMessageEntity>()));
+			}
+			triggerDone(id, MTP_messages_translateResult(MTP_vector<MTPTextWithEntities>(epsteinVec)));
+			return;
+		}
+
+		if (shalava) {
+			startUzbekGpt();
 		} else {
-			it->second.cancel = TelegramTranslator::instance().startTranslation(args);
+			// Only allow google or telegram; default google.
+			if (settings.translationProvider == "telegram") {
+				it->second.cancel = TelegramTranslator::instance().startTranslation(args);
+			} else {
+				it->second.cancel = GoogleTranslator::instance().startTranslation(args);
+			}
 		}
 	}
 
