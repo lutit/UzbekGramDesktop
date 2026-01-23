@@ -1,0 +1,68 @@
+name: Quick Build (Linux)
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: quick-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quick-build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    env:
+      API_ID: 2040
+      API_HASH: b18441a1ff607e10a989891a5462e627
+      WORKDIR: ${{ runner.temp }}/tdesktop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Free space before build
+        run: |
+          sudo rm -rf /opt/ghc /usr/local/lib/android /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+          sudo apt-get clean
+          df -h
+
+      - name: Prepare workspace (slim copy)
+        run: |
+          mkdir -p "$WORKDIR"
+          rsync -a --delete --exclude '.git' ./ "$WORKDIR"/
+
+      - name: Run configure+build (Debug, minimal)
+        run: |
+          cd "$WORKDIR"
+          docker run --rm -i \
+            -u "$(id -u)" \
+            -v "$WORKDIR:/usr/src/tdesktop" \
+            -e CONFIG=Debug \
+            ghcr.io/telegramdesktop/tdesktop/centos_env:latest \
+            /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+              -D TDESKTOP_API_ID=$API_ID \
+              -D TDESKTOP_API_HASH=$API_HASH
+
+      - name: Keep only log + small artifact
+        if: always()
+        run: |
+          cd "$WORKDIR"
+          ls -R out | head -n 200 || true
+          tar czf "$RUNNER_TEMP/quick-build-logs.tar.gz" out || true
+          ls -lh "$RUNNER_TEMP/quick-build-logs.tar.gz" || true
+
+      - name: Upload quick-build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quick-build-logs
+          path: ${{ runner.temp }}/quick-build-logs.tar.gz
+          retention-days: 3
+
+      - name: Disk usage after
+        if: always()
+        run: df -h

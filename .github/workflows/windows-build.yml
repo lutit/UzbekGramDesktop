@@ -1,0 +1,85 @@
+name: Build (Windows)
+
+on:
+  # Run manually when a Windows build is needed.
+  workflow_dispatch:
+  # Allow reuse from other workflows if ever needed.
+  workflow_call:
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Git
+        run: |
+          choco install git --no-progress --yes
+
+      - name: Prepare ThirdParty and Libraries cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}\ThirdParty
+            ${{ github.workspace }}\Libraries
+          key: windows-thirdparty-${{ runner.os }}-${{ hashFiles('Telegram/build/prepare/**', 'Telegram/build/prepare/win.bat', 'Telegram/qt.conf') }}
+          restore-keys: |
+            windows-thirdparty-${{ runner.os }}-
+
+      - name: Run prepare script (Native Tools)
+        shell: cmd
+        run: |
+          call "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat"
+          cd /d %GITHUB_WORKSPACE%\Telegram\build\prepare
+          win.bat qt6
+
+      - name: Configure
+        shell: cmd
+        run: |
+          call "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat"
+          cd /d %GITHUB_WORKSPACE%\Telegram
+          configure.bat x64 -D TDESKTOP_API_ID=2040 -D TDESKTOP_API_HASH=b18441a1ff607e10a989891a5462e627
+
+      - name: Build Release
+        shell: cmd
+        run: |
+          call "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat"
+          cmake --build "%GITHUB_WORKSPACE%\out" --config Release --target Telegram
+
+      - name: Archive full Release output
+        if: success()
+        shell: pwsh
+        run: |
+          $src = "$env:GITHUB_WORKSPACE\out\Release\Telegram"
+          $dst = "$env:GITHUB_WORKSPACE\out\windows-release.zip"
+          if (Test-Path $dst) { Remove-Item $dst }
+          Compress-Archive -Path "$src\*" -DestinationPath $dst
+          Get-ChildItem $dst | Format-List Name,Length
+
+      - name: Upload Release artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-telegram-release
+          path: ${{ github.workspace }}\out\windows-release.zip
+          retention-days: 14
+
+      - name: Show disk usage
+        if: always()
+        run: |
+          echo "Disk usage after build:"
+          Get-PSDrive -PSProvider FileSystem | Sort-Object Used -Descending
