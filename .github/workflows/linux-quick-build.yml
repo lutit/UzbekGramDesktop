@@ -16,7 +16,7 @@ jobs:
     env:
       API_ID: 2040
       API_HASH: b18441a1ff607e10a989891a5462e627
-      WORKDIR: ${{ runner.temp }}/tdesktop
+      WORKDIR: ${{ github.runner_temp }}/tdesktop
 
     steps:
       - name: Checkout
@@ -52,15 +52,15 @@ jobs:
         run: |
           cd "$WORKDIR"
           ls -R out | head -n 200 || true
-          tar czf "$RUNNER_TEMP/quick-build-logs.tar.gz" out || true
-          ls -lh "$RUNNER_TEMP/quick-build-logs.tar.gz" || true
+          tar czf "$GITHUB_RUNNER_TEMP/quick-build-logs.tar.gz" out || true
+          ls -lh "$GITHUB_RUNNER_TEMP/quick-build-logs.tar.gz" || true
 
       - name: Upload quick-build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: quick-build-logs
-          path: ${{ runner.temp }}/quick-build-logs.tar.gz
+          path: ${{ github.runner_temp }}/quick-build-logs.tar.gz
           retention-days: 3
 
       - name: Disk usage after
