@@ -433,14 +433,19 @@ int main(int argc, char *argv[]) {
 					writeLog("No workdir, trying to figure it out");
 					struct passwd *pw = getpwuid(getuid());
 					if (pw && pw->pw_dir && strlen(pw->pw_dir)) {
-						string tryDir = pw->pw_dir + string("/.TelegramDesktop/");
-						struct stat statbuf;
-						writeLog("Trying to use '%s' as workDir, getting stat() for tupdates/ready", tryDir.c_str());
-						if (!stat((tryDir + "tupdates/ready").c_str(), &statbuf)) {
-							writeLog("Stat got");
-							if (S_ISDIR(statbuf.st_mode)) {
-								writeLog("It is directory, using home work dir");
-								workDir = tryDir;
+						std::vector<std::string> tryDirs = {
+							std::string(pw->pw_dir) + "/.UzbekGramDesktop/",
+						};
+						for (const auto &tryDir : tryDirs) {
+							struct stat statbuf;
+							writeLog("Trying to use '%s' as workDir, getting stat() for tupdates/ready", tryDir.c_str());
+							if (!stat((tryDir + "tupdates/ready").c_str(), &statbuf)) {
+								writeLog("Stat got");
+								if (S_ISDIR(statbuf.st_mode)) {
+									writeLog("It is directory, using home work dir");
+									workDir = tryDir;
+									break;
+								}
 							}
 						}
 					}

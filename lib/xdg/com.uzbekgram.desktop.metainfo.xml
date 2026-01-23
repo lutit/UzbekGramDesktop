@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.uzbekgram.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <name>UzbekGram Desktop</name>
+  <summary>Unofficial Telegram client fork (UzbekGram)</summary>
+  <description>
+    <p>UzbekGram Desktop — модифицированный клиент Telegram Desktop.</p>
+  </description>
+  <launchable type="desktop-id">com.uzbekgram.desktop.desktop</launchable>
+  <provides>
+    <binary>uzbekgram</binary>
+  </provides>
+  <releases>
+  </releases>
+  <categories>
+    <category>Network</category>
+    <category>Chat</category>
+    <category>InstantMessaging</category>
+  </categories>
+  <custom>
+    <value key="x-flatpak-com.uzbekgram.desktop.service">com.uzbekgram.desktop</value>
+  </custom>
+  <developer_name>UzbekGram Team</developer_name>
+  <url type="homepage">https://github.com/lutit/UzbekGramDesktop</url>
+  <url type="bugtracker">https://github.com/lutit/UzbekGramDesktop/issues</url>
+  <content_rating type="oars-1.1"/>
+  <translation type="gettext">tdesktop</translation>
+  <icon type="stock">com.uzbekgram.desktop</icon>
+</component>

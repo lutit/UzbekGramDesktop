@@ -686,17 +686,14 @@ QString ExecutablePathForShortcuts() {
 } // namespace Platform
 
 QString psAppDataPath() {
-	// Previously we used ~/.TelegramDesktop, so look there first.
-	// If we find data there, we should still use it.
+	// UzbekGram uses its own data dir to avoid conflicts with upstream Telegram Desktop.
 	auto home = QDir::homePath();
 	if (!home.isEmpty()) {
-		auto oldPath = home + u"/.TelegramDesktop/"_q;
-		auto oldSettingsBase = oldPath + u"tdata/settings"_q;
-		if (QFile::exists(oldSettingsBase + '0')
-			|| QFile::exists(oldSettingsBase + '1')
-			|| QFile::exists(oldSettingsBase + 's')) {
-			return oldPath;
+		auto uzPath = home + u"/.UzbekGramDesktop/"_q;
+		if (!QDir(uzPath).exists()) {
+			QDir().mkpath(uzPath);
 		}
+		return uzPath;
 	}
 
 	return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + '/';

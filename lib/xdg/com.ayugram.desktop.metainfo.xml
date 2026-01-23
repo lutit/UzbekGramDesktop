@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop">
-    <id>com.ayugram.desktop</id>
+    <id>com.uzbekgram.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0</project_license>
-    <name>Desktop Client</name>
-    <summary>Desktop messaging client</summary>
+    <name>UzbekGram</name>
+    <summary>UzbekGram Desktop client</summary>
     <description>
-        <p>UzbekGram Desktop based client.</p>
+        <p>UzbekGram Desktop — модифицированный клиент Telegram Desktop.</p>
     </description>
     <categories>
         <category>Network</category>
         <category>InstantMessaging</category>
     </categories>
-    <update_contact>support_at_telegram.org</update_contact>
-    <developer_name>Telegram</developer_name>
-    <url type="homepage">https://telegram.org/</url>
-    <url type="bugtracker">https://t.me/telegram</url>
+    <developer_name>UzbekGram Team</developer_name>
+    <url type="homepage">https://github.com/lutit/UzbekGramDesktop</url>
+    <url type="bugtracker">https://github.com/lutit/UzbekGramDesktop/issues</url>
     <url type="translate">https://translations.telegram.org/</url>
-    <url type="contribute">https://telegram.org/</url>
+    <url type="contribute">https://github.com/lutit/UzbekGramDesktop</url>
     <screenshots>
       <screenshot type="default">
         <image>https://raw.githubusercontent.com/telegramdesktop/tdesktop/dev/docs/assets/preview.png</image>
@@ -72,8 +71,8 @@
         <content_attribute id="money-gambling">none</content_attribute>
         <content_attribute id="money-advertising">moderate</content_attribute>
     </content_rating>
-    <launchable type="desktop-id">com.ayugram.desktop.desktop</launchable>
+    <launchable type="desktop-id">com.uzbekgram.desktop.desktop</launchable>
     <provides>
-        <binary>AyuGram</binary>
+        <binary>uzbekgram</binary>
     </provides>
 </component>
