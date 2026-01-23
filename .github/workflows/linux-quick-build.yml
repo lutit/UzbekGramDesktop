@@ -16,7 +16,6 @@ jobs:
     env:
       API_ID: 2040
       API_HASH: b18441a1ff607e10a989891a5462e627
-      WORKDIR: ${{ github.runner_temp }}/tdesktop
 
     steps:
       - name: Checkout
@@ -29,6 +28,11 @@ jobs:
           sudo rm -rf /opt/ghc /usr/local/lib/android /usr/share/dotnet /opt/hostedtoolcache/CodeQL
           sudo apt-get clean
           df -h
+
+      - name: Set temp paths
+        run: |
+          echo "WORKDIR=$RUNNER_TEMP/tdesktop" >> $GITHUB_ENV
+          echo "ARTIFACT=$RUNNER_TEMP/quick-build-logs.tar.gz" >> $GITHUB_ENV
 
       - name: Prepare workspace (slim copy)
         run: |
@@ -52,15 +56,15 @@ jobs:
         run: |
           cd "$WORKDIR"
           ls -R out | head -n 200 || true
-          tar czf "$GITHUB_RUNNER_TEMP/quick-build-logs.tar.gz" out || true
-          ls -lh "$GITHUB_RUNNER_TEMP/quick-build-logs.tar.gz" || true
+          tar czf "$ARTIFACT" out || true
+          ls -lh "$ARTIFACT" || true
 
       - name: Upload quick-build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: quick-build-logs
-          path: ${{ github.runner_temp }}/quick-build-logs.tar.gz
+          path: ${{ env.ARTIFACT }}
           retention-days: 3
 
       - name: Disk usage after
