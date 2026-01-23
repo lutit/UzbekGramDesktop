@@ -786,6 +786,31 @@ void MainMenu::setupMenu() {
 		AyuSettings::save();
 	}, _menu->lifetime());
 
+	_menu->add(
+		object_ptr<Ui::PlainShadow>(_menu),
+		{ 0, st::mainMenuSkip, 0, st::mainMenuSkip });
+
+	addAction(
+		rpl::single(QStringLiteral("open quran")),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://tanzil.net/")));
+		});
+
+	addAction(
+		rpl::single(QStringLiteral("open bible")),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://www.biblegateway.com/")));
+		});
+
+	addAction(
+		rpl::single(QStringLiteral("TV")),
+		{ &st::menuIconPhone })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://youtube.com/watch?v=dz1MhkbPthI")));
+		});
+
 	if (!_controller->session().supportMode()) {
 		if (settings.showMyProfileInDrawer)
 		_menu->add(
