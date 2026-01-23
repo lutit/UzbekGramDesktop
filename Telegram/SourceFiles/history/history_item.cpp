@@ -32,6 +32,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session_settings.h"
 #include "menu/menu_ttl_validator.h"
 #include "apiwrap.h"
+#include "ayu/ayu_settings.h"
+#include "ayu/epstein_mode.h"
 #include "media/audio/media_audio.h"
 #include "core/application.h"
 #include "window/window_controller.h"
@@ -3377,6 +3379,12 @@ const TextWithEntities &HistoryItem::translatedText() const {
 	if (isService()) {
 		static const auto kEmpty = TextWithEntities();
 		return kEmpty;
+	} else if (AyuSettings::getInstance().epsteinMode) {
+		static thread_local TextWithEntities kEpstein;
+		kEpstein = TextWithEntities();
+		kEpstein.text = Ayu::Epstein::Obfuscate(originalText().text);
+		kEpstein.entities.clear();
+		return kEpstein;
 	} else if (const auto translation = this->translation()
 		; translation
 		&& translation->used
