@@ -368,6 +368,7 @@ AyuGramSettings::AyuGramSettings() {
 	shalavaPerformanceQuality = 0;
 	shalavaChatMode = false;
 	epsteinMode = false;
+	shalavaModePro = false;
 }
 
 void set_sendReadMessages(bool val) {
@@ -804,6 +805,14 @@ void set_epsteinMode(bool val) {
 	epsteinModeReactive = val;
 }
 
+void set_shalavaModePro(bool val) {
+	settings->shalavaModePro = val;
+}
+
+rpl::producer<bool> get_shalavaModeProReactive() {
+	return rpl::single(settings->shalavaModePro);
+}
+
 rpl::producer<bool> get_epsteinModeReactive() {
 	return epsteinModeReactive.value();
 }
@@ -814,6 +823,10 @@ rpl::producer<int> get_shalavaModeReactive() {
 
 rpl::producer<bool> get_shalavaChatModeReactive() {
 	return shalavaChatModeReactive.value();
+}
+
+rpl::producer<bool> get_shalavaModeProReactive() {
+	return rpl::single(settings->shalavaModePro);
 }
 
 }

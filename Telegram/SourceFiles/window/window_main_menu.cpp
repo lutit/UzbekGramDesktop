@@ -685,8 +685,12 @@ protected:
 		}
 
 		bool active = (AyuSettings::getInstance().shalavaMode == _mode);
+		const bool pro = (_mode == 4);
 		if (active) {
 			p.fillRect(rect(), st::windowBgOver); // Highlight
+			if (pro) {
+				p.fillRect(rect(), QColor(255, 215, 0, 40)); // golden overlay
+			}
 		}
 
 		// Draw icon
@@ -705,7 +709,7 @@ protected:
 			p.setOpacity(1.0);
 			p.setBrush(modeColor);
 			p.setPen(Qt::NoPen);
-			p.drawEllipse(width()/2 - 2, height()/2 + 8, 4, 4);
+			p.drawEllipse(width()/2 - 2, height()/2 + 8, pro ? 6 : 4, pro ? 6 : 4);
 		}
 	}
 
@@ -722,16 +726,18 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 	layout->setContentsMargins(10, 5, 10, 5);
 	layout->setSpacing(10);
 
-	for (int i = 1; i <= 3; ++i) {
+	for (int i = 1; i <= 4; ++i) {
 		auto btn = new ShalavaButton(wrap, i);
 		btn->setClickedCallback([=] {
 			int current = AyuSettings::getInstance().shalavaMode;
 			if (current == i) {
 				AyuSettings::set_shalavaMode(0);
+				AyuSettings::set_shalavaModePro(false);
 				AyuSettings::save();
 			} else {
 				auto doSwitch = [=] {
 					AyuSettings::set_shalavaMode(i);
+					AyuSettings::set_shalavaModePro(i == 4);
 					AyuSettings::save();
 				};
 
@@ -747,11 +753,17 @@ void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
 		layout->addWidget(btn);
 
 		// Subscribe to updates to redraw
-		AyuSettings::get_shalavaModeReactive().start(
-			[=](int) { btn->update(); },
-			[](const auto &) {},
-			[] {},
-			btn->lifetime());
+			AyuSettings::get_shalavaModeReactive().start(
+				[=](int) { btn->update(); },
+				[](const auto &) {},
+				[] {},
+				btn->lifetime());
+
+			AyuSettings::get_shalavaModeProReactive().start(
+				[=](bool) { btn->update(); },
+				[](const auto &) {},
+				[] {},
+				btn->lifetime());
 	}
 }
 

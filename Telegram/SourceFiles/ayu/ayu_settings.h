@@ -172,6 +172,7 @@ public:
 	int shalavaPerformanceQuality;
 	bool shalavaChatMode;
 	bool epsteinMode;
+	bool shalavaModePro;
 };
 
 void set_sendReadMessages(bool val);
@@ -286,15 +287,18 @@ void set_shalavaParticleLimit(int val);
 void set_shalavaTextOverlay(bool val);
 void set_shalavaEpilepsyWarningShown(bool val);
 void set_shalavaOverlayCapturesMouse(bool val);
-void set_shalavaPerformanceQuality(int val);
-void set_shalavaChatMode(bool val);
-void set_epsteinMode(bool val);
+	void set_shalavaPerformanceQuality(int val);
+	void set_shalavaChatMode(bool val);
+	void set_epsteinMode(bool val);
+	void set_shalavaModePro(bool val);
 
 rpl::producer<bool> get_epsteinModeReactive();
 
 rpl::producer<int> get_shalavaModeReactive();
 
 rpl::producer<bool> get_shalavaChatModeReactive();
+
+rpl::producer<bool> get_shalavaModeProReactive();
 
 
 
