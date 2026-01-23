@@ -14,6 +14,12 @@ namespace {
     float randomFloat(float min, float max) {
         return min + QRandomGenerator::global()->generateDouble() * (max - min);
     }
+
+    float safeRandomFloat(float min, float max) {
+        const auto v = randomFloat(min, max);
+        if (std::isnan(v) || std::isinf(v)) return (min + max) * 0.5f;
+        return v;
+    }
 }
 
 ShalavaOverlay::ShalavaOverlay(QWidget *parent) : QWidget(parent) {
@@ -81,8 +87,9 @@ void ShalavaOverlay::setMode(int mode) {
 void ShalavaOverlay::updateParticles() {
     if (width() <= 0 || height() <= 0) return;
 
-    // Safety check for runaway particles
-    if (_particles.size() > 1000) {
+    // Safety check for runaway particles (hard cap)
+    static constexpr int kHardCap = 500;
+    if (_particles.size() > kHardCap) {
         _particles.clear();
         return;
     }
@@ -92,17 +99,17 @@ void ShalavaOverlay::updateParticles() {
     float speedMult = 1.0f;
     
     // Hard cap to prevent crashes
-    int safeLimit = std::min(_particleLimit, 300);
+    int safeLimit = std::clamp(_particleLimit, 10, 150);
 
     if (_mode == 1) { // SHALAVA
         targetParticles = std::min(40, safeLimit);
         speedMult = 0.5f;
     } else if (_mode == 2) { // SUPER
-        targetParticles = std::min(120, safeLimit);
-        speedMult = 1.0f;
+        targetParticles = std::min(90, safeLimit);
+        speedMult = 0.9f;
     } else if (_mode == 3) { // ULTRA
-        targetParticles = safeLimit;
-        speedMult = _safeMode ? 1.0f : 2.0f;
+        targetParticles = std::min(safeLimit, 120);
+        speedMult = _safeMode ? 1.0f : 1.2f;
     }
 
     if (_safeMode) {
@@ -113,7 +120,7 @@ void ShalavaOverlay::updateParticles() {
     // Spawn
     if (_particles.size() < targetParticles) {
         // Higher chance to spawn if far from target
-        if (randomFloat(0, 1) < 0.2 * speedMult) spawnParticle();
+        if (safeRandomFloat(0, 1) < 0.2 * speedMult) spawnParticle();
     }
 
     // Shake
@@ -121,10 +128,10 @@ void ShalavaOverlay::updateParticles() {
         float shakeAmp = 0;
         if (_mode == 1) shakeAmp = 2;
         else if (_mode == 2) shakeAmp = 6;
-        else if (_mode == 3) shakeAmp = _safeMode ? 10 : 25;
+        else if (_mode == 3) shakeAmp = _safeMode ? 10 : 18;
 
-        _shakeX = (int)randomFloat(-shakeAmp, shakeAmp);
-        _shakeY = (int)randomFloat(-shakeAmp, shakeAmp);
+        _shakeX = (int)safeRandomFloat(-shakeAmp, shakeAmp);
+        _shakeY = (int)safeRandomFloat(-shakeAmp, shakeAmp);
     } else {
         _shakeX = 0; _shakeY = 0;
     }
@@ -155,12 +162,12 @@ void ShalavaOverlay::spawnParticle() {
     if (width() <= 0 || height() <= 0) return;
 
     Particle p;
-    p.x = randomFloat(0, width());
-    p.y = randomFloat(0, height());
-    p.vx = randomFloat(-2, 2);
-    p.vy = randomFloat(-2, 2);
-    p.rotation = randomFloat(0, 360);
-    p.vrotation = randomFloat(-5, 5);
+    p.x = safeRandomFloat(0, width());
+    p.y = safeRandomFloat(0, height());
+    p.vx = safeRandomFloat(-2, 2);
+    p.vy = safeRandomFloat(-2, 2);
+    p.rotation = safeRandomFloat(0, 360);
+    p.vrotation = safeRandomFloat(-5, 5);
     p.life = 1.0f;
     
     // Types
@@ -169,26 +176,27 @@ void ShalavaOverlay::spawnParticle() {
     
     if (_mode == 1) {
         p.type = 0; // mostly stars
-        p.size = randomFloat(10, 20);
+        p.size = randomFloat(10, 18);
     } else if (_mode == 2) {
          if (r < 0.6) p.type = 0; // star
          else if (r < 0.9) p.type = 1; // checkmark
          else p.type = (_textOverlay ? 3 : 0); // text
-         p.size = randomFloat(15, 30);
+         p.size = randomFloat(14, 26);
     } else { // ULTRA
-         if (r < 0.4) p.type = 0;
-         else if (r < 0.7) p.type = 1;
-         else if (r < 0.85) p.type = 2; // uzbekchan
+         if (r < 0.45) p.type = 0;
+         else if (r < 0.8) p.type = 1;
+         else if (r < 0.9) p.type = 2; // uzbekchan
          else p.type = (_textOverlay ? 3 : 0);
-         p.size = randomFloat(20, 50);
+         p.size = randomFloat(16, 36);
     }
     
     if (p.type == 3) {
         if (_mode == 3 && randomFloat(0,1) > 0.5) p.text = "pashol naxxuy";
         else p.text = "uzbekgram";
         
-        // Text moves faster
-        p.vx *= 2;
+        // Text moves faster but clamp to avoid runaway
+        p.vx = std::clamp(p.vx * 1.5f, -4.f, 4.f);
+        p.vy = std::clamp(p.vy * 1.5f, -4.f, 4.f);
     }
     
     _particles.push_back(p);
