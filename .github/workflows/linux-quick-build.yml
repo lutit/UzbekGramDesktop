@@ -56,7 +56,10 @@ jobs:
         run: |
           cd "$WORKDIR"
           ls -R out | head -n 200 || true
-          tar czf "$ARTIFACT" out || true
+          mkdir -p "$RUNNER_TEMP/quick-out"
+          # Collect only binaries + minimal logs
+          find out -type f \( -name 'Telegram' -o -name 'uzbekgram' -o -name '*.so' -o -name '*.dll' -o -name '*.log' \) -print0 \
+            | tar --null -T - -czf "$ARTIFACT" || true
           ls -lh "$ARTIFACT" || true
 
       - name: Upload quick-build logs
