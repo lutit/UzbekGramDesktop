@@ -93,6 +93,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/chat/choose_send_as.h"
 #include "ui/effects/spoiler_mess.h"
 #include "ui/effects/reaction_fly_animation.h"
+#include "ui/boxes/boost_box.h"
+#include "data/data_message_reactions.h"
 #include "webrtc/webrtc_environment.h"
 #include "window/window_adaptive.h"
 #include "window/window_peer_menu.h"
@@ -1779,7 +1781,76 @@ rpl::producer<Api::SendOptions> ComposeControls::sendRequests() const {
 		}
 		const_cast<ComposeControls*>(this)->editStarsFrom(required);
 		return false;
+	}) | rpl::on_next([=](Api::SendOptions) {
+		const_cast<ComposeControls*>(this)->triggerSendEffects();
 	});
+}
+
+void ComposeControls::triggerSendEffects() {
+	if (_send->type() != Ui::SendButton::Type::Send) {
+		return;
+	}
+	if (PowerSaving::On(PowerSaving::kChatEffects)) {
+		return;
+	}
+	if (!_parent || !_parent->parentWidget()) {
+		return;
+	}
+	startStarsSendEffect();
+	if (_history) {
+		const auto &effects = _history->owner().reactions().list(
+			Data::Reactions::Type::Effects);
+		if (!effects.empty()) {
+			const auto index = base::RandomIndex(effects.size());
+			const auto &effect = effects[index];
+			auto animation = std::make_unique<Ui::ReactionFlyAnimation>(
+				&_history->owner().reactions(),
+				Ui::ReactionFlyAnimationArgs{
+					.id = effect.id,
+					.effectOnly = true,
+				},
+				[raw = _parent.get()] { raw->update(); },
+				st::reactionInlineImage);
+			auto center = animation->takeCenter();
+			animation = nullptr;
+			if (center.icon) {
+				const auto rect = _send->rect().translated(
+					_send->parentWidget()->pos());
+				const auto size = st::reactionInlineImage * 2;
+				const auto topLeft = rect.center() - QPoint(size / 2, size / 2);
+				const auto target = QRect(topLeft, QSize(size, size));
+				const auto canvasRect = rect.adjusted(-size, -size, size, size);
+				const auto rectForPaint = target.translated(
+					-canvasRect.topLeft());
+				const auto fly = std::make_shared<Ui::ReactionFlyAnimation>(
+					&_history->owner().reactions(),
+					Ui::ReactionFlyAnimationArgs{
+						.id = effect.id,
+						.effectOnly = true,
+						.flyFrom = target,
+					},
+					[raw = _parent.get()] { raw->update(); },
+					st::reactionInlineImage);
+				auto canvas = std::make_unique<Ui::RpWidget>(_parent);
+				const auto raw = canvas.get();
+				raw->setAttribute(Qt::WA_TransparentForMouseEvents);
+				raw->setGeometry(canvasRect);
+				raw->show();
+				raw->paintRequest() | rpl::on_next([=] {
+					if (fly->finished()) {
+						crl::on_main(raw, [=] { delete raw; });
+						return;
+					}
+					auto p = QPainter(raw);
+					const auto now = crl::now();
+					const auto color = st::radialFg->c;
+					fly->paintGetArea(p, {}, rectForPaint, color, {}, now);
+				}, raw->lifetime());
+				canvas.release();
+			}
+		}
+	}
+	Ui::StartFireworks(_parent->parentWidget());
 }
 
 rpl::producer<VoiceToSend> ComposeControls::sendVoiceRequests() const {

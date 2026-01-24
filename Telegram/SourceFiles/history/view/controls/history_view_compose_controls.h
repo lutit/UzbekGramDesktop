@@ -362,6 +362,7 @@ private:
 	void setupStarsSendEffectsCanvas();
 	void startStarsEffect(SendStarButtonEffect event);
 	void setupStarsEffectsCanvas();
+	void triggerSendEffects();
 
 	// Look in the _field for the inline bot and query string.
 	void updateInlineBotQuery();
