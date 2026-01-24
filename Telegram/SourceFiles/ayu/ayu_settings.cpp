@@ -825,8 +825,4 @@ rpl::producer<bool> get_shalavaChatModeReactive() {
 	return shalavaChatModeReactive.value();
 }
 
-rpl::producer<bool> get_shalavaModeProReactive() {
-	return rpl::single(settings->shalavaModePro);
-}
-
 }
