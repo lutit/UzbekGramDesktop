@@ -360,7 +360,7 @@ AyuGramSettings::AyuGramSettings() {
 	crashReporting = true;
 
 	shalavaMode = 0;
-	shalavaSafeMode = false;
+	shalavaSafeMode = true;
 	shalavaParticleLimit = 100;
 	shalavaTextOverlay = true;
 	shalavaEpilepsyWarningShown = false;

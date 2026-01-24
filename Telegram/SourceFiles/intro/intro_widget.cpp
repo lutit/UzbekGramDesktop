@@ -832,6 +832,10 @@ void Widget::paintEvent(QPaintEvent *e) {
 		const auto x = (width() - scaled.width()) / 2;
 		const auto y = (height() - scaled.height()) / 2;
 		p.drawPixmap(x, y, scaled);
+
+		auto overlay = st::windowBg->c;
+		overlay.setAlpha(160);
+		p.fillRect(rect(), overlay);
 	} else {
 		p.fillRect(e->rect(), st::windowBg);
 	}
