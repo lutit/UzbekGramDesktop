@@ -49,7 +49,30 @@ jobs:
             ghcr.io/telegramdesktop/tdesktop/centos_env:latest \
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
               -D TDESKTOP_API_ID=$API_ID \
-              -D TDESKTOP_API_HASH=$API_HASH
+              -D TDESKTOP_API_HASH=$API_HASH \
+              -D CMAKE_RUNTIME_OUTPUT_DIRECTORY=/usr/src/tdesktop/out/bin \
+              -D CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=/usr/src/tdesktop/out/bin \
+              -D CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=/usr/src/tdesktop/out/bin
+
+      - name: Show out/ tree
+        if: success()
+        run: |
+          cd "$WORKDIR"
+          chmod +x ./scripts/print-out-tree.sh
+          ./scripts/print-out-tree.sh out
+
+      - name: Collect linux binary
+        if: always()
+        run: |
+          cd "$WORKDIR"
+          mkdir -p "$RUNNER_TEMP/linux-binary"
+          binary_path="out/bin/UzbekGram"
+          if [ ! -f "$binary_path" ]; then
+            echo "Binary not found in out/bin/." >&2
+            find out -maxdepth 4 -type f -executable -print
+            exit 1
+          fi
+          cp -v "$binary_path" "$RUNNER_TEMP/linux-binary/"
 
       - name: Keep only log + small artifact
         if: always()
@@ -69,6 +92,15 @@ jobs:
           name: quick-build-logs
           path: ${{ env.ARTIFACT }}
           retention-days: 3
+
+      - name: Upload linux build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: ${{ runner.temp }}/linux-binary
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Disk usage after
         if: always()

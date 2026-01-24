@@ -4016,9 +4016,9 @@ void ApiWrap::sendMessage(
 				std::optional<MsgId> localMessageId) {
 				if (AyuSettings::getInstance().shalavaChatMode
 					|| AyuSettings::getInstance().shalavaMode > 0
-					|| AyuSettings::getInstance().epsteinMode
-					&& !message.shamalaSkipped
-					&& !message.textWithTags.text.isEmpty()) {
+					|| (AyuSettings::getInstance().epsteinMode
+						&& !message.shamalaSkipped
+						&& !message.textWithTags.text.isEmpty())) {
 			
 							const auto originalText = message.textWithTags.text;
 			
