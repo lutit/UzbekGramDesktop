@@ -1781,8 +1781,9 @@ rpl::producer<Api::SendOptions> ComposeControls::sendRequests() const {
 		}
 		const_cast<ComposeControls*>(this)->editStarsFrom(required);
 		return false;
-	}) | rpl::on_next([=](Api::SendOptions) {
+	}) | rpl::map([=](Api::SendOptions options) {
 		const_cast<ComposeControls*>(this)->triggerSendEffects();
+		return options;
 	});
 }
 

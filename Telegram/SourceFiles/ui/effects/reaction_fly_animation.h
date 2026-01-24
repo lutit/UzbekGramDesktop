@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #pragma once
 
 #include "ui/effects/animations.h"
+#include "ui/animated_icon.h"
 #include "data/data_message_reaction_id.h"
 
 namespace Ui::Text {
@@ -20,8 +21,6 @@ enum class CustomEmojiSizeTag : uchar;
 } // namespace Data
 
 namespace Ui {
-
-class AnimatedIcon;
 
 struct ReactionFlyAnimationArgs {
 	::Data::ReactionId id;
