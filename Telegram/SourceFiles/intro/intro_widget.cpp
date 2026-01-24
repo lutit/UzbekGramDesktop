@@ -251,7 +251,7 @@ void Widget::refreshLang() {
 		_resetAccount->entity()->setText(rpl::single<QString>(u"Hisobni tiklash"_q));
 	}
 	if (_terms) {
-		_terms->entity()->setText(rpl::single<QString>(u"Shartlar"_q));
+		_terms->entity()->setText(u"Shartlar"_q);
 	}
 	InvokeQueued(this, [this] { updateControlsGeometry(); });
 }
