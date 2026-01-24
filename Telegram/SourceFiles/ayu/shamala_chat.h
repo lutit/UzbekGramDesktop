@@ -24,6 +24,7 @@ public:
 		const QString &text,
 		Fn<void(QString)> onSuccess,
 		Fn<void()> onFail);
+	bool isBusy() const;
 
 	void saveOriginal(FullMsgId id, const QString &text);
 	QString getOriginal(FullMsgId id);

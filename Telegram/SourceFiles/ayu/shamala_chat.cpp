@@ -15,10 +15,14 @@
 #include <QtCore/QDir>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <algorithm>
 
 namespace Ayu {
 
 namespace {
+	constexpr auto kMaxConcurrentRequests = 1;
+	int activeRequests = 0;
+
 	QString KeyFromId(FullMsgId id) {
 		return QString::number(id.peer.value) + "_" + QString::number(id.msg.bare);
 	}
@@ -37,6 +41,11 @@ void ShamalaChat::rewrite(
 		const QString &text,
 		Fn<void(QString)> onSuccess,
 		Fn<void()> onFail) {
+	if (activeRequests >= kMaxConcurrentRequests) {
+		if (onFail) onFail();
+		return;
+	}
+	++activeRequests;
 
 	const QString urlStr = "https://gptuzbek.ddosxd.ru/v1/chat/completions";
 	const QString apiKey = "hui";
@@ -65,6 +74,9 @@ void ShamalaChat::rewrite(
 	QNetworkReply *reply = _nam.post(request, QJsonDocument(body).toJson());
 
 	connect(reply, &QNetworkReply::finished, [reply, onSuccess, onFail]() {
+		const auto guard = gsl::finally([] {
+			activeRequests = std::max(0, activeRequests - 1);
+		});
 		reply->deleteLater();
 		if (reply->error() != QNetworkReply::NoError) {
 			if (onFail) onFail();
@@ -85,6 +97,10 @@ void ShamalaChat::rewrite(
 
 		if (onSuccess) onSuccess(result);
 	});
+}
+
+bool ShamalaChat::isBusy() const {
+	return activeRequests >= kMaxConcurrentRequests;
 }
 
 void ShamalaChat::saveOriginal(FullMsgId id, const QString &text) {
