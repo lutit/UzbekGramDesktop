@@ -77,6 +77,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_window.h"
 #include "settings/settings_common.h"
 
+#include <QtGui/QDesktopServices>
 #include <QtGui/QWindow>
 #include <QtGui/QScreen>
 
