@@ -1827,8 +1827,9 @@ void ComposeControls::triggerSendEffects() {
 					&_history->owner().reactions(),
 					Ui::ReactionFlyAnimationArgs{
 						.id = effect.id,
-						.effectOnly = true,
+						.flyIcon = QImage(),
 						.flyFrom = target,
+						.effectOnly = true,
 					},
 					[raw = _parent.get()] { raw->update(); },
 					st::reactionInlineImage);
