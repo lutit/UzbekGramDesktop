@@ -696,9 +696,20 @@ void MainMenu::setupMenu() {
 	};
 
 	// Shalava Mod Buttons
-	const auto toggleShalava = [=](int mode) {
-		const auto current = AyuSettings::getInstance().shalavaMode;
-		const auto next = (current == mode) ? 0 : mode;
+	// Logic:
+	// 0 - OFF (Default)
+	// 1 - SHALAVA
+	// 2 - SUPER
+	// 3 - ULTRA
+	const auto toggleShalava = [=](int selectedMode) {
+		const auto currentMode = AyuSettings::getInstance().shalavaMode;
+		int newMode = 0;
+
+		if (currentMode == selectedMode) {
+			newMode = 0; // Toggle OFF
+		} else {
+			newMode = selectedMode; // Switch directly
+		}
 		
 		auto activate = [=](int m) {
 			AyuSettings::set_shalavaMode(m);
@@ -706,7 +717,7 @@ void MainMenu::setupMenu() {
 			AyuSettings::save();
 		};
 
-		if (next == 3) {
+		if (newMode == 3) {
 			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
 				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
 				return;
@@ -717,48 +728,44 @@ void MainMenu::setupMenu() {
 				activate(3);
 			}
 		} else {
-			activate(next);
+			activate(newMode);
 		}
 	};
 
-	auto btnShalava = addAction(
-		rpl::single(u"Shalava Mod"_q),
-		{ &st::ayuGhostIcon }
-	);
-	btnShalava->setClickedCallback([=] {
-		toggleShalava(1);
-	});
-	btnShalava->toggleOn(
-		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 1;
-		})
-	);
+	auto shalavaToggle = [=](int targetMode) {
+		return AyuSettings::get_shalavaModeReactive()
+			| rpl::map([=](int mode) { return mode == targetMode; })
+			| rpl::distinct_until_changed();
+	};
 
-	auto btnSuper = addAction(
-		rpl::single(u"Super Shalava"_q),
-		{ &st::ayuGhostIcon }
-	);
-	btnSuper->setClickedCallback([=] {
-		toggleShalava(2);
-	});
-	btnSuper->toggleOn(
-		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 2;
-		})
-	);
+	const auto createToggleButton = [&](
+			rpl::producer<QString> text,
+			const style::icon &icon,
+			int mode) {
+		auto button = addAction(std::move(text), { &icon });
+		button->setClickedCallback([=] { toggleShalava(mode); });
 
-	auto btnUltra = addAction(
-		rpl::single(u"Ultra Shalava"_q),
-		{ &st::ayuGhostIcon }
-	);
-	btnUltra->setClickedCallback([=] {
-		toggleShalava(3);
-	});
-	btnUltra->toggleOn(
-		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 3;
-		})
-	);
+		const auto check = Ui::CreateChild<Ui::RpWidget>(button.get());
+		check->setAttribute(Qt::WA_TransparentForMouseEvents);
+		check->resize(st::menuIconSelect.size());
+		check->paintRequest(
+		) | rpl::on_next([=] {
+			QPainter p(check);
+			st::menuIconSelect.paint(p, 0, 0, check->width());
+		}, check->lifetime());
+
+		rpl::combine(
+			button->heightValue(),
+			shalavaToggle(mode)
+		) | rpl::on_next([=](int height, bool toggled) {
+			check->setVisible(toggled);
+			check->moveToRight(st::mainMenuButton.padding.right(), (height - check->height()) / 2);
+		}, check->lifetime());
+	};
+
+	createToggleButton(rpl::single(u"Shalava Mod"_q), st::ayuGhostIcon, 1);
+	createToggleButton(rpl::single(u"Super Shalava"_q), st::ayuGhostIcon, 2);
+	createToggleButton(rpl::single(u"Ultra Shalava"_q), st::ayuGhostIcon, 3);
 
 
 	// Epstein Mode
