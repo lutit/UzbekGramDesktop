@@ -16,6 +16,7 @@ PornTvBox::PornTvBox(QWidget*, const QString &url)
 
 void PornTvBox::prepare() {
 	setTitle(rpl::single(u"Porn TV"_q));
+	addTopButton(st::boxTitleClose, [=] { closeBox(); });
 
 	const auto st = &st::defaultBox;
 	const auto style = lifetime().make_state<style::Box>(style::Box{
@@ -57,7 +58,49 @@ void PornTvBox::prepare() {
 		}, content->lifetime());
 	}
 	
-	_webview->navigate(_url);
+	const auto updateUrl = [=] {
+		if (!_webview) {
+			return;
+		}
+		const auto toHex = [](QColor c) {
+			return QString("%1%2%3")
+				.arg(c.red(), 2, 16, QChar('0'))
+				.arg(c.green(), 2, 16, QChar('0'))
+				.arg(c.blue(), 2, 16, QChar('0'));
+		};
+
+		const auto bg = st::boxBg->c;
+		const auto shadow = st::shadowFg->c;
+		const auto shadowAlpha = shadow.alphaF();
+		const auto mix = [&](int a, int b) {
+			return int(a + (b - a) * shadowAlpha);
+		};
+		const auto border = QColor(
+			mix(bg.red(), shadow.red()),
+			mix(bg.green(), shadow.green()),
+			mix(bg.blue(), shadow.blue())
+		);
+
+		const auto params = QString("bg_color=%1&text_color=%2&secondary_bg_color=%3&border_color=%4&button_color=%5")
+			.arg(toHex(st::boxBg->c))
+			.arg(toHex(st::windowFg->c))
+			.arg(toHex(st::boxDividerBg->c))
+			.arg(toHex(border))
+			.arg(toHex(st::windowBgActive->c));
+
+		auto fullUrl = _url;
+		if (fullUrl.indexOf('?') >= 0) {
+			fullUrl += '&' + params;
+		} else {
+			fullUrl += '?' + params;
+		}
+		_webview->navigate(fullUrl);
+	};
+
+	updateUrl();
+
+	style::PaletteChanged(
+	) | rpl::on_next(updateUrl, lifetime());
 	
 	setDimensionsToContent(desiredWidth, content);
 }
