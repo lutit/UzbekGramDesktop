@@ -92,6 +92,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_ayu_icons.h"
 #include "lang_auto.h"
 #include "ayu/ui/settings/settings_main.h"
+#include "ayu/shalava_pro.h"
 
 namespace Window {
 namespace {
@@ -463,6 +464,9 @@ MainMenu::MainMenu(
 	}
 
 	setupSwipe();
+
+	// Show SHALAVA PRO welcome popup if needed
+	Ayu::ShalavaPro::instance().showWelcomePopup(_controller);
 }
 
 MainMenu::~MainMenu() = default;
@@ -672,107 +676,9 @@ void ShowEpilepsyWarning(Fn<void()> onConfirm) {
 	Ui::show(std::move(box));
 }
 
-class ShalavaButton : public Ui::AbstractButton {
-public:
-	ShalavaButton(QWidget *parent, int mode) : AbstractButton(parent), _mode(mode) {
-		_icon.load(":/gui/art/ayu/shalava/ghost.svg");
-	}
-
-protected:
-	void paintEvent(QPaintEvent *e) override {
-		QPainter p(this);
-		if (isOver() || isDown()) {
-			p.fillRect(rect(), st::windowBgOver);
-		}
-
-		bool active = (AyuSettings::getInstance().shalavaMode == _mode);
-		const bool pro = (_mode == 4);
-		if (active) {
-			p.fillRect(rect(), st::windowBgOver); // Highlight
-			if (pro) {
-				p.fillRect(rect(), QColor(255, 215, 0, 40)); // golden overlay
-			}
-		}
-
-		// Draw icon
-		if (!_icon.isNull()) {
-			auto modeColor = (_mode == 1) ? Qt::green : (_mode == 2) ? Qt::yellow : Qt::red;
-			if (active) {
-				// p.setOpacity(1.0);
-			} else {
-				p.setOpacity(0.5);
-			}
-
-			// Draw icon centered
-			p.drawPixmap((width() - _icon.width()) / 2, (height() - _icon.height()) / 2, 24, 24, _icon);
-
-			// Draw mode dot
-			p.setOpacity(1.0);
-			p.setBrush(modeColor);
-			p.setPen(Qt::NoPen);
-			p.drawEllipse(width()/2 - 2, height()/2 + 8, pro ? 6 : 4, pro ? 6 : 4);
-		}
-	}
-
-private:
-	int _mode;
-	QPixmap _icon;
-};
-
-void SetupShalavaButtons(not_null<Ui::VerticalLayout*> container) {
-	auto wrap = container->add(object_ptr<Ui::RpWidget>(container));
-	wrap->resize(container->width(), 40);
-
-	auto layout = new QHBoxLayout(wrap);
-	layout->setContentsMargins(10, 5, 10, 5);
-	layout->setSpacing(10);
-
-	for (int i = 1; i <= 4; ++i) {
-		auto btn = new ShalavaButton(wrap, i);
-		btn->setClickedCallback([=] {
-			int current = AyuSettings::getInstance().shalavaMode;
-			if (current == i) {
-				AyuSettings::set_shalavaMode(0);
-				AyuSettings::set_shalavaModePro(false);
-				AyuSettings::save();
-			} else {
-				auto doSwitch = [=] {
-					AyuSettings::set_shalavaMode(i);
-					AyuSettings::set_shalavaModePro(i == 4);
-					AyuSettings::save();
-				};
-
-				auto &settings = AyuSettings::getInstance();
-				if (i == 3 && !settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
-					ShowEpilepsyWarning(doSwitch);
-				} else {
-					doSwitch();
-				}
-			}
-			wrap->update(); // Redraw buttons
-		});
-		layout->addWidget(btn);
-
-		// Subscribe to updates to redraw
-			AyuSettings::get_shalavaModeReactive().start(
-				[=](int) { btn->update(); },
-				[](const auto &) {},
-				[] {},
-				btn->lifetime());
-
-			AyuSettings::get_shalavaModeProReactive().start(
-				[=](bool) { btn->update(); },
-				[](const auto &) {},
-				[] {},
-				btn->lifetime());
-	}
-}
-
 } // namespace
 
 void MainMenu::setupMenu() {
-	SetupShalavaButtons(_menu);
-
 	using namespace Settings;
 
 	const auto &settings = AyuSettings::getInstance();
@@ -788,6 +694,65 @@ void MainMenu::setupMenu() {
 			std::move(descriptor));
 	};
 
+	// Shalava Mod Button
+	auto shalavaBtn = addAction(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
+			switch (mode) {
+				case 1: return u"✨ SHALAVA MOD"_q;
+				case 2: return u"⚡ SUPER SHALAVA"_q;
+				case 3: return u"🔥 ULTRA SHALAVA"_q;
+				default: return u"✨ SHALAVA MOD"_q;
+			}
+		}),
+		{ &st::ayuGhostIcon }
+	);
+	
+	shalavaBtn->setClickedCallback([=] {
+		int current = AyuSettings::getInstance().shalavaMode;
+		int next = (current + 1) % 4; // 0, 1, 2, 3, 0
+
+		if (next == 0) {
+			AyuSettings::set_shalavaMode(0);
+			AyuSettings::set_shalavaModePro(false);
+			AyuSettings::save();
+			return;
+		}
+
+		auto activate = [=](int mode) {
+			AyuSettings::set_shalavaMode(mode);
+			AyuSettings::set_shalavaModePro(mode == 3);
+			AyuSettings::save();
+		};
+
+		if (next == 3) {
+			// Check PRO
+			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
+				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
+				return;
+			}
+
+			// Epilepsy warning for Ultra
+			if (!settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
+				ShowEpilepsyWarning([=] { activate(3); });
+			} else {
+				activate(3);
+			}
+		} else {
+			activate(next);
+		}
+	});
+
+	// Styling for active state
+	AyuSettings::get_shalavaModeReactive().start([=](int mode) {
+		if (mode > 0) {
+			shalavaBtn->setIconOverride(&st::ayuGhostIcon, &st::menuIconAttentionColor); // Use a colored icon if possible, or just re-set
+			shalavaBtn->setToggleOn(rpl::single(true));
+		} else {
+			shalavaBtn->setToggleOn(rpl::single(false));
+		}
+	}, shalavaBtn->lifetime());
+
+
 	// Epstein Mode
 	addAction(
 		rpl::single(u"Epstein Mode"_q),
@@ -798,6 +763,7 @@ void MainMenu::setupMenu() {
 		AyuSettings::set_epsteinMode(val);
 		AyuSettings::save();
 	}, _menu->lifetime());
+
 
 	_menu->add(
 		object_ptr<Ui::PlainShadow>(_menu),

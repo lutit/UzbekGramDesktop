@@ -4,6 +4,7 @@
 // but be respectful and credit the original author.
 //
 // Copyright @UzbekGram, 2025
+#define _USE_MATH_DEFINES
 #include "ayu/shalava_pro.h"
 #include "ayu/ayu_settings.h"
 
@@ -39,6 +40,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <cmath>
 
 namespace Ayu {
 
@@ -210,7 +212,6 @@ bool ShalavaPro::wasWelcomeShown() const {
 
 void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	if (_checking) return;
-	_currentSession = session;
 
 	// Try to find the channel by username
 	const auto peer = session->data().peerByUsername(QString::fromLatin1(kRequiredChannel));
@@ -244,9 +245,9 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 }
 
 void ShalavaPro::refreshStatus(not_null<Main::Session*> session) {
-	_checking = false;
 	checkSubscription(session);
 }
+
 
 void ShalavaPro::openRequiredChannel(not_null<Window::SessionController*> controller) {
 	const auto session = &controller->session();

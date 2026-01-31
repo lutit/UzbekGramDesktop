@@ -73,9 +73,6 @@ private:
 	rpl::variable<bool> _unlocked = false;
 	bool _welcomeShown = false;
 	bool _checking = false;
-
-	// Store session for reactive checks
-	Main::Session* _currentSession = nullptr;
 };
 
 } // namespace Ayu

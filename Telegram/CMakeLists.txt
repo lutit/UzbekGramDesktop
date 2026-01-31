@@ -134,6 +134,8 @@ set(ayugram_files
         ayu/ui/ayu_logo.h
         ayu/ui/shalava_overlay.cpp
         ayu/ui/shalava_overlay.h
+        ayu/shalava_pro.cpp
+        ayu/shalava_pro.h
         ayu/epstein_mode.cpp
         ayu/epstein_mode.h
         ayu/shamala_chat.cpp

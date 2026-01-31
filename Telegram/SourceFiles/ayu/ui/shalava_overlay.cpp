@@ -183,11 +183,10 @@ void ShalavaOverlay::spawnParticle() {
          else p.type = (_textOverlay ? 3 : 0); // text
          p.size = randomFloat(14, 26);
     } else { // ULTRA
-         if (r < 0.45) p.type = 0;
-         else if (r < 0.8) p.type = 1;
-         else if (r < 0.9) p.type = 2; // uzbekchan
-         else p.type = (_textOverlay ? 3 : 0);
-         p.size = randomFloat(16, 36);
+         if (r < 0.7) p.type = 4; // Premium Star
+         else if (r < 0.85) p.type = 2; // uzbekchan
+         else p.type = (_textOverlay ? 3 : 4);
+         p.size = randomFloat(20, 45);
     }
     
     if (p.type == 3) {
@@ -243,6 +242,34 @@ void ShalavaOverlay::paintEvent(QPaintEvent *e) {
                         p.setFont(f);
                         p.drawText(QRectF(-s*5, -s, s*10, s*2), Qt::AlignCenter, part.text);
                     }
+                }
+                break;
+            case 4: // Premium Star
+                {
+                    // Premium gradient
+                    QLinearGradient gradient(-s/2, -s/2, s/2, s/2);
+                    gradient.setColorAt(0, QColor(255, 215, 0));   // Gold
+                    gradient.setColorAt(0.5, QColor(255, 165, 0)); // Orange
+                    gradient.setColorAt(1, QColor(255, 69, 0));    // Red-Orange
+
+                    QPainterPath starPath;
+                    const int points = 5;
+                    const double outerR = s / 2.0;
+                    const double innerR = outerR * 0.4;
+
+                    for (int i = 0; i < points * 2; ++i) {
+                        const double r = (i % 2 == 0) ? outerR : innerR;
+                        const double angle = M_PI / 2 + i * M_PI / points;
+                        const double x = r * std::cos(angle);
+                        const double y = -r * std::sin(angle);
+                        if (i == 0) starPath.moveTo(x, y);
+                        else starPath.lineTo(x, y);
+                    }
+                    starPath.closeSubpath();
+
+                    p.setBrush(gradient);
+                    p.setPen(Qt::NoPen);
+                    p.drawPath(starPath);
                 }
                 break;
         }
