@@ -4014,29 +4014,57 @@ void ApiWrap::sendShortcutMessages(
 void ApiWrap::sendMessage(
 				MessageToSend &&message,
 				std::optional<MsgId> localMessageId) {
-				if (AyuSettings::getInstance().shalavaChatMode
+				if ((AyuSettings::getInstance().shalavaChatMode
 					|| AyuSettings::getInstance().shalavaMode > 0
-					|| (AyuSettings::getInstance().epsteinMode
-						&& !message.shamalaSkipped
-						&& !message.textWithTags.text.isEmpty())) {
+					|| AyuSettings::getInstance().epsteinMode)
+					&& !message.shamalaSkipped
+					&& !message.textWithTags.text.isEmpty()) {
 			
-							const auto originalText = message.textWithTags.text;
+							auto msgPtr = std::make_shared<MessageToSend>(std::move(message));
+							const auto originalText = msgPtr->textWithTags.text;
+
+							// Visual fake message
+							const auto history = msgPtr->action.history;
+							const auto peer = history->peer;
+							auto fakeMsgId = _session->data().nextLocalMessageId();
+
+							auto sending = TextWithEntities {
+								originalText,
+								TextUtilities::ConvertTextTagsToEntities(msgPtr->textWithTags.tags)
+							};
+
+							auto flags = NewMessageFlags(peer) | MessageFlag::Local;
+
+							history->addNewLocalMessage({
+								.id = fakeMsgId,
+								.flags = flags,
+								.from = NewMessageFromId(msgPtr->action),
+								.replyTo = msgPtr->action.replyTo,
+								.date = NewMessageDate(msgPtr->action.options),
+							}, sending, MTP_messageMediaEmpty());
 			
-							Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(&session(), [=, msg = std::move(message)](QString result) mutable {
+							Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(&session(), [=, msgPtr](QString result) mutable {
+								if (const auto item = session().data().message(peer->id, fakeMsgId)) {
+									item->destroy();
+								}
 			
-								msg.textWithTags.text = result;
+								msgPtr->textWithTags.text = result;
+								msgPtr->textWithTags.tags.clear();
 			
-								msg.originalText = originalText;
+								msgPtr->originalText = originalText;
 			
-								msg.shamalaSkipped = true;
+								msgPtr->shamalaSkipped = true;
 			
-								sendMessage(std::move(msg), localMessageId);
+								sendMessage(std::move(*msgPtr), localMessageId);
 			
-							}), crl::guard(&session(), [=, msg = std::move(message)]() mutable {
+							}), crl::guard(&session(), [=, msgPtr]() mutable {
+								if (const auto item = session().data().message(peer->id, fakeMsgId)) {
+									item->destroy();
+								}
 			
-								msg.shamalaSkipped = true;
+								msgPtr->shamalaSkipped = true;
 			
-								sendMessage(std::move(msg), localMessageId);
+								sendMessage(std::move(*msgPtr), localMessageId);
 			
 							}));
 			

@@ -284,30 +284,7 @@ bool SkipTranslate(TextWithEntities textWithEntities) {
 	if (text.isEmpty()) {
 		return true;
 	}
-	if (!Core::App().settings().translateButtonEnabled()) {
-		return true;
-	}
-	constexpr auto kFirstChunk = size_t(100);
-	auto hasLetters = (text.size() >= kFirstChunk);
-	for (auto i = 0; i < kFirstChunk; i++) {
-		if (i >= text.size()) {
-			break;
-		}
-		if (text.at(i).isLetter()) {
-			hasLetters = true;
-			break;
-		}
-	}
-	if (!hasLetters) {
-		return true;
-	}
-#ifndef TDESKTOP_DISABLE_SPELLCHECK
-	const auto result = Platform::Language::Recognize(text);
-	const auto skip = Core::App().settings().skipTranslationLanguages();
-	return result.known() && ranges::contains(skip, result);
-#else
 	return false;
-#endif
 }
 
 object_ptr<BoxContent> EditSkipTranslationLanguages() {
