@@ -4,6 +4,7 @@
 #include "lang/lang_keys.h"
 #include "styles/style_layers.h"
 #include "styles/style_boxes.h"
+#include "styles/style_giveaway.h"
 
 namespace Ayu::Ui {
 
@@ -13,6 +14,7 @@ PornTvBox::PornTvBox(QWidget*, const QString &url)
 
 void PornTvBox::prepare() {
 	setTitle(rpl::single(u"Porn TV"_q));
+	setStyle(st::giveawayGiftCodeBox);
 	setNoContentMargin(true);
 
 	// Use a vertical layout size optimized for mobile content
