@@ -4,6 +4,7 @@
 #include "lang/lang_keys.h"
 #include "styles/style_layers.h"
 #include "styles/style_boxes.h"
+#include "styles/style_widgets.h"
 
 namespace Ayu::Ui {
 
@@ -14,11 +15,10 @@ PornTvBox::PornTvBox(QWidget*, const QString &url)
 void PornTvBox::prepare() {
 	setTitle(rpl::single(u"Porn TV"_q));
 
-	const auto st = &st::box;
+	const auto st = &st::defaultBox;
 	const auto style = lifetime().make_state<style::Box>(style::Box{
 		.buttonPadding = QMargins(0, 0, 0, 0),
 		.buttonHeight = 0,
-		.buttonsPadding = QMargins(0, 0, 0, 0),
 		.margin = st->margin,
 		.title = st->title,
 		.bg = st->bg,
