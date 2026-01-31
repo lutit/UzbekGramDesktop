@@ -288,15 +288,14 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            object_ptr<Ui::RpWidget>(box),
 	            QMargins(0, 0, 0, 0));
 	        top->resize(st::boxWideWidth, 200);
-	        top->paintRequest().start([=] {
-	            auto p = QPainter(top);
-	            QLinearGradient gradient(0, 0, top->width(), top->height());
-	            gradient.setColorAt(0, QColor(106, 17, 203));
-	            gradient.setColorAt(0.5, QColor(186, 85, 211));
-	            gradient.setColorAt(1, QColor(255, 140, 0));
-	            p.fillRect(top->rect(), gradient);
-	        }, top->lifetime());
-	
+	        		top->paintRequest().start([=](auto) {
+	        			auto p = QPainter(top);
+	        			QLinearGradient gradient(0, 0, top->width(), top->height());
+	        			gradient.setColorAt(0, QColor(106, 17, 203));
+	        			gradient.setColorAt(0.5, QColor(186, 85, 211));
+	        			gradient.setColorAt(1, QColor(255, 140, 0));
+	        			p.fillRect(top->rect(), gradient);
+	        		}, [](const auto &) {}, [] {}, top->lifetime());	
 	        // Animated star
 	        const auto star = Ui::CreateChild<StarWidget>(top);
 	        star->move((top->width() - star->width()) / 2, 40);
@@ -355,12 +354,11 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            st::defaultFlatLabel);
 	        buttonText->setAttribute(Qt::WA_TransparentForMouseEvents);
 	        buttonText->setStyleSheet("color: white; font-weight: bold;");
-	        button->sizeValue().start([=](QSize size) {
-	            buttonText->move(
-	                (size.width() - buttonText->width()) / 2,
-	                (size.height() - buttonText->height()) / 2);
-	        }, buttonText->lifetime());
-	
+	        		button->sizeValue().start([=](QSize size) {
+	        			buttonText->move(
+	        				(size.width() - buttonText->width()) / 2,
+	        				(size.height() - buttonText->height()) / 2);
+	        		}, [](const auto &) {}, [] {}, buttonText->lifetime());	
 	        box->addRow(std::move(button), st::boxRowPadding + QMargins(0, 20, 0, 0));
 	
 	        box->addButton(tr::lng_close(), [=] {
@@ -385,15 +383,14 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            object_ptr<Ui::RpWidget>(box),
 	            QMargins(0, 0, 0, 0));
 	        top->resize(st::boxWideWidth, 160);
-	        top->paintRequest().start([=] {
-	            auto p = QPainter(top);
-	            QLinearGradient gradient(0, 0, top->width(), top->height());
-	            gradient.setColorAt(0, QColor(255, 215, 0));
-	            gradient.setColorAt(0.5, QColor(255, 165, 0));
-	            gradient.setColorAt(1, QColor(255, 69, 0));
-	            p.fillRect(top->rect(), gradient);
-	        }, top->lifetime());
-	
+	        		top->paintRequest().start([=](auto) {
+	        			auto p = QPainter(top);
+	        			QLinearGradient gradient(0, 0, top->width(), top->height());
+	        			gradient.setColorAt(0, QColor(255, 215, 0));
+	        			gradient.setColorAt(0.5, QColor(255, 165, 0));
+	        			gradient.setColorAt(1, QColor(255, 69, 0));
+	        			p.fillRect(top->rect(), gradient);
+	        		}, [](const auto &) {}, [] {}, top->lifetime());	
 	        // Star
 	        const auto star = Ui::CreateChild<StarWidget>(top);
 	        star->resize(80, 80);
@@ -450,12 +447,11 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	                st::defaultFlatLabel);
 	            subText->setAttribute(Qt::WA_TransparentForMouseEvents);
 	            subText->setStyleSheet("color: white; font-weight: bold;");
-	            subButton->sizeValue().start([=](QSize size) {
-	                subText->move(
-	                    (size.width() - subText->width()) / 2,
-	                    (size.height() - subText->height()) / 2);
-	            }, subText->lifetime());
-	
+	            			subButton->sizeValue().start([=](QSize size) {
+	            				subText->move(
+	            					(size.width() - subText->width()) / 2,
+	            					(size.height() - subText->height()) / 2);
+	            			}, [](const auto &) {}, [] {}, subText->lifetime());	
 	            box->addRow(std::move(subButton), st::boxRowPadding + QMargins(0, 20, 0, 0));
 	
 	            // Check button
