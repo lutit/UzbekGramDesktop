@@ -5,6 +5,8 @@
 #include "styles/style_layers.h"
 #include "styles/style_boxes.h"
 #include "styles/style_widgets.h"
+#include "core/application.h"
+#include "window/window_controller.h"
 
 namespace Ayu::Ui {
 
@@ -31,7 +33,11 @@ void PornTvBox::prepare() {
 
 	// Use a vertical layout size optimized for mobile content
 	int desiredWidth = 380; 
-	int desiredHeight = 680;
+	int desiredHeight = 700;
+	
+	if (const auto window = Core::App().activeWindow()) {
+		desiredHeight = std::max(400, window->widget()->height() - 80);
+	}
 
 	auto content = ::Ui::CreateChild<::Ui::RpWidget>(this);
 	content->resize(desiredWidth, desiredHeight);
@@ -44,10 +50,10 @@ void PornTvBox::prepare() {
 		
 	if (auto w = _webview->widget()) {
 		w->show();
-		w->resize(content->size());
+		w->resize(content->width(), content->height() - 15);
 		
 		content->sizeValue() | rpl::on_next([=](QSize size) {
-			w->resize(size);
+			w->resize(size.width(), size.height() - 15);
 		}, content->lifetime());
 	}
 	
