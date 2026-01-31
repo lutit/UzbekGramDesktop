@@ -132,6 +132,8 @@ set(ayugram_files
         ayu/utils/taptic_engine/platform/taptic_engine_mac.h
         ayu/ui/ayu_logo.cpp
         ayu/ui/ayu_logo.h
+        ayu/ui/porn_tv_box.cpp
+        ayu/ui/porn_tv_box.h
         ayu/ui/shalava_overlay.cpp
         ayu/ui/shalava_overlay.h
         ayu/shalava_pro.cpp

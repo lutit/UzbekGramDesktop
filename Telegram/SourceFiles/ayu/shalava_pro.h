@@ -50,6 +50,15 @@ public:
 	// Show unlock popup (subscribe to channel)
 	void showUnlockPopup(not_null<Window::SessionController*> controller);
 
+	// Show New Porn TV Feature popup
+	void showPornTvPopup(not_null<Window::SessionController*> controller);
+
+	// Mark Porn TV popup as shown
+	void markPornTvShown();
+
+	// Check if Porn TV popup was already shown
+	[[nodiscard]] bool wasPornTvShown() const;
+
 	// Mark welcome popup as shown
 	void markWelcomeShown();
 
@@ -72,6 +81,7 @@ private:
 
 	rpl::variable<bool> _unlocked = false;
 	bool _welcomeShown = false;
+	bool _pornTvShown = false;
 	bool _checking = false;
 };
 

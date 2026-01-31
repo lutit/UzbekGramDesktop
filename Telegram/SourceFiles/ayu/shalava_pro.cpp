@@ -173,12 +173,14 @@ void ShalavaPro::loadState() {
 	QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
 	QJsonObject obj = doc.object();
 	_welcomeShown = obj.value("welcomeShown").toBool(false);
+	_pornTvShown = obj.value("pornTvShown").toBool(false);
 	_unlocked = obj.value("unlocked").toBool(false);
 }
 
 void ShalavaPro::saveState() {
 	QJsonObject obj;
 	obj["welcomeShown"] = _welcomeShown;
+	obj["pornTvShown"] = _pornTvShown;
 	obj["unlocked"] = _unlocked.current();
 	QFile file(GetStatePath());
 	if (file.open(QIODevice::WriteOnly)) {
@@ -208,6 +210,15 @@ void ShalavaPro::markWelcomeShown() {
 
 bool ShalavaPro::wasWelcomeShown() const {
 	return _welcomeShown;
+}
+
+void ShalavaPro::markPornTvShown() {
+	_pornTvShown = true;
+	saveState();
+}
+
+bool ShalavaPro::wasPornTvShown() const {
+	return _pornTvShown;
 }
 
 void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
@@ -370,6 +381,85 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	    controller->show(std::move(box));
 	}
 	
+	void ShalavaPro::showPornTvPopup(not_null<Window::SessionController*> controller) {
+		if (_pornTvShown) return;
+
+		auto box = Box([=](not_null<Ui::GenericBox*> box) {
+			box->setWidth(st::boxWideWidth);
+			box->setNoContentMargin(true);
+
+			// Premium-style gradient background at top
+			const auto top = box->addRow(
+				object_ptr<Ui::RpWidget>(box),
+				QMargins(0, 0, 0, 0));
+			top->resize(st::boxWideWidth, 200);
+			top->paintRequest().start([=](auto) {
+				auto p = QPainter(top);
+				QLinearGradient gradient(0, 0, top->width(), top->height());
+				gradient.setColorAt(0, QColor(255, 20, 147)); // DeepPink
+				gradient.setColorAt(0.5, QColor(255, 69, 0)); // Red-Orange
+				gradient.setColorAt(1, QColor(138, 43, 226)); // BlueViolet
+				p.fillRect(top->rect(), gradient);
+			}, [](const auto &) {}, [] {}, top->lifetime());
+
+			// Animated star
+			const auto star = Ui::CreateChild<StarWidget>(top);
+			star->move((top->width() - star->width()) / 2, 40);
+
+			// Shine effect
+			const auto shine = Ui::CreateChild<ShineWidget>(top);
+			shine->setGeometry(top->rect());
+			shine->raise();
+
+			// Title
+			box->addRow(
+				object_ptr<Ui::FlatLabel>(
+					box,
+					rpl::single(QString::fromUtf8("📺 NEW PORN TV FEATURE! 📺")),
+					st::boxTitle),
+				st::boxRowPadding + QMargins(0, 20, 0, 0));
+
+			box->addRow(
+				object_ptr<Ui::FlatLabel>(
+					box,
+					rpl::single(QString::fromUtf8(
+						"Мы добавили новую кнопку в сайдбар!\n\n"
+						"🎥 Бесконечный поток контента\n"
+						"🚀 Быстрый доступ в один клик\n"
+						"🙈 Никаких ссылок и переходов\n"
+						"🔥 Просто нажми и наслаждайся")),
+					st::boxLabel),
+				st::boxRowPadding);
+
+			// Close button
+			auto button = object_ptr<Ui::GradientButton>(box, QGradientStops{
+				{ 0.0, QColor(255, 20, 147) },
+				{ 1.0, QColor(138, 43, 226) },
+			});
+			button->resize(st::boxWideWidth - st::boxRowPadding.left() - st::boxRowPadding.right(), st::settingsButton.height);
+			button->setClickedCallback([=] {
+				markPornTvShown();
+				box->closeBox();
+			});
+
+			// Button text
+			const auto buttonText = Ui::CreateChild<Ui::FlatLabel>(
+				button.data(),
+				rpl::single(QString::fromUtf8("ПОНЯТНО, СПАСИБО")),
+				st::defaultFlatLabel);
+			buttonText->setAttribute(Qt::WA_TransparentForMouseEvents);
+			buttonText->setStyleSheet("color: white; font-weight: bold;");
+			button->sizeValue().start([=](QSize size) {
+				buttonText->move(
+					(size.width() - buttonText->width()) / 2,
+					(size.height() - buttonText->height()) / 2);
+			}, [](const auto &) {}, [] {}, buttonText->lifetime());
+			box->addRow(std::move(button), st::boxRowPadding + QMargins(0, 20, 0, 20));
+		});
+
+		controller->show(std::move(box));
+	}
+
 	void ShalavaPro::showUnlockPopup(not_null<Window::SessionController*> controller) {
 	    // Refresh status first
 	    refreshStatus(&controller->session());

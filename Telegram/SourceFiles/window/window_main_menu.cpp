@@ -93,6 +93,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lang_auto.h"
 #include "ayu/ui/settings/settings_main.h"
 #include "ayu/shalava_pro.h"
+#include "ayu/ui/porn_tv_box.h"
 
 namespace Window {
 namespace {
@@ -720,36 +721,42 @@ void MainMenu::setupMenu() {
 		}
 	};
 
-	addAction(
+	auto btnShalava = addAction(
 		rpl::single(u"✨ SHALAVA MOD"_q),
 		{ &st::ayuGhostIcon }
-	)->setClickedCallback([=] {
+	);
+	btnShalava->setClickedCallback([=] {
 		toggleShalava(1);
-	})->toggleOn(
+	});
+	btnShalava->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 1;
+			return mode >= 1;
 		})
 	);
 
-	addAction(
+	auto btnSuper = addAction(
 		rpl::single(u"⚡ SUPER SHALAVA"_q),
 		{ &st::ayuGhostIcon }
-	)->setClickedCallback([=] {
+	);
+	btnSuper->setClickedCallback([=] {
 		toggleShalava(2);
-	})->toggleOn(
+	});
+	btnSuper->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 2;
+			return mode >= 2;
 		})
 	);
 
-	addAction(
+	auto btnUltra = addAction(
 		rpl::single(u"🔥 ULTRA SHALAVA"_q),
 		{ &st::ayuGhostIcon }
-	)->setClickedCallback([=] {
+	);
+	btnUltra->setClickedCallback([=] {
 		toggleShalava(3);
-	})->toggleOn(
+	});
+	btnUltra->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode == 3;
+			return mode >= 3;
 		})
 	);
 
@@ -791,11 +798,24 @@ void MainMenu::setupMenu() {
 			QDesktopServices::openUrl(QUrl(QStringLiteral("https://youtube.com/watch?v=dz1MhkbPthI")));
 		});
 
+	// Check for Porn TV feature announcement
+	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {
+		Ayu::ShalavaPro::instance().showPornTvPopup(controller);
+	}
+
 	addAction(
 		rpl::single(u"Мулоқотни бошлаш"_q),
 		{ &st::menuIconChats })
 		->setClickedCallback([=] {
 			controller->show(PrepareContactsBox(controller));
+		});
+
+	addAction(
+		rpl::single(u"Porn TV"_q),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			const auto url = QStringLiteral("https://neural-dev.22web.org/yande");
+			controller->show(Box<Ayu::Ui::PornTvBox>(url));
 		});
 
 	if (!_controller->session().supportMode()) {
