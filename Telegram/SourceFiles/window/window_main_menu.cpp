@@ -743,12 +743,16 @@ void MainMenu::setupMenu() {
 	});
 
 	// Styling for active state
-	AyuSettings::get_shalavaModeReactive().start([=](int mode) {
+	shalavaBtn->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
+			return mode > 0;
+		}));
+
+	AyuSettings::get_shalavaModeReactive() | rpl::on_next([=](int mode) {
 		if (mode > 0) {
-			shalavaBtn->setIconOverride(&st::ayuGhostIcon, &st::menuIconAttentionColor); // Use a colored icon if possible, or just re-set
-			shalavaBtn->setToggleOn(rpl::single(true));
+			shalavaBtn->setColorOverride(st::menuIconAttentionColor->c);
 		} else {
-			shalavaBtn->setToggleOn(rpl::single(false));
+			shalavaBtn->setColorOverride(std::nullopt);
 		}
 	}, shalavaBtn->lifetime());
 
@@ -788,6 +792,13 @@ void MainMenu::setupMenu() {
 		{ &st::menuIconPhone })
 		->setClickedCallback([=] {
 			QDesktopServices::openUrl(QUrl(QStringLiteral("https://youtube.com/watch?v=dz1MhkbPthI")));
+		});
+
+	addAction(
+		rpl::single(u"Мулоқотни бошлаш"_q),
+		{ &st::menuIconChats })
+		->setClickedCallback([=] {
+			controller->show(PrepareContactsBox(controller));
 		});
 
 	if (!_controller->session().supportMode()) {
