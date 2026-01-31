@@ -21,7 +21,7 @@
 namespace Ayu {
 
 namespace {
-	constexpr auto kMaxConcurrentRequests = 1;
+	constexpr auto kMaxConcurrentRequests = 20;
 	int activeRequests = 0;
 
 	QString KeyFromId(FullMsgId id) {
@@ -42,67 +42,64 @@ void ShamalaChat::rewrite(
 		const QString &text,
 		Fn<void(QString)> onSuccess,
 		Fn<void()> onFail) {
-	crl::on_main([=, this]() {
-		if (activeRequests >= kMaxConcurrentRequests) {
+	if (activeRequests >= kMaxConcurrentRequests) {
+		if (onFail) onFail();
+		return;
+	}
+	++activeRequests;
+
+	const QString urlStr = "https://gptuzbek.ddosxd.ru/v1/chat/completions";
+	const QString apiKey = "hui";
+
+	QNetworkRequest request{QUrl(urlStr)};
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+	request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
+
+	QJsonObject systemMessage;
+	systemMessage["role"] = "system";
+	systemMessage["content"] = "Ты — узбекский гопник. Перепиши сообщение пользователя на русский с жестким узбекским акцентом, используя мат, слова 'э', 'дон', 'жи есть', 'брат'. Смысл сохрани, но сделай максимально тупо и смешно. Ответ должен содержать ТОЛЬКО переписанный текст.";
+
+	QJsonObject userMessage;
+	userMessage["role"] = "user";
+	userMessage["content"] = text;
+
+	QJsonArray messages;
+	messages.append(systemMessage);
+	messages.append(userMessage);
+
+	QJsonObject body;
+	body["model"] = "gpt-3.5-turbo"; // Or whatever model the endpoint expects
+	body["messages"] = messages;
+	body["temperature"] = 0.7;
+
+	QNetworkReply *reply = _nam.post(request, QJsonDocument(body).toJson());
+	reply->ignoreSslErrors();
+
+	connect(reply, &QNetworkReply::finished, this, [=]() {
+		const auto guard = gsl::finally([] {
+			activeRequests = std::max(0, activeRequests - 1);
+		});
+		reply->deleteLater();
+
+		if (reply->error() != QNetworkReply::NoError) {
 			if (onFail) onFail();
 			return;
 		}
-		++activeRequests;
 
-		const QString urlStr = "https://gptuzbek.ddosxd.ru/v1/chat/completions";
-		const QString apiKey = "hui";
+		QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+		if (doc.isNull()) {
+			if (onFail) onFail();
+			return;
+		}
 
-		QNetworkRequest request{QUrl(urlStr)};
-		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-		request.setRawHeader("Authorization", "Bearer " + apiKey.toUtf8());
+		QString result = doc["choices"][0]["message"]["content"].toString().trimmed();
 
-		QJsonObject systemMessage;
-		systemMessage["role"] = "system";
-		systemMessage["content"] = "Ты — узбекский гопник. Перепиши сообщение пользователя на русский с жестким узбекским акцентом, используя мат, слова 'э', 'дон', 'жи есть', 'брат'. Смысл сохрани, но сделай максимально тупо и смешно. Ответ должен содержать ТОЛЬКО переписанный текст.";
+		if (result.isEmpty()) {
+			if (onFail) onFail();
+			return;
+		}
 
-		QJsonObject userMessage;
-		userMessage["role"] = "user";
-		userMessage["content"] = text;
-
-		QJsonArray messages;
-		messages.append(systemMessage);
-		messages.append(userMessage);
-
-		QJsonObject body;
-		body["model"] = "gpt-3.5-turbo"; // Or whatever model the endpoint expects
-		body["messages"] = messages;
-		body["temperature"] = 0.7;
-
-		QNetworkReply *reply = _nam.post(request, QJsonDocument(body).toJson());
-
-		connect(reply, &QNetworkReply::finished, this, [=]() {
-			const auto guard = gsl::finally([] {
-				activeRequests = std::max(0, activeRequests - 1);
-			});
-			reply->deleteLater();
-
-			if (reply->error() != QNetworkReply::NoError) {
-				if (onFail) onFail();
-				return;
-			}
-
-			QByteArray data = reply->readAll();
-
-			QJsonDocument doc = QJsonDocument::fromJson(data);
-			if (doc.isNull()) {
-				if (onFail) onFail();
-				return;
-			}
-
-			QString result = doc["choices"][0]["message"]["content"].toString().trimmed();
-
-			if (result.isEmpty()) {
-				if (onFail) onFail();
-				return;
-			}
-
-			if (onSuccess) onSuccess(result);
-		});
+		if (onSuccess) onSuccess(result);
 	});
 }
 
