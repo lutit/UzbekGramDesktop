@@ -13,6 +13,7 @@ PornTvBox::PornTvBox(QWidget*, const QString &url)
 
 void PornTvBox::prepare() {
 	setTitle(rpl::single(u"Porn TV"_q));
+	setNoContentMargin(true);
 
 	// Use a vertical layout size optimized for mobile content
 	int desiredWidth = 380; 
