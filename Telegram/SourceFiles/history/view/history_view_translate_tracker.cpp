@@ -66,12 +66,21 @@ void TranslateTracker::setup() {
 	}) | rpl::distinct_until_changed();
 
 	using namespace rpl::mappers;
-	_trackingLanguage = Core::App().settings().translateChatEnabledValue();
+	_trackingLanguage = rpl::single(true);
 	_trackingLanguage.value() | rpl::on_next([=](bool tracking) {
 		_trackingLifetime.destroy();
 		if (tracking) {
 			recognizeCollected();
 			trackSkipLanguages();
+
+			// Auto-translate logic
+			const auto to = Core::App().settings().translateTo();
+			if (to && _history->translatedTo() != to) {
+				_history->translateTo(to);
+				if (const auto migrated = _history->migrateFrom()) {
+					migrated->translateTo(to);
+				}
+			}
 		} else {
 			checkRecognized({});
 			_history->translateTo({});

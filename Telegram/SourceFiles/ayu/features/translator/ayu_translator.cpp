@@ -118,16 +118,16 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 			texts.push_back(textWithEntities);
 
 			// todo: entities are not considered in cache key
-			const auto key = generateCacheKey(text, fromLang, toLang);
-			cacheKeys.push_back(key);
+			// const auto key = generateCacheKey(text, fromLang, toLang);
+			// cacheKeys.push_back(key);
 
-			if (const auto cached = getFromCache(key)) {
-				resultTexts.push_back(cached->translatedText);
-			} else {
+			// if (const auto cached = getFromCache(key)) {
+			// 	resultTexts.push_back(cached->translatedText);
+			// } else {
 				resultTexts.push_back({});
 				uncachedIndices.push_back(i);
 				uncachedTexts.push_back(textWithEntities);
-			}
+			// }
 		}
 	} else if (!req.ids().v.isEmpty()) {
 		if (const auto peerData = Data::PeerFromInputMTP(&req.session()->data(), req.peer())) {
@@ -137,16 +137,16 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 					const auto textWithEntities = message->originalText();
 					texts.push_back(textWithEntities);
 
-					const auto key = generateMessageCacheKey(peerData->id, msgId, fromLang, toLang);
-					cacheKeys.push_back(key);
+					// const auto key = generateMessageCacheKey(peerData->id, msgId, fromLang, toLang);
+					// cacheKeys.push_back(key);
 
-					if (const auto cached = getFromCache(key)) {
-						resultTexts.push_back(cached->translatedText);
-					} else {
+					// if (const auto cached = getFromCache(key)) {
+					// 	resultTexts.push_back(cached->translatedText);
+					// } else {
 						resultTexts.push_back({});
 						uncachedIndices.push_back(i);
 						uncachedTexts.push_back(textWithEntities);
-					}
+					// }
 				} else {
 					// todo: ??
 					texts.push_back({});
@@ -182,7 +182,7 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 			const auto index = uncachedIndices[i];
 			resultTexts[index] = translated[i];
 
-			const auto &key = cacheKeys[index];
+			/*const auto &key = cacheKeys[index];
 			if (!key.isEmpty()) {
 				insertToCache(
 					key,
@@ -193,7 +193,7 @@ mtpRequestId TranslateManager::performTranslation(Builder &req) {
 						.toLang = toLang
 					}
 				);
-			}
+			}*/
 		}
 
 		auto vec = QVector<MTPTextWithEntities>();
