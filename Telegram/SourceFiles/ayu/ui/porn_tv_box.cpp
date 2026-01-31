@@ -14,11 +14,9 @@ PornTvBox::PornTvBox(QWidget*, const QString &url)
 void PornTvBox::prepare() {
 	setTitle(rpl::single(u"Porn TV"_q));
 
-	addButton(tr::lng_box_ok(), [=] { closeBox(); });
-
-	// Use a larger size for the TV
-	int desiredWidth = st::boxWidth * 2; // Approximate double width
-	int desiredHeight = 450;
+	// Use a vertical layout size optimized for mobile content
+	int desiredWidth = 380; 
+	int desiredHeight = 680;
 
 	auto content = ::Ui::CreateChild<::Ui::RpWidget>(this);
 	content->resize(desiredWidth, desiredHeight);

@@ -722,7 +722,7 @@ void MainMenu::setupMenu() {
 	};
 
 	auto btnShalava = addAction(
-		rpl::single(u"✨ SHALAVA MOD"_q),
+		rpl::single(u"Shalava Mod"_q),
 		{ &st::ayuGhostIcon }
 	);
 	btnShalava->setClickedCallback([=] {
@@ -730,12 +730,12 @@ void MainMenu::setupMenu() {
 	});
 	btnShalava->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode >= 1;
+			return mode == 1;
 		})
 	);
 
 	auto btnSuper = addAction(
-		rpl::single(u"⚡ SUPER SHALAVA"_q),
+		rpl::single(u"Super Shalava"_q),
 		{ &st::ayuGhostIcon }
 	);
 	btnSuper->setClickedCallback([=] {
@@ -743,12 +743,12 @@ void MainMenu::setupMenu() {
 	});
 	btnSuper->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode >= 2;
+			return mode == 2;
 		})
 	);
 
 	auto btnUltra = addAction(
-		rpl::single(u"🔥 ULTRA SHALAVA"_q),
+		rpl::single(u"Ultra Shalava"_q),
 		{ &st::ayuGhostIcon }
 	);
 	btnUltra->setClickedCallback([=] {
@@ -756,7 +756,7 @@ void MainMenu::setupMenu() {
 	});
 	btnUltra->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode >= 3;
+			return mode == 3;
 		})
 	);
 

@@ -8,6 +8,7 @@
 
 #include "lang_auto.h"
 #include "ayu/ayu_settings.h"
+#include "ayu/shalava_pro.h"
 #include "ayu/ui/boxes/font_selector.h"
 #include "ayu/ui/components/icon_picker.h"
 #include "ui/widgets/continuous_sliders.h"
@@ -88,26 +89,59 @@ void SetupAppIcon(not_null<Ui::VerticalLayout*> container) {
 #endif
 }
 
-void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container) {
+void SetupShalavaSettings(not_null<Ui::VerticalLayout*> container, not_null<Window::SessionController*> controller) {
 	auto *settings = &AyuSettings::getInstance();
 
 	AddSubsectionTitle(container, rpl::single(u"Shalava Mod"_q));
 
+	const auto toggleShalava = [=](int mode) {
+		const auto current = AyuSettings::getInstance().shalavaMode;
+		const auto next = (current == mode) ? 0 : mode;
+
+		auto activate = [=](int m) {
+			AyuSettings::set_shalavaMode(m);
+			AyuSettings::set_shalavaModePro(m == 3);
+			AyuSettings::save();
+		};
+
+		if (next == 3) {
+			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
+				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
+				return;
+			}
+			if (!settings->shalavaEpilepsyWarningShown && !settings->shalavaSafeMode) {
+				activate(3);
+			} else {
+				activate(3);
+			}
+		} else {
+			activate(next);
+		}
+	};
+
 	AddButtonWithIcon(
 		container,
-		rpl::single(u"Enable Shalava Mod"_q),
+		rpl::single(u"Shalava Mod"_q),
 		st::settingsButtonNoIcon
 	)->toggleOn(
-		AyuSettings::get_shalavaModeReactive() | rpl::map([](int m) { return m > 0; })
-	)->toggledValue(
-	) | rpl::on_next([=](bool enabled) {
-		if (enabled && settings->shalavaMode == 0) {
-			AyuSettings::set_shalavaMode(1);
-		} else if (!enabled) {
-			AyuSettings::set_shalavaMode(0);
-		}
-		AyuSettings::save();
-	}, container->lifetime());
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) { return mode == 1; })
+	)->setClickedCallback([=] { toggleShalava(1); });
+
+	AddButtonWithIcon(
+		container,
+		rpl::single(u"Super Shalava"_q),
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) { return mode == 2; })
+	)->setClickedCallback([=] { toggleShalava(2); });
+
+	AddButtonWithIcon(
+		container,
+		rpl::single(u"Ultra Shalava"_q),
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) { return mode == 3; })
+	)->setClickedCallback([=] { toggleShalava(3); });
 
 	AddButtonWithIcon(
 		container,
@@ -639,7 +673,7 @@ void AyuAppearance::setupContent(not_null<Window::SessionController*> controller
 	SetupAppearance(content, controller);
 	SetupChatFolders(content);
 	SetupTrayElements(content);
-	SetupShalavaSettings(content);
+	SetupShalavaSettings(content, controller);
 	SetupDrawerElements(content, controller);
 	AddSkip(content);
 
