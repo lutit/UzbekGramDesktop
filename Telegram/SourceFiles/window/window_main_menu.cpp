@@ -694,44 +694,22 @@ void MainMenu::setupMenu() {
 			std::move(descriptor));
 	};
 
-	// Shalava Mod Button
-	auto shalavaBtn = addAction(
-		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			switch (mode) {
-				case 1: return u"✨ SHALAVA MOD"_q;
-				case 2: return u"⚡ SUPER SHALAVA"_q;
-				case 3: return u"🔥 ULTRA SHALAVA"_q;
-				default: return u"✨ SHALAVA MOD"_q;
-			}
-		}),
-		{ &st::ayuGhostIcon }
-	);
-	
-	shalavaBtn->setClickedCallback([=] {
-		int current = AyuSettings::getInstance().shalavaMode;
-		int next = (current + 1) % 4; // 0, 1, 2, 3, 0
-
-		if (next == 0) {
-			AyuSettings::set_shalavaMode(0);
-			AyuSettings::set_shalavaModePro(false);
-			AyuSettings::save();
-			return;
-		}
-
-		auto activate = [=](int mode) {
-			AyuSettings::set_shalavaMode(mode);
-			AyuSettings::set_shalavaModePro(mode == 3);
+	// Shalava Mod Buttons
+	const auto toggleShalava = [=](int mode) {
+		const auto current = AyuSettings::getInstance().shalavaMode;
+		const auto next = (current == mode) ? 0 : mode;
+		
+		auto activate = [=](int m) {
+			AyuSettings::set_shalavaMode(m);
+			AyuSettings::set_shalavaModePro(m == 3);
 			AyuSettings::save();
 		};
 
 		if (next == 3) {
-			// Check PRO
 			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
 				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
 				return;
 			}
-
-			// Epilepsy warning for Ultra
 			if (!settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
 				ShowEpilepsyWarning([=] { activate(3); });
 			} else {
@@ -740,21 +718,40 @@ void MainMenu::setupMenu() {
 		} else {
 			activate(next);
 		}
-	});
+	};
 
-	// Styling for active state
-	shalavaBtn->toggleOn(
+	addAction(
+		rpl::single(u"✨ SHALAVA MOD"_q),
+		{ &st::ayuGhostIcon }
+	)->setClickedCallback([=] {
+		toggleShalava(1);
+	})->toggleOn(
 		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
-			return mode > 0;
-		}));
+			return mode == 1;
+		})
+	);
 
-	AyuSettings::get_shalavaModeReactive() | rpl::on_next([=](int mode) {
-		if (mode > 0) {
-			shalavaBtn->setColorOverride(st::menuIconAttentionColor->c);
-		} else {
-			shalavaBtn->setColorOverride(std::nullopt);
-		}
-	}, shalavaBtn->lifetime());
+	addAction(
+		rpl::single(u"⚡ SUPER SHALAVA"_q),
+		{ &st::ayuGhostIcon }
+	)->setClickedCallback([=] {
+		toggleShalava(2);
+	})->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
+			return mode == 2;
+		})
+	);
+
+	addAction(
+		rpl::single(u"🔥 ULTRA SHALAVA"_q),
+		{ &st::ayuGhostIcon }
+	)->setClickedCallback([=] {
+		toggleShalava(3);
+	})->toggleOn(
+		AyuSettings::get_shalavaModeReactive() | rpl::map([](int mode) {
+			return mode == 3;
+		})
+	);
 
 
 	// Epstein Mode
