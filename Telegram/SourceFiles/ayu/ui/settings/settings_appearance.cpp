@@ -55,16 +55,9 @@ AyuAppearance::AyuAppearance(
 }
 
 void SetupAppIcon(not_null<Ui::VerticalLayout*> container) {
-	AddSubsectionTitle(container, tr::ayu_AppIconHeader());
-	container->add(
-		object_ptr<IconPicker>(container),
-		st::settingsCheckboxPadding);
-
 #ifdef Q_OS_WIN
 	auto *settings = &AyuSettings::getInstance();
 
-	AddDivider(container);
-	AddSkip(container);
 	AddButtonWithIcon(
 		container,
 		tr::ayu_HideNotificationBadge(),
