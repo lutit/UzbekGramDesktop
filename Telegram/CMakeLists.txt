@@ -248,6 +248,8 @@ set(ayugram_files
         ayu/features/filters/filters_utils.h
         ayu/features/filters/shadow_ban_utils.cpp
         ayu/features/filters/shadow_ban_utils.h
+        ayu/features/cors_proxy/cors_proxy_server.cpp
+        ayu/features/cors_proxy/cors_proxy_server.h
         ayu/data/messages_storage.cpp
         ayu/data/messages_storage.h
         ayu/data/entities.h

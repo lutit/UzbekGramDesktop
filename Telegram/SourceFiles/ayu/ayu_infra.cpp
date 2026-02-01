@@ -11,6 +11,7 @@
 #include "ayu/ayu_ui_settings.h"
 #include "ayu/ayu_worker.h"
 #include "ayu/data/ayu_database.h"
+#include "ayu/features/cors_proxy/cors_proxy_server.h"
 #include "features/translator/ayu_translator.h"
 #include "features/filters/shadow_ban_utils.h"
 #include "lang/lang_instance.h"
@@ -53,6 +54,10 @@ void initTranslator() {
 	Ayu::Translator::TranslateManager::init();
 }
 
+void initCorsProxy() {
+	Ayu::CorsProxyServer::instance().start();
+}
+
 void init() {
 	initLang();
 	initDatabase();
@@ -60,6 +65,7 @@ void init() {
 	initWorker();
 	initRCManager();
 	initTranslator();
+	initCorsProxy();
 }
 
 }
