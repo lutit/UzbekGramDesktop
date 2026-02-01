@@ -11,7 +11,7 @@
 #include "ayu/ayu_ui_settings.h"
 #include "ayu/ayu_worker.h"
 #include "ayu/data/ayu_database.h"
-#include "ayu/features/cors_proxy/cors_proxy_server.h"
+// #include "ayu/features/cors_proxy/cors_proxy_server.h" // Disabled - unstable
 #include "features/translator/ayu_translator.h"
 #include "features/filters/shadow_ban_utils.h"
 #include "lang/lang_instance.h"
@@ -54,9 +54,10 @@ void initTranslator() {
 	Ayu::Translator::TranslateManager::init();
 }
 
-void initCorsProxy() {
-	Ayu::CorsProxyServer::instance().start();
-}
+// Disabled - CORS proxy is unstable with large file downloads
+// void initCorsProxy() {
+// 	Ayu::CorsProxyServer::instance().start();
+// }
 
 void init() {
 	initLang();
@@ -65,7 +66,7 @@ void init() {
 	initWorker();
 	initRCManager();
 	initTranslator();
-	initCorsProxy();
+	// initCorsProxy(); // Disabled - unstable
 }
 
 }
