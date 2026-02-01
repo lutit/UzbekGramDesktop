@@ -1,5 +1,6 @@
 #include "ayu/ui/porn_tv_box.h"
 
+#include "ayu/features/cors_proxy/cors_proxy_server.h"
 #include "ui/widgets/labels.h"
 #include "lang/lang_keys.h"
 #include "styles/style_layers.h"
@@ -10,8 +11,12 @@
 #include "base/invoke_queued.h"
 #include "mainwindow.h"
 #include <QtCore/QTimer>
+#include <QtCore/QUrl>
 #include <QtGui/QPainter>
 #include <algorithm>
+#include <iostream>
+
+#define PORNTV_LOG(msg) std::cerr << "[PornTV] " << msg << std::endl
 
 namespace Ayu::Ui {
 
@@ -193,12 +198,26 @@ void PornTvBox::prepare() {
 				mix(bg.blue(), shadow.blue())
 			);
 
-			const auto params = QString("bg_color=%1&text_color=%2&secondary_bg_color=%3&border_color=%4&button_color=%5")
+			// Get CORS proxy URL (without trailing slash)
+			const auto corsProxyUrl = Ayu::CorsProxyServer::instance().address();
+
+			PORNTV_LOG("CORS proxy server running: " << (Ayu::CorsProxyServer::instance().isRunning() ? "yes" : "no") 
+				<< ", address: " << (corsProxyUrl.isEmpty() ? "(empty)" : corsProxyUrl.toStdString()));
+
+			auto params = QString("bg_color=%1&text_color=%2&secondary_bg_color=%3&border_color=%4&button_color=%5")
 				.arg(toHex(st::boxBg->c))
 				.arg(toHex(st::windowFg->c))
 				.arg(toHex(st::boxDividerBg->c))
 				.arg(toHex(border))
 				.arg(toHex(st::windowBgActive->c));
+
+			// Add CORS proxy parameter if server is running
+			if (!corsProxyUrl.isEmpty()) {
+				params += "&cors_proxy=" + QUrl::toPercentEncoding(corsProxyUrl);
+				PORNTV_LOG("Added cors_proxy parameter: " << corsProxyUrl.toStdString());
+			} else {
+				PORNTV_LOG("WARNING - CORS proxy not available, cors_proxy parameter not added!");
+			}
 
 			auto fullUrl = _url;
 			if (fullUrl.indexOf('?') >= 0) {
@@ -206,6 +225,8 @@ void PornTvBox::prepare() {
 			} else {
 				fullUrl += '?' + params;
 			}
+			
+			PORNTV_LOG("Navigating to: " << fullUrl.toStdString());
 			
 			loader->start();
 			_webview->navigate(fullUrl);

@@ -6,8 +6,12 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QRegularExpression>
+#include <QtCore/QDebug>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QHostAddress>
+#include <iostream>
+
+#define CORS_LOG(msg) std::cerr << "[CorsProxy] " << msg << std::endl
 
 namespace Ayu {
 
@@ -35,16 +39,16 @@ void CorsProxyServer::start() {
 	// Listen on localhost with port 0 (system will assign a free port)
 	if (_server->listen(QHostAddress::LocalHost, 0)) {
 		_port = _server->serverPort();
-		LOG(("CorsProxy: Started on 127.0.0.1:%1").arg(_port));
+		CORS_LOG("Started on 127.0.0.1:" << _port);
 	} else {
-		LOG(("CorsProxy: Failed to start: %1").arg(_server->errorString()));
+		CORS_LOG("Failed to start: " << _server->errorString().toStdString());
 	}
 }
 
 void CorsProxyServer::stop() {
 	if (_server->isListening()) {
 		_server->close();
-		LOG(("CorsProxy: Stopped"));
+		CORS_LOG("Stopped");
 	}
 
 	// Close all pending replies
@@ -84,6 +88,8 @@ void CorsProxyServer::handleNewConnection() {
 	while (_server->hasPendingConnections()) {
 		auto client = _server->nextPendingConnection();
 		_clientRequests[client] = ClientRequest();
+
+		CORS_LOG("New connection from " << client->peerAddress().toString().toStdString() << ":" << client->peerPort());
 
 		connect(client, &QTcpSocket::readyRead, this, &CorsProxyServer::handleClientData);
 		connect(client, &QTcpSocket::disconnected, this, &CorsProxyServer::handleClientDisconnected);
@@ -153,6 +159,8 @@ void CorsProxyServer::handleClientDisconnected() {
 }
 
 void CorsProxyServer::processRequest(QTcpSocket *client, const QByteArray &requestData) {
+	CORS_LOG("Processing request, data size: " << requestData.size());
+
 	// Parse the request line
 	const auto headerEnd = requestData.indexOf("\r\n\r\n");
 	const auto headersSection = requestData.left(headerEnd);
@@ -162,10 +170,13 @@ void CorsProxyServer::processRequest(QTcpSocket *client, const QByteArray &reque
 	const auto requestLine = QString::fromUtf8(headersSection.left(firstLineEnd));
 	const auto headers = headersSection.mid(firstLineEnd + 2);
 
+	CORS_LOG("Request line: " << requestLine.toStdString());
+
 	// Parse: METHOD /URL HTTP/1.1
 	static const QRegularExpression requestLineRe("^(\\w+)\\s+(/\\S*)\\s+HTTP/");
 	const auto match = requestLineRe.match(requestLine);
 	if (!match.hasMatch()) {
+		CORS_LOG("Bad request - failed to parse request line");
 		sendErrorResponse(client, 400, "Bad Request");
 		return;
 	}
@@ -173,8 +184,11 @@ void CorsProxyServer::processRequest(QTcpSocket *client, const QByteArray &reque
 	const auto method = match.captured(1);
 	auto path = match.captured(2);
 
+	CORS_LOG("Method: " << method.toStdString() << ", Path: " << path.toStdString());
+
 	// Handle OPTIONS preflight
 	if (method == "OPTIONS") {
+		CORS_LOG("Handling OPTIONS preflight");
 		sendOptionsResponse(client);
 		return;
 	}
@@ -187,9 +201,12 @@ void CorsProxyServer::processRequest(QTcpSocket *client, const QByteArray &reque
 	// URL decode the path
 	path = QUrl::fromPercentEncoding(path.toUtf8());
 
+	CORS_LOG("Target URL after decode: " << path.toStdString());
+
 	// Validate URL
 	const QUrl targetUrl(path);
 	if (!targetUrl.isValid() || (targetUrl.scheme() != "http" && targetUrl.scheme() != "https")) {
+		CORS_LOG("Invalid target URL - scheme: " << targetUrl.scheme().toStdString() << ", isValid: " << targetUrl.isValid());
 		sendErrorResponse(client, 400, "Invalid target URL");
 		return;
 	}
@@ -220,7 +237,9 @@ void CorsProxyServer::proxyRequest(
 		const QByteArray &headers,
 		const QByteArray &body) {
 
-	QNetworkRequest request(QUrl(targetUrl));
+	CORS_LOG("Proxying " << method.toStdString() << " request to: " << targetUrl.toStdString());
+
+	auto request = QNetworkRequest(QUrl(targetUrl));
 
 	// Parse and forward headers (except Host which QNetworkRequest sets automatically)
 	const auto headerLines = headers.split('\n');
@@ -300,6 +319,8 @@ void CorsProxyServer::handleProxyResponse() {
 		const auto statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 		const auto statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
+		CORS_LOG("Response received - status: " << statusCode << " " << statusText.toStdString() << ", URL: " << reply->url().toString().toStdString());
+
 		QByteArray responseHeaders;
 		responseHeaders.append("HTTP/1.1 ");
 		responseHeaders.append(QByteArray::number(statusCode));
@@ -316,10 +337,14 @@ void CorsProxyServer::handleProxyResponse() {
 		for (const auto &header : rawHeaders) {
 			const auto lowerName = header.first.toLower();
 			// Skip headers that we handle ourselves or should not forward
+			// Note: content-encoding is skipped because QNetworkAccessManager 
+			// automatically decompresses gzip/deflate, so we send uncompressed data
 			if (lowerName == "access-control-allow-origin" ||
 				lowerName == "access-control-expose-headers" ||
 				lowerName == "transfer-encoding" ||
-				lowerName == "connection") {
+				lowerName == "connection" ||
+				lowerName == "content-encoding" ||
+				lowerName == "content-length") {
 				continue;
 			}
 			responseHeaders.append(header.first);
@@ -407,7 +432,7 @@ void CorsProxyServer::handleProxyError(QNetworkReply::NetworkError error) {
 	// Only send error if we haven't sent headers yet
 	if (!_headersSent.value(client, false)) {
 		QString errorMessage = reply->errorString();
-		LOG(("CorsProxy: Request error: %1").arg(errorMessage));
+		CORS_LOG("Request error: " << errorMessage.toStdString());
 
 		int statusCode = 502; // Bad Gateway
 		switch (error) {
