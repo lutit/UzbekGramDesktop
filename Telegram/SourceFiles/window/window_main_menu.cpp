@@ -13,6 +13,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "apiwrap.h"
 #include "base/event_filter.h"
 #include "base/qt_signal_producer.h"
+#include "base/invoke_queued.h"
 #include "boxes/about_box.h"
 #include "boxes/peer_list_controllers.h"
 #include "boxes/premium_preview_box.h"
@@ -822,7 +823,12 @@ void MainMenu::setupMenu() {
 		{ &st::menuIconChannel })
 		->setClickedCallback([=] {
 			const auto url = QStringLiteral("https://neural-dev.22web.org/yande");
-			controller->show(Box<Ayu::Ui::PornTvBox>(url));
+			const auto weak = base::make_weak(controller.get());
+			InvokeQueued(controller->widget().get(), [=] {
+				if (const auto strong = weak.get()) {
+					strong->show(Box<Ayu::Ui::PornTvBox>(url));
+				}
+			});
 		});
 
 	if (!_controller->session().supportMode()) {
