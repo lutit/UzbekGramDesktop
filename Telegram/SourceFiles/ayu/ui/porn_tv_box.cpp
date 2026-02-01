@@ -8,7 +8,9 @@
 #include "core/application.h"
 #include "window/window_controller.h"
 #include "base/invoke_queued.h"
+#include "mainwindow.h"
 #include <QtCore/QTimer>
+#include <algorithm>
 
 namespace Ayu::Ui {
 
@@ -34,16 +36,51 @@ void PornTvBox::prepare() {
 	setStyle(*style);
 	setNoContentMargin(true);
 
-	// Use a vertical layout size optimized for mobile content
-	int desiredWidth = 380; 
-	int desiredHeight = 700;
-	
-	if (const auto window = Core::App().activeWindow()) {
-		desiredHeight = std::max(400, window->widget()->height() - 80);
-	}
-
 	auto content = ::Ui::CreateChild<::Ui::RpWidget>(this);
-	content->resize(desiredWidth, desiredHeight);
+
+	if (const auto window = Core::App().activeWindow()) {
+		const auto updateGeometry = [=](QSize size) {
+			// Enforce vertical aspect ratio (9:16) for "Porn TV" style content
+			const float aspectRatio = 9.0f / 16.0f;
+			const int paddingY = 80;
+			const int paddingX = 40;
+			
+			// Calculate available space
+			const int maxH = std::max(500, size.height() - paddingY);
+			const int maxW = std::max(360, size.width() - paddingX);
+			
+			// Target height: 90% of window height
+			int h = std::clamp(int(size.height() * 0.9), 500, maxH);
+			
+			// Target width: Derived from height with aspect ratio
+			int w = int(h * aspectRatio);
+			
+			// Constraint: Width must not exceed available width
+			if (w > maxW) {
+				w = maxW;
+			}
+			
+			// Ensure strict minimums
+			w = std::max(w, 360);
+			h = std::max(h, 500);
+			
+			// Final safety clamp to window size
+			w = std::min(w, size.width());
+			h = std::min(h, size.height());
+			
+			if (content->width() != w || content->height() != h) {
+				content->resize(w, h);
+				setDimensions(w, h);
+			}
+		};
+
+		updateGeometry(window->widget()->size());
+		window->widget()->sizeValue() | rpl::on_next(updateGeometry, lifetime());
+
+	} else {
+		content->resize(380, 700);
+		setDimensions(380, 700);
+	}
 	
 	QTimer::singleShot(300, this, [=] {
 		_webview = std::make_unique<Webview::Window>(
@@ -105,8 +142,6 @@ void PornTvBox::prepare() {
 		style::PaletteChanged(
 		) | rpl::on_next(updateUrl, lifetime());
 	});
-	
-	setDimensionsToContent(desiredWidth, content);
 }
 
 } // namespace Ayu::Ui
