@@ -320,7 +320,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	        box->addRow(
 	            object_ptr<Ui::FlatLabel>(
 	                box,
-	                rpl::single(QString::fromUtf8("✨ SHALAVA PRO ДОСТУПЕН! ✨")),
+	                rpl::single(QString::fromUtf8("✅ SHALAVA PRO AVAILABLE ✅")),
 	                st::boxTitle),
 	            st::boxRowPadding + QMargins(0, 20, 0, 0));
 	
@@ -328,11 +328,11 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            object_ptr<Ui::FlatLabel>(
 	                box,
 	                rpl::single(QString::fromUtf8(
-	                    "Разблокируй эксклюзивные эффекты из Telegram Premium!\n\n"
-	                    "🌟 Премиум анимации звёзд\n"
-	                    "💫 Эффекты как в оригинальном TG\n"
-	                    "🔥 Ультра режим с огнём\n"
-	                    "✨ Специальные визуальные эффекты")),
+	                    "unlock shalava pro effects✅da ✅\n\n"
+	                    "   premium super pro effects✅\n"
+	                    "   UzbekGPT PRO ✅✅✅\n"
+	                    "   mega epstein mode PRO✅\n"
+	                    "   shalava mega PRO✅✅✅")),
 	                st::boxLabel),
 	            st::boxRowPadding);
 	
@@ -340,7 +340,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            object_ptr<Ui::FlatLabel>(
 	                box,
 	                rpl::single(QString::fromUtf8(
-	                    "Чтобы получить PRO, подпишись на канал:\n"
+	                    "to get PRO, subscribe:\n"
 	                    "@uzbekgram_client")),
 	                st::boxLabel),
 	            st::boxRowPadding);
@@ -361,7 +361,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	        // Button text
 	        const auto buttonText = Ui::CreateChild<Ui::FlatLabel>(
 	            button.data(),
-	            rpl::single(QString::fromUtf8("ПОДПИСАТЬСЯ И ПОЛУЧИТЬ PRO")),
+	            rpl::single(QString::fromUtf8("subscribe and get pro da✅")),
 	            st::defaultFlatLabel);
 	        buttonText->setAttribute(Qt::WA_TransparentForMouseEvents);
 	        buttonText->setStyleSheet("color: white; font-weight: bold;");
@@ -415,7 +415,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 			box->addRow(
 				object_ptr<Ui::FlatLabel>(
 					box,
-					rpl::single(QString::fromUtf8("📺 NEW PORN TV FEATURE! 📺")),
+					rpl::single(QString::fromUtf8("new porn tv feature available")),
 					st::boxTitle),
 				st::boxRowPadding + QMargins(0, 20, 0, 0));
 
@@ -423,11 +423,11 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 				object_ptr<Ui::FlatLabel>(
 					box,
 					rpl::single(QString::fromUtf8(
-						"Мы добавили новую кнопку в сайдбар!\n\n"
-						"🎥 Бесконечный поток контента\n"
-						"🚀 Быстрый доступ в один клик\n"
-						"🙈 Никаких ссылок и переходов\n"
-						"🔥 Просто нажми и наслаждайся")),
+						"new sidebar switch✅\n\n"
+						"   new porn tv feature✅✅✅✅\n"
+						"   mega shalava effect✅\n"
+						"   dildo da✅✅\n"
+						"   enable this please✅✅✅")),
 					st::boxLabel),
 				st::boxRowPadding);
 
@@ -445,7 +445,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 			// Button text
 			const auto buttonText = Ui::CreateChild<Ui::FlatLabel>(
 				button.data(),
-				rpl::single(QString::fromUtf8("ПОНЯТНО, СПАСИБО")),
+				rpl::single(QString::fromUtf8("thanks da✅")),
 				st::defaultFlatLabel);
 			buttonText->setAttribute(Qt::WA_TransparentForMouseEvents);
 			buttonText->setStyleSheet("color: white; font-weight: bold;");
@@ -493,8 +493,8 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            object_ptr<Ui::FlatLabel>(
 	                box,
 	                rpl::single(unlocked
-	                    ? QString::fromUtf8("✨ SHALAVA PRO АКТИВЕН!")
-	                    : QString::fromUtf8("🔒 SHALAVA PRO")),
+	                    ? QString::fromUtf8("✅ Shalava PRO activated ")
+	                    : QString::fromUtf8("✅ Shalava PRO da✅")),
 	                st::boxTitle),
 	            st::boxRowPadding + QMargins(0, 20, 0, 0));
 	
@@ -503,11 +503,11 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	                object_ptr<Ui::FlatLabel>(
 	                    box,
 	                    rpl::single(QString::fromUtf8(
-	                        "Спасибо за подписку!\n\n"
-	                        "Все PRO эффекты разблокированы:\n"
-	                        "🌟 Премиум режим (кнопка 4)\n"
-	                        "💫 Эффекты частиц из TG Premium\n"
-	                        "✨ Специальные анимации")),
+	                        "thanks da ✅\n\n"
+	                        "all PRO effects available:\n"
+	                        "   PRO mode✅\n"
+	                        "   new effects✅✅\n"
+	                        "   new anims✅")),
 	                    st::boxLabel),
 	                st::boxRowPadding);
 	        } else {
@@ -515,9 +515,9 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	                object_ptr<Ui::FlatLabel>(
 	                    box,
 	                    rpl::single(QString::fromUtf8(
-	                        "Подпишись на @uzbekgram_client\n"
-	                        "чтобы разблокировать PRO функции!\n\n"
-	                        "После подписки нажми \"Проверить\"")),
+	                        "subscribe @uzbekgram_client\n"
+	                        "to unlock all pro features✅\n\n"
+	                        "after subscribe click \"check\" ✅")),
 	                    st::boxLabel),
 	                st::boxRowPadding);
 	
@@ -533,7 +533,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	
 	            const auto subText = Ui::CreateChild<Ui::FlatLabel>(
 	                subButton.data(),
-	                rpl::single(QString::fromUtf8("ПОДПИСАТЬСЯ")),
+	                rpl::single(QString::fromUtf8("SUBSCRIBE✅")),
 	                st::defaultFlatLabel);
 	            subText->setAttribute(Qt::WA_TransparentForMouseEvents);
 	            subText->setStyleSheet("color: white; font-weight: bold;");
@@ -545,7 +545,7 @@ void ShalavaPro::checkSubscription(not_null<Main::Session*> session) {
 	            box->addRow(std::move(subButton), st::boxRowPadding + QMargins(0, 20, 0, 0));
 	
 	            // Check button
-	            box->addButton(rpl::single(QString::fromUtf8("Проверить")), [=, controller = controller] {
+	            box->addButton(rpl::single(QString::fromUtf8("check")), [=, controller = controller] {
 	                refreshStatus(&controller->session());
 	                box->closeBox();
 	                showUnlockPopup(controller);
