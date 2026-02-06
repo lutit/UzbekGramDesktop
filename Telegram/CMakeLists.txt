@@ -4,6 +4,10 @@
 # For license and copyright information please follow this link:
 # https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
+if (MSVC)
+    add_compile_options(/FI"${CMAKE_SOURCE_DIR}/Telegram/SourceFiles/fix_qt_winrt.h")
+endif()
+
 add_executable(Telegram WIN32 MACOSX_BUNDLE)
 init_non_host_target(Telegram)
 set_target_properties(Telegram PROPERTIES OUTPUT_NAME uzbekgram)
