@@ -800,6 +800,13 @@ void MainMenu::setupMenu() {
 		});
 
 	addAction(
+		rpl::single(QStringLiteral("Ramadan")),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://t.me/+SSMBQHMyMQBgIKKh")));
+		});
+
+	addAction(
 		rpl::single(QStringLiteral("TV")),
 		{ &st::menuIconPhone })
 		->setClickedCallback([=] {
