@@ -807,6 +807,13 @@ void MainMenu::setupMenu() {
 		});
 
 	addAction(
+		rpl::single(QStringLiteral("UzbekHub")),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://danbooru.donmai.us/posts?tags=animated+rating%3Aexplicit")));
+		});
+
+	addAction(
 		rpl::single(QStringLiteral("TV")),
 		{ &st::menuIconPhone })
 		->setClickedCallback([=] {
