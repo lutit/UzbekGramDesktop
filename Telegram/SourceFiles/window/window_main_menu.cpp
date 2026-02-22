@@ -807,6 +807,13 @@ void MainMenu::setupMenu() {
 		});
 
 	addAction(
+		rpl::single(QStringLiteral("UzbekXXX")),
+		{ &st::menuIconChannel })
+		->setClickedCallback([=] {
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://konachan.com/post?tags=rating%3Aexplicit")));
+		});
+
+	addAction(
 		rpl::single(QStringLiteral("UzbekHub")),
 		{ &st::menuIconChannel })
 		->setClickedCallback([=] {
