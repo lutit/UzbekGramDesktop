@@ -32,7 +32,7 @@ jobs:
           mkdir -p "$WORKDIR"
           rsync -a --delete --exclude '.git' ./ "$WORKDIR"/
 
-      - name: Run configure+build (Debug, minimal)
+      - name: Run configure+build
         run: |
           cd "$WORKDIR"
           docker run --rm -i \
