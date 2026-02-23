@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  quick-build:
+  build:
     runs-on: ubuntu-22.04
     env:
       API_ID: 2040
@@ -25,7 +25,7 @@ jobs:
       - name: Set temp paths
         run: |
           echo "WORKDIR=$RUNNER_TEMP/tdesktop" >> $GITHUB_ENV
-          echo "ARTIFACT=$RUNNER_TEMP/quick-build-logs.tar.gz" >> $GITHUB_ENV
+          echo "ARTIFACT=$RUNNER_TEMP/build-logs.tar.gz" >> $GITHUB_ENV
 
       - name: Prepare workspace (slim copy)
         run: |
@@ -77,11 +77,11 @@ jobs:
             | tar --null -T - -czf "$ARTIFACT" || true
           ls -lh "$ARTIFACT" || true
 
-      - name: Upload quick-build logs
+      - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: quick-build-logs
+          name: build-logs
           path: ${{ env.ARTIFACT }}
           retention-days: 3
 
