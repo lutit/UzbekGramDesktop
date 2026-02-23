@@ -45,7 +45,6 @@ jobs:
           docker run --rm -i \
             -u "$(id -u)" \
             -v "$WORKDIR:/usr/src/tdesktop" \
-            -e CONFIG=Debug \
             ghcr.io/telegramdesktop/tdesktop/centos_env:latest \
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
               -D TDESKTOP_API_ID=$API_ID \
