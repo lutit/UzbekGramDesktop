@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   quick-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
       API_ID: 2040
