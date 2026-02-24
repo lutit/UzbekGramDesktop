@@ -1,18 +1,11 @@
-name: Quick Build (Linux)
+name: Build (Linux)
 
 on:
-  push:
-    branches: ["**"]
-  pull_request:
-
-concurrency:
-  group: quick-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
 
 jobs:
-  quick-build:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
     env:
       API_ID: 2040
       API_HASH: b18441a1ff607e10a989891a5462e627
@@ -32,20 +25,19 @@ jobs:
       - name: Set temp paths
         run: |
           echo "WORKDIR=$RUNNER_TEMP/tdesktop" >> $GITHUB_ENV
-          echo "ARTIFACT=$RUNNER_TEMP/quick-build-logs.tar.gz" >> $GITHUB_ENV
+          echo "ARTIFACT=$RUNNER_TEMP/build-logs.tar.gz" >> $GITHUB_ENV
 
       - name: Prepare workspace (slim copy)
         run: |
           mkdir -p "$WORKDIR"
           rsync -a --delete --exclude '.git' ./ "$WORKDIR"/
 
-      - name: Run configure+build (Debug, minimal)
+      - name: Run configure+build
         run: |
           cd "$WORKDIR"
           docker run --rm -i \
             -u "$(id -u)" \
             -v "$WORKDIR:/usr/src/tdesktop" \
-            -e CONFIG=Debug \
             ghcr.io/telegramdesktop/tdesktop/centos_env:latest \
             /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
               -D TDESKTOP_API_ID=$API_ID \
@@ -85,11 +77,11 @@ jobs:
             | tar --null -T - -czf "$ARTIFACT" || true
           ls -lh "$ARTIFACT" || true
 
-      - name: Upload quick-build logs
+      - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: quick-build-logs
+          name: build-logs
           path: ${{ env.ARTIFACT }}
           retention-days: 3
 
