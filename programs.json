@@ -3,9 +3,9 @@
     {
       "name": "uzbekgram-desktop",
       "description": "халяль телеграм нужно ставить✅ контра: язык Python ✅",
-      "version": "6.3.10",
+      "version": "6.3.10-2",
       "install_type": 2,
-      "archive_url": "https://github.com/lutit/UzbekGramDesktop/releases/download/v6.3.10-rc/build.zip"
+      "archive_url": "https://github.com/lutit/UzbekGramDesktop/releases/download/v6.3.10-2/build.zip"
     }
   ]
 }
