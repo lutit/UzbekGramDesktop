@@ -810,14 +810,14 @@ void MainMenu::setupMenu() {
 		rpl::single(QStringLiteral("UzbekXXX")),
 		{ &st::menuIconChannel })
 		->setClickedCallback([=] {
-			QDesktopServices::openUrl(QUrl(QStringLiteral("https://konachan.com/post?tags=rating%3Aexplicit")));
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://konachan.com/post?tags=-rating%3Asafe")));
 		});
 
 	addAction(
 		rpl::single(QStringLiteral("UzbekHub")),
 		{ &st::menuIconChannel })
 		->setClickedCallback([=] {
-			QDesktopServices::openUrl(QUrl(QStringLiteral("https://danbooru.donmai.us/posts?tags=animated+rating%3Aexplicit")));
+			QDesktopServices::openUrl(QUrl(QStringLiteral("https://danbooru.donmai.us/posts?tags=animated+-rating%3Ageneral")));
 		});
 
 	addAction(
