@@ -38,7 +38,7 @@
 #include <thread>
 #include <vector>
 
-#include <gsl/gsl_util>
+#include <gsl/util>
 #include <unzip.h>
 
 namespace Ayu::HalalFm {
