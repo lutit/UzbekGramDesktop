@@ -375,18 +375,16 @@ public:
 		AyuSettings::save();
 
 		controller->show(Box([=](not_null<Ui::GenericBox*> box) {
-			box->setTitle(rpl::single(QString::fromUtf8("HALAL FM")));
+			box->setTitle(rpl::single(QString::fromUtf8("HALAL FM ТЕПЕРЬ ДОСТУПЕН В УЗБЕКГРАМЕ!")));
 			box->addRow(object_ptr<Ui::FlatLabel>(
 				box,
-				rpl::single(QString::fromUtf8(
-					"Включить фоновую радиостанцию с нашидами?\n"
-					"Кэш обновляется каждые 3 дня.")),
+				rpl::single(QString::fromUtf8("врубите эту имбу")),
 				st::boxLabel));
 			box->addButton(rpl::single(QString::fromUtf8("врубить ✔")), [=] {
 				toggle(controller);
 				box->closeBox();
 			});
-			box->addButton(tr::lng_close(), [=] {
+			box->addButton(rpl::single(QString::fromUtf8("потом")), [=] {
 				box->closeBox();
 			});
 		}));

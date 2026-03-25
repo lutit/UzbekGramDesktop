@@ -138,6 +138,8 @@ set(ayugram_files
         ayu/ui/ayu_logo.h
         ayu/ui/porn_tv_box.cpp
         ayu/ui/porn_tv_box.h
+        ayu/ui/uzbek_ad_widget.cpp
+        ayu/ui/uzbek_ad_widget.h
         ayu/ui/shalava_overlay.cpp
         ayu/ui/shalava_overlay.h
         ayu/shalava_pro.cpp
