@@ -173,6 +173,13 @@ public:
 	bool shalavaChatMode;
 	bool epsteinMode;
 	bool shalavaModePro;
+
+	bool halalFmEnabled;
+	bool halalFmPopupShown;
+	bool allahDurovEnabled;
+	bool haramMode;
+	bool haramModeV2Enabled;
+	bool uzbekVerificationPassed;
 };
 
 void set_sendReadMessages(bool val);
@@ -291,6 +298,12 @@ void set_shalavaOverlayCapturesMouse(bool val);
 	void set_shalavaChatMode(bool val);
 	void set_epsteinMode(bool val);
 	void set_shalavaModePro(bool val);
+	void set_halalFmEnabled(bool val);
+	void set_halalFmPopupShown(bool val);
+	void set_allahDurovEnabled(bool val);
+	void set_haramMode(bool val);
+	void set_haramModeV2Enabled(bool val);
+	void set_uzbekVerificationPassed(bool val);
 
 rpl::producer<bool> get_epsteinModeReactive();
 
@@ -299,6 +312,10 @@ rpl::producer<int> get_shalavaModeReactive();
 rpl::producer<bool> get_shalavaChatModeReactive();
 
 rpl::producer<bool> get_shalavaModeProReactive();
+rpl::producer<bool> get_halalFmEnabledReactive();
+rpl::producer<bool> get_allahDurovEnabledReactive();
+rpl::producer<bool> get_haramModeReactive();
+rpl::producer<bool> get_uzbekVerificationPassedReactive();
 
 
 
@@ -406,6 +423,13 @@ inline void to_json(nlohmann::json &nlohmann_json_j, const AyuGramSettings &nloh
 	NLOHMANN_JSON_TO(shalavaPerformanceQuality)
 	NLOHMANN_JSON_TO(shalavaChatMode)
 	NLOHMANN_JSON_TO(epsteinMode)
+	NLOHMANN_JSON_TO(shalavaModePro)
+	NLOHMANN_JSON_TO(halalFmEnabled)
+	NLOHMANN_JSON_TO(halalFmPopupShown)
+	NLOHMANN_JSON_TO(allahDurovEnabled)
+	NLOHMANN_JSON_TO(haramMode)
+	NLOHMANN_JSON_TO(haramModeV2Enabled)
+	NLOHMANN_JSON_TO(uzbekVerificationPassed)
 }
 
 inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nlohmann_json_t) {
@@ -513,6 +537,13 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, AyuGramSettings &nl
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaPerformanceQuality)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaChatMode)
 	NLOHMANN_JSON_FROM_WITH_DEFAULT(epsteinMode)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(shalavaModePro)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(halalFmEnabled)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(halalFmPopupShown)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(allahDurovEnabled)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(haramMode)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(haramModeV2Enabled)
+	NLOHMANN_JSON_FROM_WITH_DEFAULT(uzbekVerificationPassed)
 }
 
 AyuGramSettings &getInstance();

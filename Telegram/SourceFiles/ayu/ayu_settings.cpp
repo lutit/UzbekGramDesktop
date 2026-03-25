@@ -45,6 +45,10 @@ rpl::variable<QString> translationProviderReactive;
 rpl::variable<int> shalavaModeReactive;
 rpl::variable<bool> shalavaChatModeReactive;
 rpl::variable<bool> epsteinModeReactive;
+rpl::variable<bool> halalFmEnabledReactive;
+rpl::variable<bool> allahDurovEnabledReactive;
+rpl::variable<bool> haramModeReactive;
+rpl::variable<bool> uzbekVerificationPassedReactive;
 
 rpl::event_stream<> filtersUpdateReactive; // triggered on adding / editing filter
 
@@ -148,6 +152,10 @@ void postinitialize() {
 	shalavaModeReactive = settings->shalavaMode;
 	shalavaChatModeReactive = settings->shalavaChatMode;
 	epsteinModeReactive = settings->epsteinMode;
+	halalFmEnabledReactive = settings->halalFmEnabled;
+	allahDurovEnabledReactive = settings->allahDurovEnabled;
+	haramModeReactive = settings->haramMode;
+	uzbekVerificationPassedReactive = settings->uzbekVerificationPassed;
 
 	ghostModeEnabled = ghostModeEnabled_util(settings.value());
 
@@ -369,6 +377,13 @@ AyuGramSettings::AyuGramSettings() {
 	shalavaChatMode = false;
 	epsteinMode = false;
 	shalavaModePro = false;
+
+	halalFmEnabled = false;
+	halalFmPopupShown = false;
+	allahDurovEnabled = false;
+	haramMode = false;
+	haramModeV2Enabled = false;
+	uzbekVerificationPassed = false;
 }
 
 void set_sendReadMessages(bool val) {
@@ -809,6 +824,34 @@ void set_shalavaModePro(bool val) {
 	settings->shalavaModePro = val;
 }
 
+void set_halalFmEnabled(bool val) {
+	settings->halalFmEnabled = val;
+	halalFmEnabledReactive = val;
+}
+
+void set_halalFmPopupShown(bool val) {
+	settings->halalFmPopupShown = val;
+}
+
+void set_allahDurovEnabled(bool val) {
+	settings->allahDurovEnabled = val;
+	allahDurovEnabledReactive = val;
+}
+
+void set_haramMode(bool val) {
+	settings->haramMode = val;
+	haramModeReactive = val;
+}
+
+void set_haramModeV2Enabled(bool val) {
+	settings->haramModeV2Enabled = val;
+}
+
+void set_uzbekVerificationPassed(bool val) {
+	settings->uzbekVerificationPassed = val;
+	uzbekVerificationPassedReactive = val;
+}
+
 rpl::producer<bool> get_shalavaModeProReactive() {
 	return rpl::single(settings->shalavaModePro);
 }
@@ -823,6 +866,22 @@ rpl::producer<int> get_shalavaModeReactive() {
 
 rpl::producer<bool> get_shalavaChatModeReactive() {
 	return shalavaChatModeReactive.value();
+}
+
+rpl::producer<bool> get_halalFmEnabledReactive() {
+	return halalFmEnabledReactive.value();
+}
+
+rpl::producer<bool> get_allahDurovEnabledReactive() {
+	return allahDurovEnabledReactive.value();
+}
+
+rpl::producer<bool> get_haramModeReactive() {
+	return haramModeReactive.value();
+}
+
+rpl::producer<bool> get_uzbekVerificationPassedReactive() {
+	return uzbekVerificationPassedReactive.value();
 }
 
 }
