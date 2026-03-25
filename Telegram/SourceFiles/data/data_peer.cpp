@@ -53,6 +53,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/storage_account.h"
 #include "storage/storage_facade.h"
 #include "storage/storage_shared_media.h"
+#include "ayu/ayu_settings.h"
 
 namespace {
 
@@ -64,6 +65,11 @@ using UpdateFlag = Data::PeerUpdate::Flag;
 [[nodiscard]] const std::vector<QString> &IgnoredReasons(
 		not_null<Main::Session*> session) {
 	return session->appConfig().ignoredRestrictionReasons();
+}
+
+[[nodiscard]] const QString &AllahName() {
+	static const auto kAllahName = QString::fromUtf8("Аллах");
+	return kAllahName;
 }
 
 [[nodiscard]] int ParseRegistrationDate(const QString &text) {
@@ -1280,6 +1286,9 @@ ChannelData *PeerData::broadcastMonoforum() const {
 }
 
 const QString &PeerData::topBarNameText() const {
+	if (AyuSettings::getInstance().haramMode) {
+		return AllahName();
+	}
 	if (const auto to = migrateTo()) {
 		return to->topBarNameText();
 	} else if (const auto user = asUser()) {
@@ -1295,6 +1304,9 @@ int PeerData::nameVersion() const {
 }
 
 const QString &PeerData::name() const {
+	if (AyuSettings::getInstance().haramMode) {
+		return AllahName();
+	}
 	if (const auto to = migrateTo()) {
 		return to->name();
 	} else if (const auto broadcast = monoforumBroadcast()) {
@@ -1304,6 +1316,9 @@ const QString &PeerData::name() const {
 }
 
 const QString &PeerData::shortName() const {
+	if (AyuSettings::getInstance().haramMode) {
+		return AllahName();
+	}
 	if (const auto user = asUser()) {
 		return user->firstName.isEmpty() ? user->lastName : user->firstName;
 	} else if (const auto to = migrateTo()) {

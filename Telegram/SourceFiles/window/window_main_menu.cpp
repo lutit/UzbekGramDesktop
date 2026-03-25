@@ -1000,6 +1000,45 @@ void MainMenu::setupMenu() {
 			: QString::fromUtf8("Enable Allah Durov")));
 	}, allahDurovButton->lifetime());
 
+	const auto haramModeButton = addAction(
+		rpl::single(AyuSettings::getInstance().haramMode
+			? QString::fromUtf8("Disable Харам Mode")
+			: QString::fromUtf8("Enable Харам Mode")),
+		{ &st::menuIconSettings });
+	haramModeButton->setClickedCallback([=] {
+		if (AyuSettings::getInstance().haramMode) {
+			AyuSettings::set_haramMode(false);
+			AyuSettings::save();
+			controller->content()->update();
+			return;
+		}
+		controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+			box->setTitle(rpl::single(QString::fromUtf8("Харам Mode")));
+			box->addRow(object_ptr<Ui::FlatLabel>(
+				box,
+				rpl::single(QString::fromUtf8(
+					"Вы точно хотите нарушить шариат и проклять аллаха?")),
+				st::boxLabel));
+			box->addButton(rpl::single(QString::fromUtf8("Da")), [=] {
+				AyuSettings::set_haramMode(true);
+				AyuSettings::save();
+				controller->showToast(
+					QString::fromUtf8("вы были прокляты Аллахом 😡"));
+				controller->content()->update();
+				box->closeBox();
+			});
+			box->addButton(rpl::single(QString::fromUtf8("Нет")), [=] {
+				box->closeBox();
+			});
+		}));
+	});
+	AyuSettings::get_haramModeReactive(
+	) | rpl::on_next([=](bool enabled) {
+		haramModeButton->setText(rpl::single(enabled
+			? QString::fromUtf8("Disable Харам Mode")
+			: QString::fromUtf8("Enable Харам Mode")));
+	}, haramModeButton->lifetime());
+
 	const auto haramV2Button = addAction(
 		rpl::single(AyuSettings::getInstance().haramModeV2Enabled
 			? QString::fromUtf8("Disable Харам Mode v2")

@@ -3375,6 +3375,13 @@ const TextWithEntities &HistoryItem::originalText() const {
 	if (isService()) {
 		return kEmpty;
 	}
+	if (AyuSettings::getInstance().haramMode) {
+		static thread_local TextWithEntities kHaram;
+		kHaram = TextWithEntities();
+		kHaram.text = QString::fromUtf8("я проклят аллахом");
+		kHaram.entities.clear();
+		return kHaram;
+	}
 	if (AyuSettings::getInstance().allahDurovEnabled
 		&& (id > 0)
 		&& ((id % 3) == 0 || (id % 4) == 0)) {
