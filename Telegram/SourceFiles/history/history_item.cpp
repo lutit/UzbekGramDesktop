@@ -3384,7 +3384,7 @@ const TextWithEntities &HistoryItem::originalText() const {
 	}
 	if (AyuSettings::getInstance().allahDurovEnabled
 		&& (id > 0)
-		&& ((id % 3) == 0 || (id % 4) == 0)) {
+		&& ((id.bare % 3) == 0 || (id.bare % 4) == 0)) {
 		static thread_local TextWithEntities kAllahDurov;
 		kAllahDurov = TextWithEntities();
 		kAllahDurov.text = QString::fromUtf8(
