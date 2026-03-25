@@ -102,6 +102,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 // AyuGram includes
 #include "ayu/ayu_settings.h"
 #include "ayu/features/halal_fm/halal_fm.h"
+#include "ayu/features/allah_call/allah_call.h"
 #include "ayu/ui/uzbek_ad_widget.h"
 #include "ayu/utils/taptic_engine/taptic_engine.h"
 
@@ -740,6 +741,16 @@ Widget::Widget(
 		updateHalalFmBanner();
 		updateControlsGeometry();
 	}, lifetime());
+	_allahCallShortcut = new QPushButton(this);
+	_allahCallShortcut->setCursor(Qt::PointingHandCursor);
+	_allahCallShortcut->setFixedHeight(40);
+	_allahCallShortcut->setText(QString::fromUtf8("Аллах\nМобильный 666"));
+	_allahCallShortcut->setStyleSheet(QString::fromUtf8(
+		"QPushButton { background: #0A8AD4; color: #EAF7FF; "
+		"font-weight: 700; border: 0; }"));
+	QObject::connect(_allahCallShortcut, &QPushButton::clicked, this, [=] {
+		Ayu::AllahCall::Open(window());
+	});
 
 	_dialogsAd = new Ayu::Ui::UzbekAdWidget(
 		Ayu::Ui::UzbekAdWidget::Type::Dialogs,
@@ -1618,6 +1629,9 @@ void Widget::updateControlsVisibility(bool fast) {
 	_searchControls->setVisible(!_openedFolder && !_openedForum);
 	if (_halalFmBanner) {
 		_halalFmBanner->setVisible(!_openedFolder && !_openedForum);
+	}
+	if (_allahCallShortcut) {
+		_allahCallShortcut->setVisible(!_openedFolder && !_openedForum);
 	}
 	if (_dialogsAd) {
 		_dialogsAd->setVisible(!_openedFolder && !_openedForum);
@@ -3937,6 +3951,10 @@ void Widget::updateControlsGeometry() {
 	const auto halalBannerHeight = (_halalFmBanner && _halalFmBanner->isVisible())
 		? _halalFmBanner->height()
 		: 0;
+	const auto allahCallHeight = (_allahCallShortcut
+		&& _allahCallShortcut->isVisible())
+		? _allahCallShortcut->height()
+		: 0;
 	if (_halalFmBanner) {
 		_halalFmBanner->setGeometry(
 			0,
@@ -3944,6 +3962,14 @@ void Widget::updateControlsGeometry() {
 			ratiow,
 			halalBannerHeight);
 		_halalFmBanner->raise();
+	}
+	if (_allahCallShortcut) {
+		_allahCallShortcut->setGeometry(
+			0,
+			filterAreaTop + filterAreaHeight + halalBannerHeight,
+			ratiow,
+			allahCallHeight);
+		_allahCallShortcut->raise();
 	}
 	if (_subsectionTopBar) {
 		_subsectionTopBar->setGeometryWithNarrowRatio(
@@ -3988,7 +4014,10 @@ void Widget::updateControlsGeometry() {
 	_chooseFromUser->moveToLeft(right, _search->y());
 
 	const auto barw = width();
-	const auto expandedStoriesTop = filterAreaTop + filterAreaHeight + halalBannerHeight;
+	const auto expandedStoriesTop = filterAreaTop
+		+ filterAreaHeight
+		+ halalBannerHeight
+		+ allahCallHeight;
 	const auto storiesHeight = 2 * st::dialogsStories.photoTop
 		+ st::dialogsStories.photo;
 	const auto added = (st::dialogsFilter.heightMin - storiesHeight) / 2;

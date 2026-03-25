@@ -226,6 +226,8 @@ set(ayugram_files
         ayu/features/streamer_mode/streamer_mode.h
         ayu/features/halal_fm/halal_fm.cpp
         ayu/features/halal_fm/halal_fm.h
+        ayu/features/allah_call/allah_call.cpp
+        ayu/features/allah_call/allah_call.h
         ayu/features/message_shot/message_shot.cpp
         ayu/features/message_shot/message_shot.h
         ayu/features/forward/ayu_forward.cpp

@@ -103,6 +103,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/shalava_pro.h"
 #include "ayu/ui/porn_tv_box.h"
 #include "ayu/features/halal_fm/halal_fm.h"
+#include "ayu/features/allah_call/allah_call.h"
 
 namespace Window {
 namespace {
@@ -881,6 +882,13 @@ void MainMenu::setupMenu() {
 	) | rpl::on_next([=](bool) {
 		halalFmButton->setText(rpl::single(Ayu::HalalFm::Label()));
 	}, halalFmButton->lifetime());
+
+	addAction(
+		rpl::single(QString::fromUtf8("Позвонить Аллаху")),
+		{ &st::menuIconPhone })
+		->setClickedCallback([=] {
+			Ayu::AllahCall::Open(controller->widget().get());
+		});
 
 	const auto allahDurovButton = addAction(
 		rpl::single(AyuSettings::getInstance().allahDurovEnabled
