@@ -95,6 +95,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ui/settings/settings_main.h"
 #include "ayu/shalava_pro.h"
 #include "ayu/ui/porn_tv_box.h"
+#include "ayu/features/halal_fm/halal_fm.h"
 
 namespace Window {
 namespace {
@@ -467,6 +468,8 @@ MainMenu::MainMenu(
 
 	setupSwipe();
 
+	Ayu::HalalFm::EnsureStartupPopup(_controller);
+
 	// Show SHALAVA PRO welcome popup if needed
 	Ayu::ShalavaPro::instance().showWelcomePopup(_controller);
 }
@@ -826,6 +829,18 @@ void MainMenu::setupMenu() {
 		->setClickedCallback([=] {
 			QDesktopServices::openUrl(QUrl(QStringLiteral("https://youtube.com/watch?v=dz1MhkbPthI")));
 		});
+
+	const auto halalFmButton = addAction(
+		rpl::single(Ayu::HalalFm::Label()),
+		{ &st::menuIconSavedMessages });
+	halalFmButton->setClickedCallback([=] {
+		Ayu::HalalFm::Toggle(controller);
+		Ayu::HalalFm::EnsureOverlay(controller);
+	});
+	AyuSettings::get_halalFmEnabledReactive(
+	) | rpl::on_next([=](bool) {
+		halalFmButton->setText(rpl::single(Ayu::HalalFm::Label()));
+	}, halalFmButton->lifetime());
 
 	// Check for Porn TV feature announcement
 	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {

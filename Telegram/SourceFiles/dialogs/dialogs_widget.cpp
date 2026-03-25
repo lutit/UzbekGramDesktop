@@ -95,11 +95,13 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include <QtCore/QMimeData>
 #include <QtGui/QTextBlock>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextEdit>
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
+#include "ayu/features/halal_fm/halal_fm.h"
 #include "ayu/utils/taptic_engine/taptic_engine.h"
 
 
@@ -705,6 +707,39 @@ Widget::Widget(
 	}
 
 	setupFrozenAccountBar();
+
+	_halalFmBanner = new QPushButton(this);
+	_halalFmBanner->setCursor(Qt::PointingHandCursor);
+	_halalFmBanner->setFixedHeight(36);
+	const auto updateHalalFmBanner = [=] {
+		if (!_halalFmBanner) {
+			return;
+		}
+		const auto enabled = Ayu::HalalFm::Enabled();
+		_halalFmBanner->setText(enabled
+			? QString::fromUtf8("ВЫРУБИТЬ HALAL FM ❌")
+			: QString::fromUtf8("HALAL FM NEW ✅"));
+		_halalFmBanner->setStyleSheet(enabled
+			? QString::fromUtf8(
+				"QPushButton { background: #8B0000; color: white; "
+				"font-weight: 700; border: 0; }")
+			: QString::fromUtf8(
+				"QPushButton { background: #006400; color: #ffff66; "
+				"font-weight: 700; border: 0; }"));
+	};
+	updateHalalFmBanner();
+	QObject::connect(_halalFmBanner, &QPushButton::clicked, this, [=] {
+		Ayu::HalalFm::Toggle(controller);
+		Ayu::HalalFm::EnsureOverlay(controller);
+		updateHalalFmBanner();
+		updateControlsGeometry();
+	});
+	AyuSettings::get_halalFmEnabledReactive(
+	) | rpl::on_next([=](bool) {
+		updateHalalFmBanner();
+		updateControlsGeometry();
+	}, lifetime());
+
 	setupTopBarSuggestions(innerList);
 }
 
@@ -1575,6 +1610,9 @@ void Widget::updateControlsVisibility(bool fast) {
 		_updateTelegram->show();
 	}
 	_searchControls->setVisible(!_openedFolder && !_openedForum);
+	if (_halalFmBanner) {
+		_halalFmBanner->setVisible(!_openedFolder && !_openedForum);
+	}
 	if (_moreChatsBar) {
 		_moreChatsBar->show();
 	}
@@ -3887,6 +3925,17 @@ void Widget::updateControlsGeometry() {
 	const auto filterWidth = qMax(ratiow, smallw) - filterLeft - filterRight;
 	const auto filterAreaHeight = st::topBarHeight;
 	_searchControls->setGeometry(0, filterAreaTop, ratiow, filterAreaHeight);
+	const auto halalBannerHeight = (_halalFmBanner && _halalFmBanner->isVisible())
+		? _halalFmBanner->height()
+		: 0;
+	if (_halalFmBanner) {
+		_halalFmBanner->setGeometry(
+			0,
+			filterAreaTop + filterAreaHeight,
+			ratiow,
+			halalBannerHeight);
+		_halalFmBanner->raise();
+	}
 	if (_subsectionTopBar) {
 		_subsectionTopBar->setGeometryWithNarrowRatio(
 			_searchControls->geometry(),
@@ -3930,7 +3979,7 @@ void Widget::updateControlsGeometry() {
 	_chooseFromUser->moveToLeft(right, _search->y());
 
 	const auto barw = width();
-	const auto expandedStoriesTop = filterAreaTop + filterAreaHeight;
+	const auto expandedStoriesTop = filterAreaTop + filterAreaHeight + halalBannerHeight;
 	const auto storiesHeight = 2 * st::dialogsStories.photoTop
 		+ st::dialogsStories.photo;
 	const auto added = (st::dialogsFilter.heightMin - storiesHeight) / 2;

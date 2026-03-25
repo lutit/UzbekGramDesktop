@@ -114,6 +114,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
+#include "ayu/features/halal_fm/halal_fm.h"
 
 
 namespace Window {
@@ -1672,6 +1673,9 @@ SessionController::SessionController(
 	}, _lifetime);
 
 	session->addWindow(this);
+
+	Ayu::HalalFm::EnsureOverlay(this);
+	Ayu::HalalFm::EnsureStartupPopup(this);
 
 	crl::on_main(this, [=] {
 		activateFirstChatsFilter();

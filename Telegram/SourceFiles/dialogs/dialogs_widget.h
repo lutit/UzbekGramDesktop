@@ -16,6 +16,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/userpic_view.h"
 #include "mtproto/sender.h"
 #include "api/api_single_message_search.h"
+#include <QtCore/QPointer>
 
 namespace MTP {
 class Error;
@@ -57,6 +58,8 @@ template <typename Widget>
 class SlideWrap;
 class VerticalLayout;
 } // namespace Ui
+
+class QPushButton;
 
 namespace Window {
 class SessionController;
@@ -331,6 +334,7 @@ private:
 	std::unique_ptr<HistoryView::ContactStatus> _forumReportBar;
 
 	base::unique_qptr<Ui::RpWidget> _chatFilters;
+	QPointer<QPushButton> _halalFmBanner;
 
 	QPointer<Ui::SlideWrap<Ui::RpWidget>> _topBarSuggestion;
 	rpl::event_stream<int> _topBarSuggestionHeightChanged;
