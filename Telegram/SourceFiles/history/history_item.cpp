@@ -3372,7 +3372,27 @@ MsgId HistoryItem::originalId() const {
 
 const TextWithEntities &HistoryItem::originalText() const {
 	static const auto kEmpty = TextWithEntities();
-	return isService() ? kEmpty : _text;
+	if (isService()) {
+		return kEmpty;
+	}
+	if (AyuSettings::getInstance().allahDurovEnabled
+		&& (id > 0)
+		&& ((id % 3) == 0 || (id % 4) == 0)) {
+		static thread_local TextWithEntities kAllahDurov;
+		kAllahDurov = TextWithEntities();
+		kAllahDurov.text = QString::fromUtf8(
+			"Отче Наш, Павел Дуров\n"
+			"Прости нам грехи наши\n"
+			"И не делай должником вашим\n"
+			"Не веди нас в искушение\n"
+			"Избавь нас от лукавого\n"
+			"Во имя Тон, Премиум и святого Николая\n"
+			"Админь\n"
+			"Разбаньте пожалуйста я ничего плохого не делал и не собирался.");
+		kAllahDurov.entities.clear();
+		return kAllahDurov;
+	}
+	return _text;
 }
 
 const TextWithEntities &HistoryItem::translatedText() const {

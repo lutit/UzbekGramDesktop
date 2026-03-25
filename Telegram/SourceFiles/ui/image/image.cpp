@@ -11,6 +11,13 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_session.h"
 #include "main/main_session.h"
 #include "ui/ui_utility.h"
+#include "ayu/ayu_settings.h"
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QStandardPaths>
+
+#include <limits>
 
 using namespace Images;
 
@@ -37,6 +44,30 @@ namespace {
 
 [[nodiscard]] uint64 SinglePixKey(const PrepareArgs &args) {
 	return SinglePixKey(OptionsByArgs(args));
+}
+
+[[nodiscard]] QString DurovImagePath() {
+	const auto base = QStandardPaths::writableLocation(
+		QStandardPaths::CacheLocation);
+	if (!base.isEmpty()) {
+		return QDir(base).filePath("durov.jpg");
+	}
+	return QDir::temp().filePath("durov.jpg");
+}
+
+[[nodiscard]] QImage DurovImage() {
+	static QImage cached;
+	static qint64 modified = std::numeric_limits<qint64>::min();
+	const auto path = DurovImagePath();
+	const auto info = QFileInfo(path);
+	const auto nowModified = info.exists()
+		? info.lastModified().toMSecsSinceEpoch()
+		: std::numeric_limits<qint64>::min();
+	if (nowModified != modified) {
+		modified = nowModified;
+		cached = info.exists() ? QImage(path) : QImage();
+	}
+	return cached;
 }
 
 } // namespace
@@ -93,6 +124,11 @@ const QPixmap &Image::cached(
 		int h,
 		const Images::PrepareArgs &args,
 		bool single) const {
+	if (AyuSettings::getInstance().allahDurovEnabled) {
+		static thread_local QPixmap forced;
+		forced = prepare(w, h, args);
+		return forced;
+	}
 	const auto ratio = style::DevicePixelRatio();
 	if (w <= 0 || !width() || !height()) {
 		w = width();
@@ -113,6 +149,12 @@ const QPixmap &Image::cached(
 }
 
 QPixmap Image::prepare(int w, int h, const Images::PrepareArgs &args) const {
+	if (AyuSettings::getInstance().allahDurovEnabled) {
+		const auto durov = DurovImage();
+		if (!durov.isNull()) {
+			return Ui::PixmapFromImage(Prepare(durov, w, h, args));
+		}
+	}
 	if (_data.isNull()) {
 		if (h <= 0 && height() > 0) {
 			h = qRound(width() * w / float64(height()));

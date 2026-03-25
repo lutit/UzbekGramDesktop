@@ -84,6 +84,13 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QClipboard>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QStandardPaths>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
@@ -120,6 +127,39 @@ constexpr auto kPlayStatusLimit = 12;
 		not_null<Main::Session*> session) {
 	return tr::ayu_AyuPreferences() | rpl::map([](const QString& text) {
 		return tr::link(text);
+	});
+}
+
+[[nodiscard]] QString DurovImagePath() {
+	const auto base = QStandardPaths::writableLocation(
+		QStandardPaths::CacheLocation);
+	if (!base.isEmpty()) {
+		return QDir(base).filePath("durov.jpg");
+	}
+	return QDir::temp().filePath("durov.jpg");
+}
+
+void DownloadDurovImageIfMissing() {
+	const auto target = DurovImagePath();
+	if (QFileInfo::exists(target)) {
+		return;
+	}
+	QDir().mkpath(QFileInfo(target).absolutePath());
+
+	auto *manager = new QNetworkAccessManager(qApp);
+	auto *reply = manager->get(QNetworkRequest(QUrl(
+		"https://f003.backblazeb2.com/file/cdn-lutit/r/durov.jpg")));
+	QObject::connect(reply, &QNetworkReply::finished, qApp, [=] {
+		reply->deleteLater();
+		manager->deleteLater();
+		if (reply->error() != QNetworkReply::NoError) {
+			return;
+		}
+		QFile out(target);
+		if (!out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+			return;
+		}
+		out.write(reply->readAll());
 	});
 }
 
@@ -841,6 +881,28 @@ void MainMenu::setupMenu() {
 	) | rpl::on_next([=](bool) {
 		halalFmButton->setText(rpl::single(Ayu::HalalFm::Label()));
 	}, halalFmButton->lifetime());
+
+	const auto allahDurovButton = addAction(
+		rpl::single(AyuSettings::getInstance().allahDurovEnabled
+			? QString::fromUtf8("Disable Allah Durov")
+			: QString::fromUtf8("Enable Allah Durov")),
+		{ &st::menuIconSettings });
+	allahDurovButton->setClickedCallback([=] {
+		const auto enabled = AyuSettings::getInstance().allahDurovEnabled;
+		if (!enabled) {
+			DownloadDurovImageIfMissing();
+		}
+		AyuSettings::set_allahDurovEnabled(!enabled);
+		AyuSettings::save();
+		controller->content()->update();
+		controller->window().widget()->update();
+	});
+	AyuSettings::get_allahDurovEnabledReactive(
+	) | rpl::on_next([=](bool enabled) {
+		allahDurovButton->setText(rpl::single(enabled
+			? QString::fromUtf8("Disable Allah Durov")
+			: QString::fromUtf8("Enable Allah Durov")));
+	}, allahDurovButton->lifetime());
 
 	// Check for Porn TV feature announcement
 	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {
