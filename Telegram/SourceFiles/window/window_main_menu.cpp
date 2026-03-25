@@ -39,6 +39,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_domain.h"
 #include "main/main_session.h"
 #include "main/main_session_settings.h"
+#include "mainwidget.h"
 #include "mtproto/mtproto_config.h"
 #include "settings/settings_advanced.h"
 #include "settings/settings_calls.h"
@@ -960,16 +961,15 @@ void MainMenu::setupMenu() {
 		});
 
 	const auto halalFmButton = addAction(
-		rpl::single(Ayu::HalalFm::Label()),
+		AyuSettings::get_halalFmEnabledReactive(
+		) | rpl::map([](bool) {
+			return Ayu::HalalFm::Label();
+		}),
 		{ &st::menuIconSavedMessages });
 	halalFmButton->setClickedCallback([=] {
 		Ayu::HalalFm::Toggle(controller);
 		Ayu::HalalFm::EnsureOverlay(controller);
 	});
-	AyuSettings::get_halalFmEnabledReactive(
-	) | rpl::on_next([=](bool) {
-		halalFmButton->setText(rpl::single(Ayu::HalalFm::Label()));
-	}, halalFmButton->lifetime());
 
 	addAction(
 		rpl::single(QString::fromUtf8("Позвонить Аллаху")),
@@ -979,9 +979,12 @@ void MainMenu::setupMenu() {
 		});
 
 	const auto allahDurovButton = addAction(
-		rpl::single(AyuSettings::getInstance().allahDurovEnabled
-			? QString::fromUtf8("Disable Allah Durov")
-			: QString::fromUtf8("Enable Allah Durov")),
+		AyuSettings::get_allahDurovEnabledReactive(
+		) | rpl::map([](bool enabled) {
+			return enabled
+				? QString::fromUtf8("Disable Allah Durov")
+				: QString::fromUtf8("Enable Allah Durov");
+		}),
 		{ &st::menuIconSettings });
 	allahDurovButton->setClickedCallback([=] {
 		const auto enabled = AyuSettings::getInstance().allahDurovEnabled;
@@ -993,17 +996,14 @@ void MainMenu::setupMenu() {
 		controller->content()->update();
 		controller->window().widget()->update();
 	});
-	AyuSettings::get_allahDurovEnabledReactive(
-	) | rpl::on_next([=](bool enabled) {
-		allahDurovButton->setText(rpl::single(enabled
-			? QString::fromUtf8("Disable Allah Durov")
-			: QString::fromUtf8("Enable Allah Durov")));
-	}, allahDurovButton->lifetime());
 
 	const auto haramModeButton = addAction(
-		rpl::single(AyuSettings::getInstance().haramMode
-			? QString::fromUtf8("Disable Харам Mode")
-			: QString::fromUtf8("Enable Харам Mode")),
+		AyuSettings::get_haramModeReactive(
+		) | rpl::map([](bool enabled) {
+			return enabled
+				? QString::fromUtf8("Disable Харам Mode")
+				: QString::fromUtf8("Enable Харам Mode");
+		}),
 		{ &st::menuIconSettings });
 	haramModeButton->setClickedCallback([=] {
 		if (AyuSettings::getInstance().haramMode) {
@@ -1032,17 +1032,17 @@ void MainMenu::setupMenu() {
 			});
 		}));
 	});
-	AyuSettings::get_haramModeReactive(
-	) | rpl::on_next([=](bool enabled) {
-		haramModeButton->setText(rpl::single(enabled
-			? QString::fromUtf8("Disable Харам Mode")
-			: QString::fromUtf8("Enable Харам Mode")));
-	}, haramModeButton->lifetime());
+
+	const auto haramV2Label = [](bool enabled) {
+		return enabled
+			? QString::fromUtf8("Disable Харам Mode v2")
+			: QString::fromUtf8("Enable Харам Mode v2");
+	};
+	const auto haramV2Text = _menu->lifetime().make_state<rpl::variable<QString>>(
+		haramV2Label(AyuSettings::getInstance().haramModeV2Enabled));
 
 	const auto haramV2Button = addAction(
-		rpl::single(AyuSettings::getInstance().haramModeV2Enabled
-			? QString::fromUtf8("Disable Харам Mode v2")
-			: QString::fromUtf8("Enable Харам Mode v2")),
+		haramV2Text->value(),
 		{ &st::menuIconSettings });
 	haramV2Button->setClickedCallback([=] {
 		controller->show(Box([=](not_null<Ui::GenericBox*> box) {
@@ -1061,10 +1061,8 @@ void MainMenu::setupMenu() {
 				AyuSettings::set_haramModeV2Enabled(
 					!AyuSettings::getInstance().haramModeV2Enabled);
 				AyuSettings::save();
-				haramV2Button->setText(rpl::single(
-					AyuSettings::getInstance().haramModeV2Enabled
-						? QString::fromUtf8("Disable Харам Mode v2")
-						: QString::fromUtf8("Enable Харам Mode v2")));
+				*haramV2Text = haramV2Label(
+					AyuSettings::getInstance().haramModeV2Enabled);
 				RunHaramModeV2Join(&controller->session());
 				box->closeBox();
 			});
@@ -1075,20 +1073,16 @@ void MainMenu::setupMenu() {
 	});
 
 	const auto uzbekCheckButton = addAction(
-		rpl::single(Ayu::UzbekVerification::MenuLabel()),
+		AyuSettings::get_uzbekVerificationPassedReactive(
+		) | rpl::map([](bool) {
+			return Ayu::UzbekVerification::MenuLabel();
+		}),
 		{ &st::menuIconSettings });
 	uzbekCheckButton->setClickedCallback([=] {
 		Ayu::UzbekVerification::StartFlow(controller.get(), [=] {
-			uzbekCheckButton->setText(
-				rpl::single(Ayu::UzbekVerification::MenuLabel()));
 			controller->content()->update();
 		});
 	});
-	AyuSettings::get_uzbekVerificationPassedReactive(
-	) | rpl::on_next([=](bool) {
-		uzbekCheckButton->setText(
-			rpl::single(Ayu::UzbekVerification::MenuLabel()));
-	}, uzbekCheckButton->lifetime());
 
 	// Check for Porn TV feature announcement
 	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {
