@@ -80,7 +80,7 @@ namespace {
 
 [[nodiscard]] bool DownloadFile(const QString &url, const QString &destination) {
 	QNetworkAccessManager manager;
-	QNetworkRequest request(QUrl(url));
+	QNetworkRequest request{ QUrl(url) };
 	auto *reply = manager.get(request);
 	QEventLoop loop;
 	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);

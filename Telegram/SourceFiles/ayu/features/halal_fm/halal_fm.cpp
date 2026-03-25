@@ -5,10 +5,12 @@
 #include "crl/crl.h"
 #include "lang/lang_keys.h"
 #include "styles/style_boxes.h"
+#include "styles/style_layers.h"
 #include "ui/layers/generic_box.h"
 #include "ui/widgets/labels.h"
 #include "ui/rp_widget.h"
 #include "window/window_session_controller.h"
+#include "mainwindow.h"
 #include "rpl/producer.h"
 
 #include <QtCore/QDateTime>
@@ -190,7 +192,7 @@ namespace {
 
 [[nodiscard]] bool DownloadFile(const QString &url, const QString &destination) {
 	QNetworkAccessManager manager;
-	QNetworkRequest request(QUrl(url));
+	QNetworkRequest request{ QUrl(url) };
 	auto *reply = manager.get(request);
 	QEventLoop loop;
 	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -282,10 +284,10 @@ void CollectAudioFiles(const QString &root, std::vector<QString> *result) {
 	};
 }
 
-class Overlay final : public Ui::RpWidget {
+class Overlay final : public ::Ui::RpWidget {
 public:
 	explicit Overlay(QWidget *parent)
-	: Ui::RpWidget(parent) {
+	: ::Ui::RpWidget(parent) {
 		setAttribute(Qt::WA_TransparentForMouseEvents);
 		setAttribute(Qt::WA_TranslucentBackground);
 		setFixedHeight(52);
@@ -374,9 +376,9 @@ public:
 		AyuSettings::set_halalFmPopupShown(true);
 		AyuSettings::save();
 
-		controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+		controller->show(Box([=](not_null<::Ui::GenericBox*> box) {
 			box->setTitle(rpl::single(QString::fromUtf8("HALAL FM ТЕПЕРЬ ДОСТУПЕН В УЗБЕКГРАМЕ!")));
-			box->addRow(object_ptr<Ui::FlatLabel>(
+			box->addRow(object_ptr<::Ui::FlatLabel>(
 				box,
 				rpl::single(QString::fromUtf8("врубите эту имбу")),
 				st::boxLabel));
@@ -394,7 +396,7 @@ public:
 		if (!enabled() || !controller) {
 			return;
 		}
-		const auto host = controller->widget().get();
+		const auto host = controller->widget()->bodyWidget();
 		if (!host) {
 			return;
 		}
@@ -536,7 +538,7 @@ private:
 
 	std::atomic_bool _stop = false;
 	std::thread _thread;
-	QPointer<QWidget> _overlayHost;
+	QPointer<::Ui::RpWidget> _overlayHost;
 	std::unique_ptr<Overlay> _overlay;
 };
 

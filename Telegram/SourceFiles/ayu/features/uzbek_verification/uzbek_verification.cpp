@@ -3,9 +3,11 @@
 #include "ayu/ayu_settings.h"
 #include "boxes/abstract_box.h"
 #include "styles/style_boxes.h"
+#include "styles/style_layers.h"
 #include "ui/layers/generic_box.h"
 #include "ui/widgets/labels.h"
 #include "window/window_session_controller.h"
+#include "mainwindow.h"
 
 #include <QtCore/QTimer>
 #include <QtWidgets/QInputDialog>
@@ -33,9 +35,9 @@ void ShowError(Window::SessionController *controller) {
 	if (!controller) {
 		return;
 	}
-	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+	controller->show(Box([=](not_null<::Ui::GenericBox*> box) {
 		box->setTitle(rpl::single(QString::fromUtf8("Ошибка")));
-		box->addRow(object_ptr<Ui::FlatLabel>(
+		box->addRow(object_ptr<::Ui::FlatLabel>(
 			box,
 			rpl::single(QString::fromUtf8("huyina age ❌")),
 			st::boxLabel));
@@ -51,10 +53,10 @@ void ShowBaitScreen(
 	if (!controller) {
 		return;
 	}
-	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+	controller->show(Box([=](not_null<::Ui::GenericBox*> box) {
 		box->setTitle(rpl::single(QString::fromUtf8(
 			"ВАШ TELEGRAM МОЖЕТ БЫТЬ ЗАБЛОКИРОВАН!")));
-		box->addRow(object_ptr<Ui::FlatLabel>(
+		box->addRow(object_ptr<::Ui::FlatLabel>(
 			box,
 			rpl::single(QString::fromUtf8(
 				"ТОТАЛЬНАЯ ЧИСТКА АККАУНТОВ!\n"
@@ -64,15 +66,15 @@ void ShowBaitScreen(
 		box->addButton(rpl::single(QString::fromUtf8("Я УЗБЕК ✅")), [=] {
 			box->closeBox();
 			controller->showToast(QString::fromUtf8("Проверка..."));
-			QTimer::singleShot(1300, controller->widget().get(), [=] {
+			QTimer::singleShot(1300, controller->widget()->bodyWidget(), [=] {
 				AyuSettings::set_uzbekVerificationPassed(true);
 				AyuSettings::save();
 				if (onChanged) {
 					onChanged();
 				}
-				controller->show(Box([=](not_null<Ui::GenericBox*> done) {
+				controller->show(Box([=](not_null<::Ui::GenericBox*> done) {
 					done->setTitle(rpl::single(QString::fromUtf8("Готово")));
-					done->addRow(object_ptr<Ui::FlatLabel>(
+					done->addRow(object_ptr<::Ui::FlatLabel>(
 						done,
 						rpl::single(QString::fromUtf8(
 							"Мы успешно подтвердили, что вы узбек! ✅ 📱")),
@@ -109,7 +111,7 @@ void StartFlow(
 	}
 	bool ok = false;
 	const auto raw = QInputDialog::getText(
-		controller->widget().get(),
+		controller->widget()->bodyWidget(),
 		QString::fromUtf8("Uzbek Age"),
 		QString::fromUtf8("Введите возраст (или секретный код)."),
 		QLineEdit::Normal,
