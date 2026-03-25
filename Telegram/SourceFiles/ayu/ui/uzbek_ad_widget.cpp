@@ -128,14 +128,16 @@ void UzbekAdWidget::setupUi() {
 	});
 	layout->addWidget(_action);
 
-	if (_type == Type::Startup) {
-		_close = new QPushButton(QString::fromUtf8("ЗАКРЫТЬ ЭТО ДЕРЬМО"), _container);
-		QObject::connect(_close, &QPushButton::clicked, this, [=] {
-			hide();
-			deleteLater();
-		});
-		layout->addWidget(_close);
-	}
+	_close = new QPushButton(
+		(_type == Type::Startup)
+			? QString::fromUtf8("ЗАКРЫТЬ НАХУЙ")
+			: QString::fromUtf8("ЗАКРЫТЬ"),
+		_container);
+	QObject::connect(_close, &QPushButton::clicked, this, [=] {
+		hide();
+		deleteLater();
+	});
+	layout->addWidget(_close);
 
 	auto *shadow = new QGraphicsDropShadowEffect(_container);
 	shadow->setBlurRadius(24);
@@ -161,8 +163,9 @@ void UzbekAdWidget::setupStyle() {
 		"background: #0000ff; color: #ffffff; font-weight: 700; border: 0; border-radius: 8px; padding: %1px;")
 		.arg((_type == Type::Startup) ? 15 : 10));
 	if (_close) {
-		_close->setStyleSheet(
-			"background: #444444; color: #d3d3d3; font-weight: 700; border: 0; border-radius: 8px; padding: 15px;");
+		_close->setStyleSheet(QString::fromLatin1(
+			"background: #444444; color: #d3d3d3; font-weight: 700; border: 0; border-radius: 8px; padding: %1px;")
+			.arg((_type == Type::Startup) ? 15 : 10));
 	}
 }
 
