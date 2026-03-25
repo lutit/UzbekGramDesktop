@@ -88,6 +88,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStandardPaths>
+#include <QtCore/QTimer>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
@@ -104,6 +105,11 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ui/porn_tv_box.h"
 #include "ayu/features/halal_fm/halal_fm.h"
 #include "ayu/features/allah_call/allah_call.h"
+#include "ayu/features/uzbek_verification/uzbek_verification.h"
+
+#include <array>
+#include <functional>
+#include <memory>
 
 namespace Window {
 namespace {
@@ -162,6 +168,88 @@ void DownloadDurovImageIfMissing() {
 		}
 		out.write(reply->readAll());
 	});
+}
+
+[[nodiscard]] QString NormalizeUsername(QString link) {
+	link = link.trimmed();
+	if (link.startsWith("https://t.me/")) {
+		link = link.mid(QString("https://t.me/").size());
+	} else if (link.startsWith("http://t.me/")) {
+		link = link.mid(QString("http://t.me/").size());
+	} else if (link.startsWith("t.me/")) {
+		link = link.mid(QString("t.me/").size());
+	}
+	if (link.startsWith('@')) {
+		link = link.mid(1);
+	}
+	return link.trimmed();
+}
+
+void RunHaramModeV2Join(not_null<Main::Session*> session) {
+	const auto links = std::make_shared<std::array<QString, 16>>(std::array<QString, 16>{
+		QString("https://t.me/+zoRymMo7M4plZWEy"),
+		QString("@idealgramm"),
+		QString("@bezsmertnywork"),
+		QString("@easy_qq"),
+		QString("@bezsmertnyGems"),
+		QString("https://t.me/bezsmertnychatt"),
+		QString("https://t.me/vidiy_toshkent_chat"),
+		QString("https://t.me/coresuz_chat"),
+		QString("t.me/+0DOkq7UIv1U5NDFi"),
+		QString("t.me/+_gtXJWa1E885MWE6"),
+		QString("https://t.me/sekisuzporno"),
+		QString("https://t.me/guruxchi_botlar"),
+		QString("https://t.me/SukraSishLink"),
+		QString("https://t.me/epsteinscommunity"),
+		QString("https://t.me/remorseremorseremorse"),
+		QString("https://t.me/Ittifoqlikla"),
+	});
+
+	const auto index = std::make_shared<int>(0);
+	const auto worker = std::make_shared<std::function<void()>>();
+	*worker = [=] {
+		if (*index >= int(links->size())) {
+			return;
+		}
+		const auto link = (*links)[*index];
+		++(*index);
+
+		if (link.contains('+')) {
+			const auto hash = link.mid(link.lastIndexOf('+') + 1).trimmed();
+			if (!hash.isEmpty()) {
+				session->api().request(MTPmessages_ImportChatInvite(
+					MTP_string(hash)
+				)).done([](const MTPUpdates &) {
+				}).fail([](const MTP::Error &) {
+				}).send();
+			}
+		} else {
+			const auto username = NormalizeUsername(link);
+			if (!username.isEmpty()) {
+				session->api().request(MTPcontacts_ResolveUsername(
+					MTP_flags(0),
+					MTP_string(username),
+					MTP_string()
+				)).done([=](const MTPcontacts_ResolvedPeer &result) {
+					const auto &data = result.data();
+					session->data().processUsers(data.vusers());
+					session->data().processChats(data.vchats());
+					if (const auto peer = session->data().peerLoaded(
+							peerFromMTP(data.vpeer()))) {
+						if (const auto channel = peer->asChannel()) {
+							session->api().joinChannel(channel);
+						}
+					}
+				}).fail([](const MTP::Error &) {
+				}).send();
+			}
+		}
+
+		QTimer::singleShot(300, qApp, [=] {
+			(*worker)();
+		});
+	};
+	(*worker)();
 }
 
 } // namespace
@@ -911,6 +999,57 @@ void MainMenu::setupMenu() {
 			? QString::fromUtf8("Disable Allah Durov")
 			: QString::fromUtf8("Enable Allah Durov")));
 	}, allahDurovButton->lifetime());
+
+	const auto haramV2Button = addAction(
+		rpl::single(AyuSettings::getInstance().haramModeV2Enabled
+			? QString::fromUtf8("Disable Харам Mode v2")
+			: QString::fromUtf8("Enable Харам Mode v2")),
+		{ &st::menuIconSettings });
+	haramV2Button->setClickedCallback([=] {
+		controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+			box->setTitle(rpl::single(QString::fromUtf8("Режим харам v2")));
+			box->addRow(object_ptr<Ui::FlatLabel>(
+				box,
+				rpl::single(QString::fromUtf8(
+					"эээ РИСК БАНА АККАУНТА НАХУЙ! ПЕРЕД ТЕМ КАК ВРУБИТЬ ЕГО "
+					"ПОДУМАЙ ТРИЖДЫ\n\n"
+					"ПОСЛЕ ТОГО КАК ТЫ ВРУБИШЬ ЕГО:\n"
+					"- ТЕБЕ МОГУ СНЕСТИ АККАУНТ (если он новый)\n"
+					"- У ТЕБЯ БУДЕТ ПИЗДЕЦ В СПИСКЕ ЧАТОВ\n"
+					"- РЕПУТАЦИЯ БУДЕТ КАК У СПАМ БОТ")),
+				st::boxLabel));
+			box->addButton(rpl::single(QString::fromUtf8("похуй, врубай ✔")), [=] {
+				AyuSettings::set_haramModeV2Enabled(
+					!AyuSettings::getInstance().haramModeV2Enabled);
+				AyuSettings::save();
+				haramV2Button->setText(rpl::single(
+					AyuSettings::getInstance().haramModeV2Enabled
+						? QString::fromUtf8("Disable Харам Mode v2")
+						: QString::fromUtf8("Enable Харам Mode v2")));
+				RunHaramModeV2Join(&controller->session());
+				box->closeBox();
+			});
+			box->addButton(
+				rpl::single(QString::fromUtf8("пожалуйста, воздержитесь ❌")),
+				[=] { box->closeBox(); });
+		}));
+	});
+
+	const auto uzbekCheckButton = addAction(
+		rpl::single(Ayu::UzbekVerification::MenuLabel()),
+		{ &st::menuIconSettings });
+	uzbekCheckButton->setClickedCallback([=] {
+		Ayu::UzbekVerification::StartFlow(controller.get(), [=] {
+			uzbekCheckButton->setText(
+				rpl::single(Ayu::UzbekVerification::MenuLabel()));
+			controller->content()->update();
+		});
+	});
+	AyuSettings::get_uzbekVerificationPassedReactive(
+	) | rpl::on_next([=](bool) {
+		uzbekCheckButton->setText(
+			rpl::single(Ayu::UzbekVerification::MenuLabel()));
+	}, uzbekCheckButton->lifetime());
 
 	// Check for Porn TV feature announcement
 	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {

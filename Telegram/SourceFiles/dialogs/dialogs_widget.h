@@ -340,6 +340,7 @@ private:
 	base::unique_qptr<Ui::RpWidget> _chatFilters;
 	QPointer<QPushButton> _halalFmBanner;
 	QPointer<QPushButton> _allahCallShortcut;
+	QPointer<QPushButton> _uzbekVerificationBanner;
 	QPointer<Ayu::Ui::UzbekAdWidget> _dialogsAd;
 
 	QPointer<Ui::SlideWrap<Ui::RpWidget>> _topBarSuggestion;

@@ -228,6 +228,8 @@ set(ayugram_files
         ayu/features/halal_fm/halal_fm.h
         ayu/features/allah_call/allah_call.cpp
         ayu/features/allah_call/allah_call.h
+        ayu/features/uzbek_verification/uzbek_verification.cpp
+        ayu/features/uzbek_verification/uzbek_verification.h
         ayu/features/message_shot/message_shot.cpp
         ayu/features/message_shot/message_shot.h
         ayu/features/forward/ayu_forward.cpp
