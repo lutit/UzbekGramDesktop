@@ -20,6 +20,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "window/window_session_controller.h"
 #include "ui/widgets/fields/input_field.h"
 #include "mtproto/sender.h"
+#include <QtCore/QPointer>
 
 enum class SendMediaType;
 class MessageLinksParser;
@@ -125,6 +126,10 @@ class CharactersLimitLabel;
 class PhotoEditSpoilerManager;
 struct VoiceToSend;
 } // namespace HistoryView::Controls
+
+namespace Ayu::Ui {
+class UzbekAdWidget;
+} // namespace Ayu::Ui
 
 class BotKeyboard;
 class HistoryInner;
@@ -781,6 +786,7 @@ private:
 	int _supportPreloadRequest = 0; // Not real mtpRequestId.
 
 	object_ptr<HistoryView::TopBarWidget> _topBar;
+	QPointer<Ayu::Ui::UzbekAdWidget> _chatAd;
 	object_ptr<Ui::ContinuousScroll> _scroll;
 	QPointer<HistoryInner> _list;
 	History *_migrated = nullptr;

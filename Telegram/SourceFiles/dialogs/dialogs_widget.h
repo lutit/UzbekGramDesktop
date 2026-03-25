@@ -32,6 +32,10 @@ namespace Main {
 class Session;
 } // namespace Main
 
+namespace Ayu::Ui {
+class UzbekAdWidget;
+} // namespace Ayu::Ui
+
 namespace HistoryView {
 class TopBarWidget;
 class ContactStatus;
@@ -335,6 +339,7 @@ private:
 
 	base::unique_qptr<Ui::RpWidget> _chatFilters;
 	QPointer<QPushButton> _halalFmBanner;
+	QPointer<Ayu::Ui::UzbekAdWidget> _dialogsAd;
 
 	QPointer<Ui::SlideWrap<Ui::RpWidget>> _topBarSuggestion;
 	rpl::event_stream<int> _topBarSuggestionHeightChanged;

@@ -102,6 +102,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 // AyuGram includes
 #include "ayu/ayu_settings.h"
 #include "ayu/features/halal_fm/halal_fm.h"
+#include "ayu/ui/uzbek_ad_widget.h"
 #include "ayu/utils/taptic_engine/taptic_engine.h"
 
 
@@ -739,6 +740,11 @@ Widget::Widget(
 		updateHalalFmBanner();
 		updateControlsGeometry();
 	}, lifetime());
+
+	_dialogsAd = new Ayu::Ui::UzbekAdWidget(
+		Ayu::Ui::UzbekAdWidget::Type::Dialogs,
+		this);
+	_dialogsAd->show();
 
 	setupTopBarSuggestions(innerList);
 }
@@ -1612,6 +1618,9 @@ void Widget::updateControlsVisibility(bool fast) {
 	_searchControls->setVisible(!_openedFolder && !_openedForum);
 	if (_halalFmBanner) {
 		_halalFmBanner->setVisible(!_openedFolder && !_openedForum);
+	}
+	if (_dialogsAd) {
+		_dialogsAd->setVisible(!_openedFolder && !_openedForum);
 	}
 	if (_moreChatsBar) {
 		_moreChatsBar->show();
@@ -4019,6 +4028,15 @@ void Widget::updateControlsGeometry() {
 	}
 	if (_layout != Layout::Child) {
 		controller()->setConnectingBottomSkip(bottomSkip);
+	}
+	if (_dialogsAd) {
+		const auto dialogsAdHeight = _dialogsAd->sizeHint().height();
+		_dialogsAd->setGeometry(
+			0,
+			height() - bottomSkip - dialogsAdHeight - 50,
+			barw,
+			dialogsAdHeight);
+		_dialogsAd->raise();
 	}
 
 	const auto wasScrollTop = _scroll->scrollTop();
