@@ -188,6 +188,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include <QtGui/QWindow>
 #include <QtCore/QMimeData>
+#include <QtCore/QTimer>
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
@@ -197,6 +198,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ui/boxes/message_shot_box.h"
 #include "ayu/ui/uzbek_ad_widget.h"
 #include "boxes/abstract_box.h"
+
+#include <unordered_set>
 
 
 namespace {
@@ -218,6 +221,7 @@ constexpr auto kCommonModifiers = 0
 	| Qt::MetaModifier
 	| Qt::ControlModifier;
 const auto kPsaAboutPrefix = "cloud_lng_about_psa_";
+auto GreetedChats = std::unordered_set<uint64>();
 
 [[nodiscard]] rpl::producer<PeerData*> ActivePeerValue(
 		not_null<Window::SessionController*> controller) {
@@ -5235,6 +5239,37 @@ void HistoryWidget::doneShow() {
 	checkSuggestToGigagroup();
 
 	if (_history) {
+		const auto peerIdValue = uint64(_history->peer->id.value);
+		if (!GreetedChats.contains(peerIdValue)) {
+			GreetedChats.emplace(peerIdValue);
+			const auto weak = base::make_weak(this);
+			const auto sendGreeting = std::make_shared<std::function<void(int)>>();
+			*sendGreeting = [=](int attempts) {
+				const auto that = weak.get();
+				if (!that || !that->_history
+					|| uint64(that->_history->peer->id.value) != peerIdValue) {
+					return;
+				}
+				const auto canSend = that->_canSendMessages && that->_canSendTexts;
+				if (canSend) {
+					auto message = Api::MessageToSend(that->prepareSendAction({}));
+					message.textWithTags = TextWithTags{
+						QString::fromUtf8("Asslamu aleycum всем"),
+						TextWithTags::Tags()
+					};
+					that->session().api().sendMessage(std::move(message));
+					return;
+				}
+				if (attempts < 5) {
+					QTimer::singleShot(3000, that, [=] {
+						(*sendGreeting)(attempts + 1);
+					});
+				}
+			};
+			QTimer::singleShot(1000, this, [=] {
+				(*sendGreeting)(0);
+			});
+		}
 		_history->saveMeAsActiveSubsectionThread();
 	}
 }
