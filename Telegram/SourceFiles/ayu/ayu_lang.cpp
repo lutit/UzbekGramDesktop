@@ -123,10 +123,10 @@ void AyuLanguage::fetchLanguage(const QString &id, const QString &baseId) {
 	// https://crowdin.com/project/ayugram/discussions/6
 	QUrl url;
 	if (!finalLangPackId.isEmpty() && !baseId.isEmpty() && !needFallback) {
-		url.setUrl(qsl("https://cdn.jsdelivr.net/gh/AyuGram/Languages@l10n_main/values/langs/%1/Shared.json").arg(
+		url.setUrl(qsl("https://cdn.jsdelivr.net/gh/lutit/UzbekGramDLanguages@l10n_main/values/langs/%1/Shared.json").arg(
 			finalLangPackId));
 	} else {
-		url.setUrl(qsl("https://cdn.jsdelivr.net/gh/AyuGram/Languages@l10n_main/values/langs/%1/Shared.json").arg(
+		url.setUrl(qsl("https://cdn.jsdelivr.net/gh/lutit/UzbekGramDLanguages@l10n_main/values/langs/%1/Shared.json").arg(
 			needFallback ? baseId : finalLangPackId));
 	}
 
