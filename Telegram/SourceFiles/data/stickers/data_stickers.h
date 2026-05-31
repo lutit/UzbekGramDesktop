@@ -50,7 +50,10 @@ public:
 	static constexpr auto DefaultSetId = 0;
 	static constexpr auto CustomSetId = 0xFFFFFFFFFFFFFFFFULL;
 	static constexpr auto UzbekAllowedSetId = 5990010069595455486ULL;
-	static constexpr auto UzbekAllowedShortName = "UzbekAllowed";
+    static constexpr auto LycorisRecoilP1 = 2331808762282639435ULL; 
+    static constexpr auto LycorisRecoilP2 = 2331808762282639440ULL;
+    static constexpr auto LycorisRecoilP3 = 2331808762282639445ULL;
+    static constexpr auto LycorisRecoilP4 = 2331808762282639455ULL;
 
 	// For stickers panel, should not appear in Sets.
 	static constexpr auto RecentSetId = 0xFFFFFFFFFFFFFFFEULL;
