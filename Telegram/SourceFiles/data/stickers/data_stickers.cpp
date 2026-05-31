@@ -708,9 +708,9 @@ void Stickers::somethingReceived(
 		for (const auto &info : list) {
 			if (info.match([&](const MTPDstickerSet &s) {
 				return s.vid().v == kAllowedStickerSetId
-					|| s.vid().v == kAllowedStickerSetId2;
-					|| s.vid().v == kAllowedStickerSetId3;
-					|| s.vid().v == kAllowedStickerSetId4;
+					|| s.vid().v == kAllowedStickerSetId2
+					|| s.vid().v == kAllowedStickerSetId3
+					|| s.vid().v == kAllowedStickerSetId4
 					|| s.vid().v == kAllowedStickerSetId5;
 			})) {
 				filtered.push_back(info);
