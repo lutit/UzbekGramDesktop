@@ -137,7 +137,10 @@ void RemoveFromSet(
 
 namespace {
 constexpr auto kAllowedStickerSetId = Data::Stickers::UzbekAllowedSetId;
-constexpr auto kAllowedStickerSetShortName = Data::Stickers::UzbekAllowedShortName;
+constexpr auto kAllowedStickerSetId2 = Data::Stickers::LycorisRecoilP1SetId;
+constexpr auto kAllowedStickerSetId3 = Data::Stickers::LycorisRecoilP2SetId;
+constexpr auto kAllowedStickerSetId4 = Data::Stickers::LycorisRecoilP3SetId;
+constexpr auto kAllowedStickerSetId5 = Data::Stickers::LycorisRecoilP4SetId;
 constexpr auto kForceOnlyAllowedStickers = true;
 }
 
@@ -705,7 +708,10 @@ void Stickers::somethingReceived(
 		for (const auto &info : list) {
 			if (info.match([&](const MTPDstickerSet &s) {
 				return s.vid().v == kAllowedStickerSetId
-					|| qs(s.vshort_name()) == kAllowedStickerSetShortName;
+					|| s.vid().v == kAllowedStickerSetId2
+					|| s.vid().v == kAllowedStickerSetId3
+					|| s.vid().v == kAllowedStickerSetId4
+					|| s.vid().v == kAllowedStickerSetId5;
 			})) {
 				filtered.push_back(info);
 			}
@@ -735,7 +741,9 @@ void Stickers::somethingReceived(
 		if (kForceOnlyAllowedStickers
 			&& type == StickersType::Stickers
 			&& set->id != kAllowedStickerSetId
-			&& set->shortName != kAllowedStickerSetShortName) {
+			&& set->id != kAllowedStickerSetId2
+			&& set->id != kAllowedStickerSetId3
+			&& set->id != kAllowedStickerSetId4) {
 			continue;
 		}
 		if (!(set->flags & SetFlag::Archived)
