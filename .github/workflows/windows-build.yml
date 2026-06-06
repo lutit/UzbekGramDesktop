@@ -17,12 +17,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
@@ -31,7 +31,7 @@ jobs:
           choco install git --no-progress --yes
 
       - name: Prepare ThirdParty and Libraries cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}\ThirdParty
@@ -72,7 +72,7 @@ jobs:
 
       - name: Upload Release artifact
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-telegram-release
           path: ${{ github.workspace }}\out\windows-release.zip
