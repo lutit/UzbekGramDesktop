@@ -18,21 +18,18 @@ jobs:
       API_HASH: b18441a1ff607e10a989891a5462e627
 
     steps:
+      - name: Free up some disk space.
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          tool-cache: true
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           submodules: recursive
 
-      - name: Free space before build
-        run: |
-          sudo rm -rf /opt/ghc /usr/local/lib/android /usr/share/dotnet /opt/hostedtoolcache/CodeQL
-          sudo apt-get clean
-          df -h
-
       - name: Set temp paths
-        run: |
-          echo "WORKDIR=$RUNNER_TEMP/tdesktop" >> $GITHUB_ENV
-          echo "ARTIFACT=$RUNNER_TEMP/quick-build-logs.tar.gz" >> $GITHUB_ENV
+        run: echo "WORKDIR=$RUNNER_TEMP/tdesktop" >> $GITHUB_ENV
 
       - name: Prepare workspace (slim copy)
         run: |
@@ -73,25 +70,6 @@ jobs:
             exit 1
           fi
           cp -v "$binary_path" "$RUNNER_TEMP/linux-binary/"
-
-      - name: Keep only log + small artifact
-        if: always()
-        run: |
-          cd "$WORKDIR"
-          ls -R out | head -n 200 || true
-          mkdir -p "$RUNNER_TEMP/quick-out"
-          # Collect only binaries + minimal logs
-          find out -type f \( -name 'Telegram' -o -name 'uzbekgram' -o -name '*.so' -o -name '*.dll' -o -name '*.log' \) -print0 \
-            | tar --null -T - -czf "$ARTIFACT" || true
-          ls -lh "$ARTIFACT" || true
-
-      - name: Upload quick-build logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: quick-build-logs
-          path: ${{ env.ARTIFACT }}
-          retention-days: 3
 
       - name: Upload linux build output
         if: always()
