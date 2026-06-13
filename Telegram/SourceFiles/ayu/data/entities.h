@@ -3,12 +3,12 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
+// Copyright @Radolyn, 2026
 #pragma once
 
 #include <string>
 
-#define ID long long
+using ID = long long;
 
 class AyuMessageBase
 {

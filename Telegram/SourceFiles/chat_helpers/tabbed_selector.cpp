@@ -381,6 +381,7 @@ TabbedSelector::TabbedSelector(
 , _show(std::move(descriptor.show))
 , _level(descriptor.level)
 , _customTextColor(std::move(descriptor.customTextColor))
+, _excludeStickerSetId(descriptor.excludeStickerSetId)
 , _mode(descriptor.mode)
 , _panelRounding(Ui::PrepareCornerPixmaps(st::emojiPanRadius, _st.bg))
 , _categoriesRounding(
@@ -645,6 +646,7 @@ TabbedSelector::Tab TabbedSelector::createTab(SelectorTab type, int index) {
 				.paused = paused,
 				.st = &_st,
 				.features = _features,
+				.excludeSetId = _excludeStickerSetId,
 			});
 		}
 		case SelectorTab::Gifs: {
@@ -1494,12 +1496,15 @@ void TabbedSelector::Inner::checkHideWithBox(
 void TabbedSelector::Inner::paintEmptySearchResults(
 		Painter &p,
 		const style::icon &icon,
-		const QString &text) const {
+		const QString &text,
+		bool skipIcon) const {
 	const auto iconLeft = (width() - icon.width()) / 2;
 	const auto iconTop = std::max(
 		(height() / 3) - (icon.height() / 2),
 		st::normalFont->height);
-	icon.paint(p, iconLeft, iconTop, width());
+	if (!skipIcon) {
+		icon.paint(p, iconLeft, iconTop, width());
+	}
 
 	const auto textWidth = st::normalFont->width(text);
 	const auto textTop = std::min(

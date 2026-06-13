@@ -220,7 +220,7 @@ private:
 	void setupShortcuts();
 	void setupStories();
 	void setupSwipeBack();
-	void setupTopBarSuggestions(not_null<Ui::VerticalLayout*> dialogs);
+	void setupTopBarSuggestions();
 	void storiesExplicitCollapse();
 	void collectStoriesUserpicsViews(Data::StorySourcesList list);
 	void storiesToggleExplicitExpand(bool expand);
@@ -349,7 +349,8 @@ private:
 	rpl::event_stream<bool> _openedFolderOrForumChanges;
 
 	object_ptr<Ui::ElasticScroll> _scroll;
-	QPointer<InnerWidget> _inner;
+	Ui::VerticalLayout *_innerList = nullptr;
+	InnerWidget *_inner = nullptr;
 	std::unique_ptr<Suggestions> _suggestions;
 	std::vector<std::unique_ptr<Suggestions>> _hidingSuggestions;
 	class BottomButton;
@@ -418,6 +419,9 @@ private:
 
 	Api::PeerSearch _peerSearch;
 	Api::SingleMessageSearch _singleMessageSearch;
+
+	std::vector<not_null<PeerData*>> _idSearchResults;
+	QString _idSearchQuery;
 
 	QPixmap _widthAnimationCache;
 

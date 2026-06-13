@@ -21,6 +21,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/text/text_utilities.h"
 #include "window/window_controller.h"
 #include "window/window_session_controller.h"
+#include "platform/mac/global_menu_mac.h"
 #include "platform/mac/touchbar/mac_touchbar_manager.h"
 #include "platform/platform_specific.h"
 #include "platform/platform_notifications_manager.h"
@@ -42,6 +43,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <CoreFoundation/CFURL.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hidsystem/ev_keymap.h>
+
+// AyuGram includes
+#include "ayu/ayu_settings.h"
+
 
 @interface MainWindowObserver : NSObject {
 }
@@ -96,9 +101,10 @@ public:
 		not_null<Window::Controller*> controller);
 	void setWindowBadge(const QString &str);
 
-	void setMarkdownEnabledState(Ui::MarkdownEnabledState state);
+	void updateMarkdownState(Ui::MarkdownEnabledState state) {
+		_markdownState = state;
+	}
 
-	bool clipboardHasText();
 	~Private();
 
 private:
@@ -111,9 +117,6 @@ private:
 	NSView * __weak _nativeView = nil;
 
 	MainWindowObserver *_observer = nullptr;
-	NSPasteboard *_generalPasteboard = nullptr;
-	int _generalPasteboardChangeCount = -1;
-	bool _generalPasteboardHasText = false;
 
 };
 
@@ -159,30 +162,6 @@ private:
 namespace Platform {
 namespace {
 
-void SendKeySequence(
-		Qt::Key key,
-		Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
-	const auto focused = QApplication::focusWidget();
-	if (qobject_cast<QLineEdit*>(focused)
-		|| qobject_cast<QTextEdit*>(focused)
-		|| dynamic_cast<HistoryInner*>(focused)) {
-		QApplication::postEvent(
-			focused,
-			new QKeyEvent(QEvent::KeyPress, key, modifiers));
-		QApplication::postEvent(
-			focused,
-			new QKeyEvent(QEvent::KeyRelease, key, modifiers));
-	}
-}
-
-void ForceDisabled(QAction *action, bool disabled) {
-	if (action->isEnabled()) {
-		if (disabled) action->setDisabled(true);
-	} else if (!disabled) {
-		action->setDisabled(false);
-	}
-}
-
 #if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
 QString strNotificationAboutThemeChange() {
 	const uint32 letters[] = { 0x75E86256, 0xD03E11B1, 0x4D92201D, 0xA2144987, 0x99D5B34F, 0x037589C3, 0x38ED2A7C, 0xD2371ABC, 0xDC98BB02, 0x27964E1B, 0x01748AED, 0xE06679F8, 0x761C9580, 0x4F2595BF, 0x6B5FCBF4, 0xE4D9C24E, 0xBA2F6AB5, 0xE6E3FA71, 0xF2CFC255, 0x56A50C19, 0x43AE1239, 0x77CA4254, 0x7D189A89, 0xEA7663EE, 0x84CEB554, 0xA0ADF236, 0x886512D4, 0x7D3FBDAF, 0x85C4BE4F, 0x12C8255E, 0x9AD8BD41, 0xAC154683, 0xB117598B, 0xDFD9F947, 0x63F06C7B, 0x6340DCD6, 0x3AAE6B3E, 0x26CB125A };
@@ -205,8 +184,6 @@ QString strNotificationAboutScreenUnlocked() {
 MainWindow::Private::Private(not_null<MainWindow*> window)
 : _public(window)
 , _observer([[MainWindowObserver alloc] init:this]) {
-	_generalPasteboard = [NSPasteboard generalPasteboard];
-
 	@autoreleasepool {
 
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:_observer selector:@selector(activeSpaceDidChange:) name:NSWorkspaceActiveSpaceDidChangeNotification object:nil];
@@ -253,28 +230,13 @@ void MainWindow::Private::initTouchBar(
 		waitUntilDone:true];
 }
 
-void MainWindow::Private::setMarkdownEnabledState(
-		Ui::MarkdownEnabledState state) {
-	_markdownState = state;
-}
-
-bool MainWindow::Private::clipboardHasText() {
-	auto currentChangeCount = static_cast<int>([_generalPasteboard changeCount]);
-	if (_generalPasteboardChangeCount != currentChangeCount) {
-		_generalPasteboardChangeCount = currentChangeCount;
-		_generalPasteboardHasText = !QGuiApplication::clipboard()->text().isEmpty();
-	}
-	return _generalPasteboardHasText;
-}
-
 MainWindow::Private::~Private() {
 	[_observer release];
 }
 
 MainWindow::MainWindow(not_null<Window::Controller*> controller)
 : Window::MainWindow(controller)
-, _private(std::make_unique<Private>(this))
-, psMainMenu(this) {
+, _private(std::make_unique<Private>(this)) {
 	_hideAfterFullScreenTimer.setCallback([this] { hideAndDeactivate(); });
 }
 
@@ -309,6 +271,11 @@ void MainWindow::initHook() {
 			}
 		}
 	}
+
+	Platform::GlobalMenuMarkdownState(
+	) | rpl::on_next([this](Ui::MarkdownEnabledState state) {
+		_private->updateMarkdownState(state);
+	}, lifetime());
 }
 
 void MainWindow::updateWindowIcon() {
@@ -348,7 +315,9 @@ void MainWindow::unreadCounterChangedHook() {
 }
 
 void MainWindow::updateDockCounter() {
-	const auto counter = Core::App().unreadBadge();
+	const auto counter = AyuSettings::getInstance().hideNotificationBadge()
+		? 0
+		: Core::App().unreadBadge();
 
 	const auto string = !counter
 		? QString()
@@ -358,6 +327,7 @@ void MainWindow::updateDockCounter() {
 	_private->setWindowBadge(string);
 }
 
+<<<<<<< HEAD
 void MainWindow::createGlobalMenu() {
 	const auto ensureWindowShown = [=] {
 		if (isHidden()) {
@@ -662,6 +632,8 @@ void MainWindow::updateGlobalMenuHook() {
 	ForceDisabled(psClearFormat, markdownState.disabled());
 }
 
+=======
+>>>>>>> refs/tags/v6.7.8
 bool MainWindow::eventFilter(QObject *obj, QEvent *evt) {
 	QEvent::Type t = evt->type();
 	if (t == QEvent::FocusIn || t == QEvent::FocusOut) {

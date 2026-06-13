@@ -24,10 +24,15 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/timer.h"
 #include "base/concurrent_timer.h"
 #include "base/invoke_queued.h"
+#include "base/options.h"
 #include "base/qthelp_url.h"
 #include "base/qthelp_regex.h"
 #include "ui/ui_utility.h"
 #include "ui/effects/animations.h"
+
+#ifdef Q_OS_MAC
+#include "platform/mac/global_menu_mac.h"
+#endif // Q_OS_MAC
 
 #include <QtCore/QLockFile>
 #include <QtGui/QSessionManager>
@@ -35,12 +40,27 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <QtGui/qpa/qplatformscreen.h>
 
 namespace Core {
+namespace {
+
+base::options::toggle OptionDeadlockDetector({
+	.id = kOptionDeadlockDetector,
+	.name = "Deadlock Detector",
+	.description = "Check once every 30 seconds that main thread is still responsive.",
+	.restartRequired = true,
+});
+
+} // namespace
+
+const char kOptionDeadlockDetector[] = "deadlock-detector";
 
 bool Sandbox::QuitOnStartRequested = false;
 
 Sandbox::Sandbox(int &argc, char **argv)
 : QApplication(argc, argv)
 , _mainThreadId(QThread::currentThreadId()) {
+#ifdef Q_OS_MAC
+	Platform::CreateGlobalMenu();
+#endif // Q_OS_MAC
 }
 
 int Sandbox::start() {
@@ -149,12 +169,10 @@ void Sandbox::launchApplication() {
 		}
 		setupScreenScale();
 
-#ifndef _DEBUG
-		if (Logs::DebugEnabled()) {
+		if (OptionDeadlockDetector.value()) {
 			using DeadlockDetector::PingThread;
 			_deadlockDetector = std::make_unique<PingThread>(this);
 		}
-#endif // !_DEBUG
 
 		_application = std::make_unique<Application>();
 
@@ -211,7 +229,11 @@ void Sandbox::setupScreenScale() {
 	LOG(("ScreenScale: %1").arg(cScreenScale()));
 }
 
-Sandbox::~Sandbox() = default;
+Sandbox::~Sandbox() {
+#ifdef Q_OS_MAC
+	Platform::DestroyGlobalMenu();
+#endif // Q_OS_MAC
+}
 
 bool Sandbox::event(QEvent *e) {
 	if (e->type() == QEvent::Quit) {

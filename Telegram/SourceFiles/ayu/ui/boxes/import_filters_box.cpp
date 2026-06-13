@@ -3,33 +3,25 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
+// Copyright @Radolyn, 2026
 #include "ayu/ui/boxes/import_filters_box.h"
-
-#include "qr/qr_generate.h"
-#include "styles/style_boxes.h"
-#include "styles/style_intro.h"
-#include "styles/style_layers.h"
-#include "ui/painter.h"
-#include "ui/rect.h"
-#include "ui/rp_widget.h"
-#include "ui/vertical_list.h"
-#include "ui/controls/invite_link_label.h"
-#include "ui/layers/generic_box.h"
-#include "ui/widgets/buttons.h"
-#include "ui/widgets/fields/input_field.h"
-
-#include <QtGui/QClipboard>
-#include <QtGui/QGuiApplication>
-#include <QtSvg/QSvgRenderer>
 
 #include "lang_auto.h"
 #include "ayu/features/filters/filters_utils.h"
 #include "styles/style_giveaway.h"
+#include "styles/style_layers.h"
 #include "styles/style_settings.h"
+#include "ui/rect.h"
+#include "ui/rp_widget.h"
+#include "ui/layers/generic_box.h"
 #include "ui/toast/toast.h"
+#include "ui/widgets/buttons.h"
 #include "ui/widgets/checkbox.h"
+#include "ui/widgets/fields/input_field.h"
 #include "ui/wrap/slide_wrap.h"
+
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
 
 namespace Ui {
 
@@ -52,8 +44,10 @@ void FillImportFiltersBox(not_null<Ui::GenericBox*> box, bool import) {
 
 	Ui::InputField *importURLField = nullptr;
 	Ui::SlideWrap<Ui::VerticalLayout> *importURLWrap = nullptr;
+	const auto clipboardText = QGuiApplication::clipboard()->text().trimmed();
+	const auto clipboardHasUrl = import && clipboardText.startsWith("http");
 
-	const auto intoURL = std::make_shared<RadioenumGroup<bool>>(false);
+	const auto intoURL = std::make_shared<RadioenumGroup<bool>>(clipboardHasUrl);
 	const auto addOption = [&](bool value, const QString &text)
 	{
 		inner->add(
@@ -66,9 +60,6 @@ void FillImportFiltersBox(not_null<Ui::GenericBox*> box, bool import) {
 			st::settingsSendTypePadding);
 
 		if (import && value) {
-			const auto clipboardText = QGuiApplication::clipboard()->text().trimmed();
-			const auto prefill = clipboardText.startsWith("http") ? clipboardText : QString();
-
 			importURLWrap = inner->add(
 				object_ptr<Ui::SlideWrap<Ui::VerticalLayout>>(
 					inner,
@@ -81,10 +72,12 @@ void FillImportFiltersBox(not_null<Ui::GenericBox*> box, bool import) {
 					container,
 					st::defaultInputField,
 					rpl::single(QString("URL")),
-					prefill
+					clipboardHasUrl ? clipboardText : QString()
 				)
 			);
-			importURLWrap->hide(anim::type::instant);
+			if (!clipboardHasUrl) {
+				importURLWrap->hide(anim::type::instant);
+			}
 		}
 	};
 	addOption(false, import ? tr::ayu_FiltersImportClipboard(tr::now) : tr::ayu_FiltersExportClipboard(tr::now));

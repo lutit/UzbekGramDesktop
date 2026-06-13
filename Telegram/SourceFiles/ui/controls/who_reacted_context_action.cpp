@@ -24,6 +24,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include <QtCore/QLocale>
 
+// AyuGram includes
+#include "ayu/ui/ayu_userpic.h"
+
+
 namespace Lang {
 namespace {
 
@@ -187,6 +191,13 @@ TextParseOptions MenuTextOptions = {
 	).text;
 }
 
+[[nodiscard]] QString FormatReactionsCountString(int count) {
+	return tr::lng_context_seen_reactions_count(
+		tr::now,
+		lt_count_short,
+		count);
+}
+
 Action::Action(
 	not_null<PopupMenu*> parentMenu,
 	rpl::producer<WhoReadContent> content,
@@ -208,14 +219,13 @@ Action::Action(
 , _height(st::defaultWhoRead.itemPadding.top()
 		+ _st.itemStyle.font->height
 		+ st::defaultWhoRead.itemPadding.bottom()) {
-	const auto parent = parentMenu->menu();
 	const auto delay = anim::Disabled() ? 0 : parentMenu->st().duration;
 	const auto checkAppeared = [=, now = crl::now()](bool force = false) {
 		_appeared = force || ((crl::now() - now) >= delay);
 	};
 
 	setAcceptBoth(true);
-	initResizeHook(parent->sizeValue());
+	fitToMenuWidth();
 
 	std::move(
 		content
@@ -296,7 +306,15 @@ void Action::resolveMinWidth() {
 				lt_count_short,
 				_content.fullReactionsCount))
 		: QString();
-	const auto maxTextWidth = std::max(width(maxText), width(maxReacted));
+	const auto maxReactionsCount = (_content.fullReactionsCount
+			> _content.fullReadCount)
+		? FormatReactionsCountString(_content.fullReactionsCount)
+		: QString();
+	const auto maxTextWidth = std::max({
+		width(maxText),
+		width(maxReacted),
+		width(maxReactionsCount),
+	});
 	const auto maxWidth = st::defaultWhoRead.itemPadding.left()
 		+ maxIconWidth
 		+ maxTextWidth
@@ -436,10 +454,12 @@ void Action::refreshText() {
 				|| (count > 0 && _content.fullReactionsCount > usersCount)
 				|| (count > 0 && onlySeenCount == 0))
 			? (count
-				? tr::lng_context_seen_reacted(
-					tr::now,
-					lt_count_short,
-					count)
+				? ((_content.fullReactionsCount > _content.fullReadCount)
+					? FormatReactionsCountString(_content.fullReactionsCount)
+					: tr::lng_context_seen_reacted(
+						tr::now,
+						lt_count_short,
+						count))
 				: tr::lng_context_seen_reacted_none(tr::now))
 			: (_content.type == WhoReadType::Watched)
 			? (count
@@ -517,10 +537,8 @@ WhenAction::WhenAction(
 , _height(st::whenReadPadding.top()
 		+ st::whenReadStyle.font->height
 		+ st::whenReadPadding.bottom()) {
-	const auto parent = parentMenu->menu();
-
 	setAcceptBoth(true);
-	initResizeHook(parent->sizeValue());
+	fitToMenuWidth();
 
 	std::move(
 		content
@@ -723,7 +741,7 @@ int WhenAction::contentHeight() const {
 } // namespace
 
 WhoReactedEntryAction::WhoReactedEntryAction(
-	not_null<RpWidget*> parent,
+	not_null<Ui::Menu::Menu*> parent,
 	CustomEmojiFactory customEmojiFactory,
 	const style::Menu &st,
 	Data &&data)
@@ -734,7 +752,7 @@ WhoReactedEntryAction::WhoReactedEntryAction(
 , _height(st::defaultWhoRead.photoSkip * 2 + st::defaultWhoRead.photoSize) {
 	setAcceptBoth(true);
 
-	initResizeHook(parent->sizeValue());
+	fitToMenuWidth();
 	setData(std::move(data));
 
 	paintRequest(
@@ -758,7 +776,7 @@ int WhoReactedEntryAction::contentHeight() const {
 }
 
 void WhoReactedEntryAction::setData(Data &&data) {
-	setClickedCallback(std::move(data.callback));
+	setActionTriggered(std::move(data.callback));
 	_userpic = std::move(data.userpic);
 	_text.setMarkedText(_st.itemStyle, { data.text }, MenuTextOptions);
 	if (data.date.isEmpty()) {
@@ -827,11 +845,11 @@ void WhoReactedEntryAction::paint(Painter &&p) {
 			auto bgPen = bg->p;
 			bgPen.setWidthF(st::lineWidth * 6.);
 			p.setPen(bgPen);
-			p.drawEllipse(photoLeft, photoTop, photoSize, photoSize);
+			AyuUserpic::PaintShape(p, photoLeft, photoTop, photoSize);
 			auto fgPen = st::windowBgActive->p;
 			fgPen.setWidthF(st::lineWidth * 2.);
 			p.setPen(fgPen);
-			p.drawEllipse(photoLeft, photoTop, photoSize, photoSize);
+			AyuUserpic::PaintShape(p, photoLeft, photoTop, photoSize);
 		}
 	} else if (!_custom) {
 		st::menuIconReactions.paintInCenter(

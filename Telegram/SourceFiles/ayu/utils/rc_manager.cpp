@@ -3,14 +3,20 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
-#include "rc_manager.h"
+// Copyright @Radolyn, 2026
+#include "ayu/utils/rc_manager.h"
 
 #include <QJsonArray>
 #include <qjsondocument.h>
 #include <QTimer>
 
-#include "base/unixtime.h"
+namespace {
+
+constexpr auto kPrimaryUrl = "https://update.ayugram.one/rc/current/desktop2";
+constexpr auto kExteraUrl = "https://api.exteragram.app/api/v1/profiles/compact";
+constexpr auto kFetchTimeout = 15 * 1000;
+
+}
 
 std::unordered_set<ID> default_developers = {};
 std::unordered_set<ID> default_channels = {};
@@ -27,6 +33,45 @@ void RCManager::start() {
 
 void RCManager::makeRequest() {
 	return;
+
+void RCManager::sendRequest() {
+	if (!_manager) {
+		return;
+	}
+
+	const auto url = QString::fromLatin1(_useExteraFallback ? kExteraUrl : kPrimaryUrl);
+	LOG(("RCManager: requesting map"));
+
+	clearSentRequest();
+
+	auto request = QNetworkRequest(QUrl(url));
+	request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+	request.setTransferTimeout(kFetchTimeout);
+	_reply = _manager->get(request);
+	connect(_reply,
+			&QNetworkReply::finished,
+			[=]
+			{
+				gotResponse();
+			});
+	connect(_reply,
+			&QNetworkReply::errorOccurred,
+			[=](auto e)
+			{
+				gotFailure(e);
+			});
+>>>>>>> refs/tags/v6.7.8
+}
+
+bool RCManager::tryRetryWithExteraFallback() {
+	if (_retryAttempted || _useExteraFallback) {
+		return false;
+	}
+	LOG(("RCManager: switching to extera fallback endpoint"));
+	_useExteraFallback = true;
+	_retryAttempted = true;
+	sendRequest();
+	return true;
 }
 
 void RCManager::gotResponse() {
@@ -128,10 +173,26 @@ bool RCManager::applyResponse(const QByteArray &response) {
 		_customBadges[id] = customBadge;
 	}
 
-	_donateUsername = root.value("donateUsername").toString();
-	_donateAmountUsd = root.value("donateAmountUsd").toString();
-	_donateAmountTon = root.value("donateAmountTon").toString();
-	_donateAmountRub = root.value("donateAmountRub").toString();
+	if (const auto donateUsername = root.value("donateUsername"); donateUsername.isString()) {
+		if (const auto value = donateUsername.toString(); !value.isEmpty()) {
+			_donateUsername = value;
+		}
+	}
+	if (const auto donateAmountUsd = root.value("donateAmountUsd"); donateAmountUsd.isString()) {
+		if (const auto value = donateAmountUsd.toString(); !value.isEmpty()) {
+			_donateAmountUsd = value;
+		}
+	}
+	if (const auto donateAmountTon = root.value("donateAmountTon"); donateAmountTon.isString()) {
+		if (const auto value = donateAmountTon.toString(); !value.isEmpty()) {
+			_donateAmountTon = value;
+		}
+	}
+	if (const auto donateAmountRub = root.value("donateAmountRub"); donateAmountRub.isString()) {
+		if (const auto value = donateAmountRub.toString(); !value.isEmpty()) {
+			_donateAmountRub = value;
+		}
+	}
 
 	initialized = true;
 
@@ -143,6 +204,11 @@ bool RCManager::applyResponse(const QByteArray &response) {
 
 void RCManager::gotFailure(QNetworkReply::NetworkError e) {
 	LOG(("RCManager: Error %1").arg(e));
+	if (tryRetryWithExteraFallback()) {
+		LOG(("RCManager: retrying request with extera fallback endpoint"));
+		return;
+	}
+	LOG(("RCManager: no retry left for failed request"));
 	if (const auto reply = base::take(_reply)) {
 		reply->deleteLater();
 	}

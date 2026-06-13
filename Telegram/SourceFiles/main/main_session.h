@@ -45,6 +45,11 @@ class PromoSuggestions;
 class Passkeys;
 } // namespace Data
 
+namespace Settings {
+class FaqSuggestions;
+class RecentSearches;
+} // namespace Settings
+
 namespace HistoryView::Reactions {
 class CachedIconFactory;
 } // namespace HistoryView::Reactions
@@ -205,6 +210,12 @@ public:
 	[[nodiscard]] Data::Passkeys &passkeys() const {
 		return *_passkeys;
 	}
+	[[nodiscard]] Settings::FaqSuggestions &faqSuggestions() const {
+		return *_faqSuggestions;
+	}
+	[[nodiscard]] Settings::RecentSearches &recentSettingsSearches() const {
+		return *_recentSettingsSearches;
+	}
 	[[nodiscard]] auto cachedReactionIconFactory() const
 	-> HistoryView::Reactions::CachedIconFactory & {
 		return *_cachedReactionIconFactory;
@@ -310,6 +321,8 @@ private:
 	const std::unique_ptr<Data::Credits> _credits;
 	const std::unique_ptr<Data::PromoSuggestions> _promoSuggestions;
 	const std::unique_ptr<Data::Passkeys> _passkeys;
+	const std::unique_ptr<Settings::FaqSuggestions> _faqSuggestions;
+	const std::unique_ptr<Settings::RecentSearches> _recentSettingsSearches;
 
 	using ReactionIconFactory = HistoryView::Reactions::CachedIconFactory;
 	const std::unique_ptr<ReactionIconFactory> _cachedReactionIconFactory;

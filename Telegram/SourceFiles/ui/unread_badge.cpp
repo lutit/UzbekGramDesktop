@@ -21,6 +21,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_dialogs.h"
 
 // AyuGram includes
+#include "ayu/ayu_settings.h"
 #include "ayu/utils/telegram_helpers.h"
 #include "styles/style_info.h"
 
@@ -154,6 +155,9 @@ PeerBadge::~PeerBadge() = default;
 int PeerBadge::drawGetWidth(Painter &p, Descriptor &&descriptor) {
 	Expects(descriptor.customEmojiRepaint != nullptr);
 
+	const auto &settings = AyuSettings::getInstance();
+	const auto hidePremiumStatuses = settings.hidePremiumStatuses();
+
 	const auto peer = descriptor.peer;
 	if ((descriptor.scam && (peer->isScam() || peer->isFake()))
 		|| (descriptor.direct && peer->isMonoforum())) {
@@ -174,47 +178,60 @@ int PeerBadge::drawGetWidth(Painter &p, Descriptor &&descriptor) {
 			|| descriptor.bothVerifyAndStatus
 			|| !emojiStatus);
 	const auto paintEmoji = emojiStatus
-		&& (!paintVerify || descriptor.bothVerifyAndStatus);
-	const auto paintStar = premiumStar && !paintVerify;
+		&& (!paintVerify || descriptor.bothVerifyAndStatus)
+		&& !hidePremiumStatuses;
+	const auto paintStar = premiumStar && !paintVerify
+		&& !hidePremiumStatuses;
 
 	const auto paintExteraCustom =
-		isCustomBadgePeer(getBareID(peer));
-	const auto paintExteraDev =
-		isExteraPeer(getBareID(peer)) && (!paintEmoji || descriptor.bothVerifyAndStatus) && !paintExteraCustom;
-	const auto paintExteraSupporter = !paintExteraDev &&
-		isSupporterPeer(getBareID(peer)) && (!paintEmoji || descriptor.bothVerifyAndStatus) && !paintExteraCustom;
-	const auto exteraWidth = paintExteraDev
-								 ? descriptor.exteraOfficial->width()
-								 : paintExteraSupporter
-									   ? descriptor.exteraSupporter->width()
-									   : 0;
-
-	const auto exteraCustomWidth = descriptor.premium->width() - 4 * ((st::emojiSize - Ui::Text::AdjustCustomEmojiSize(st::emojiSize)) / 2);
+		isCustomBadgePeer(getBareID(peer)) && !hidePremiumStatuses;
+	const auto paintExteraDev = isExteraPeer(getBareID(peer))
+		&& !paintExteraCustom
+		&& !hidePremiumStatuses;
+	const auto paintExteraSupporter = !paintExteraDev
+		&& isSupporterPeer(getBareID(peer))
+		&& !paintExteraCustom
+		&& !hidePremiumStatuses;
+	const auto paintExtera = paintExteraDev || paintExteraSupporter;
+	auto exteraWidth = 0;
+	if (paintExteraDev) {
+		exteraWidth = descriptor.exteraOfficial->width();
+	} else if (paintExteraSupporter) {
+		exteraWidth = descriptor.exteraSupporter->width();
+	}
+	const auto customEmojiSkip = (st::emojiSize
+		- Ui::Text::AdjustCustomEmojiSize(st::emojiSize)) / 2;
+	const auto exteraCustomWidth = paintExteraCustom
+		? descriptor.premium->width() - 4 * customEmojiSkip
+		: 0;
+	const auto verifyWidth = paintVerify ? descriptor.verified->width() : 0;
+	const auto verifyAfterEmojiWidth = (paintVerify && !paintExtera)
+		? verifyWidth
+		: 0;
 
 	auto result = 0;
 	if (paintEmoji) {
 		auto &rectForName = descriptor.rectForName;
-		const auto verifyWidth = descriptor.verified->width();
-		if (paintVerify) {
-			rectForName.setWidth(rectForName.width() - verifyWidth);
+		if (verifyAfterEmojiWidth) {
+			rectForName.setWidth(rectForName.width() - verifyAfterEmojiWidth);
 		}
 		if (paintExteraCustom) {
 			rectForName.setWidth(rectForName.width() - exteraCustomWidth);
 		}
-		if (paintExteraDev || paintExteraSupporter) {
+		if (paintExtera) {
 			rectForName.setWidth(rectForName.width() - exteraWidth);
 		}
 		result += drawPremiumEmojiStatus(p, descriptor);
-		if (!paintVerify && !paintExteraCustom && !paintExteraDev && !paintExteraSupporter) {
+		if (!paintVerify && !paintExteraCustom && !paintExtera) {
 			return result;
 		}
-		if (paintVerify) {
-			rectForName.setWidth(rectForName.width() + verifyWidth);
+		if (verifyAfterEmojiWidth) {
+			rectForName.setWidth(rectForName.width() + verifyAfterEmojiWidth);
 		}
 		if (paintExteraCustom) {
 			rectForName.setWidth(rectForName.width() + exteraCustomWidth);
 		}
-		if (paintExteraDev || paintExteraSupporter) {
+		if (paintExtera) {
 			rectForName.setWidth(rectForName.width() + exteraWidth);
 		}
 		descriptor.nameWidth += result;
@@ -222,7 +239,6 @@ int PeerBadge::drawGetWidth(Painter &p, Descriptor &&descriptor) {
 
 	if (paintExteraCustom) {
 		auto &rectForName = descriptor.rectForName;
-		const auto verifyWidth = descriptor.verified->width();
 		if (paintVerify) {
 			rectForName.setWidth(rectForName.width() - verifyWidth);
 		}
@@ -236,7 +252,7 @@ int PeerBadge::drawGetWidth(Painter &p, Descriptor &&descriptor) {
 		descriptor.nameWidth += result;
 	}
 
-	if (paintExteraDev || paintExteraSupporter) {
+	if (paintExtera) {
 		if (paintStar) {
 			auto &rectForName = descriptor.rectForName;
 			rectForName.setWidth(rectForName.width() - exteraWidth);
@@ -244,7 +260,11 @@ int PeerBadge::drawGetWidth(Painter &p, Descriptor &&descriptor) {
 			rectForName.setWidth(rectForName.width() + exteraWidth);
 			descriptor.nameWidth += result;
 		}
-		result += paintExteraDev ? drawExteraOfficial(p, descriptor) : drawExteraSupporter(p, descriptor);
+		if (paintExteraDev) {
+			result += drawExteraOfficial(p, descriptor);
+		} else {
+			result += drawExteraSupporter(p, descriptor);
+		}
 		return result;
 	}
 

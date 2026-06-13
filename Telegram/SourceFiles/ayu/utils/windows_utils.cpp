@@ -3,16 +3,17 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
+// Copyright @Radolyn, 2026
 #ifdef Q_OS_WIN
 
-#include "windows_utils.h"
+#include "ayu/utils/windows_utils.h"
 
+#include "ayu/ui/ayu_logo.h"
 #include "base/platform/win/base_windows_winrt.h"
 #include "platform/win/windows_app_user_model_id.h"
 
-#include <ShlObj_core.h>
 #include <propvarutil.h>
+#include <ShlObj_core.h>
 
 void processIcon(QString shortcut, QString iconPath) {
 	if (!QFile::exists(shortcut)) {
@@ -30,13 +31,11 @@ void processIcon(QString shortcut, QString iconPath) {
 	if (SUCCEEDED(hr)) {
 		hr = pShellLink->QueryInterface(IID_IPersistFile, (void**) &pPersistFile);
 		if (SUCCEEDED(hr)) {
-			WCHAR wszShortcutPath[MAX_PATH];
-			shortcut.toWCharArray(wszShortcutPath);
-			wszShortcutPath[shortcut.length()] = '\0';
+			const auto shortcutPath = shortcut.toStdWString();
 
-			if (SUCCEEDED(pPersistFile->Load(wszShortcutPath, STGM_READWRITE))) {
+			if (SUCCEEDED(pPersistFile->Load(shortcutPath.c_str(), STGM_READWRITE))) {
 				pShellLink->SetIconLocation(iconPath.toStdWString().c_str(), 0);
-				pPersistFile->Save(wszShortcutPath, TRUE);
+				pPersistFile->Save(shortcutPath.c_str(), TRUE);
 			}
 
 			pPersistFile->Release();
@@ -46,8 +45,14 @@ void processIcon(QString shortcut, QString iconPath) {
 	}
 }
 
+<<<<<<< HEAD
 void processLegacy(const QString &appdata, const QString &iconPath) {
 	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/UzbekGram Desktop.lnk";
+=======
+void processLegacy(const QString &iconPath) {
+	const auto appdata = QDir::fromNativeSeparators(qgetenv("APPDATA"));
+	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/AyuGram Desktop.lnk";
+>>>>>>> refs/tags/v6.7.8
 	if (!QFile::exists(shortcut)) {
 		shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Telegram.lnk";
 	}
@@ -144,7 +149,7 @@ void processNewShortcuts(const QString &iconPath) {
 
 	DWORD attributes = GetFileAttributes(native.c_str());
 	if (attributes >= 0xFFFFFFF) {
-		return; // file does not exist
+		return;
 	}
 
 	const auto normalizedPath = QString::fromStdWString(native);
@@ -157,7 +162,7 @@ void reloadAppIconFromTaskBar() {
 
 	processNewPinned(iconPath);
 	processNewShortcuts(iconPath);
-	processLegacy(appdata, iconPath);
+	processLegacy(iconPath);
 
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 }
