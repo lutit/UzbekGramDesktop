@@ -50,7 +50,6 @@
 #include "ui/layers/generic_box.h"
 #include "ui/text/format_values.h"
 #include "ui/text/text_entity.h"
-#include "ui/text/format_values.h"
 #include "ui/toast/toast.h"
 #include "window/window_controller.h"
 
@@ -66,6 +65,12 @@ namespace {
 constexpr auto usernameResolverBotId = 7424190611L;
 const auto usernameResolverBotUsername = QString("tgdb_search_bot");
 const auto usernameResolverEmpty = QString("Error, username or id invalid/not found.");
+
+constexpr auto regDateBotId = 8083294286L;
+const auto regDateBotUsername = QString("exteraAuthBot");
+
+constexpr auto regDateBotFallbackId = 6247153446L;
+const auto regDateBotFallbackUsername = QString("ayugrambot");
 
 const auto kZalgoPattern = QStringLiteral(
 	"\\p{Mn}{3,}|[\\x{202A}-\\x{202E}\\x{2066}-\\x{2069}\\x{200E}\\x{200F}\\x{061C}]");
@@ -125,7 +130,6 @@ void BadgeToastIcon::updateInnerGeometry() {
 		: object_ptr<BadgeToastIcon>(nullptr, peer, content);
 }
 
->>>>>>> refs/tags/v6.7.8
 }
 
 Main::Session *getSession(ID userId) {
@@ -493,7 +497,7 @@ QString getLocalizedAt() {
 QString formatDateTime(const QDateTime &date) {
 	const auto locale = QLocale::system();
 	const auto datePart = locale.toString(date.date(), QLocale::ShortFormat);
-	const auto timePart = Ui::FormatTime(date.time());
+	const auto timePart = locale.toString(date, "HH:mm:ss");
 
 	return datePart + getLocalizedAt() + timePart;
 }

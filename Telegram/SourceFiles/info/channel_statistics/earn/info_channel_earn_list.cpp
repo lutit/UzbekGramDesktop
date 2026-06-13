@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "info/channel_statistics/earn/info_channel_earn_list.h"
 
 #include "api/api_credits.h"
-#include "ui/text/format_values.h"
 #include "api/api_earn.h"
 #include "api/api_filter_updates.h"
 #include "api/api_statistics.h"
@@ -196,7 +195,7 @@ void AddRecipient(not_null<Ui::GenericBox*> box, const TextWithEntities &t) {
 		lt_date,
 		langDayOfMonth(date.date()),
 		lt_time,
-		Ui::FormatTime(date.time()));
+		QLocale().toString(date.time(), QLocale::ShortFormat));
 }
 
 constexpr auto kMinus = QChar(0x2212);

@@ -69,30 +69,24 @@ void TranslateTracker::setup() {
 	}) | rpl::distinct_until_changed();
 
 	using namespace rpl::mappers;
-	_trackingLanguage = rpl::single(true);
+	_trackingLanguage = Core::App().settings().translateChatEnabledValue();
 	_trackingLanguage.value() | rpl::on_next([=](bool tracking) {
 		_trackingLifetime.destroy();
 		if (tracking) {
 			recognizeCollected();
 			trackSkipLanguages();
-<<<<<<< HEAD
-
-			// Auto-translate logic
-			const auto to = Core::App().settings().translateTo();
-			if (to && _history->translatedTo() != to) {
-				_history->translateTo(to);
-				if (const auto migrated = _history->migrateFrom()) {
-					migrated->translateTo(to);
-				}
-			}
-=======
 			trackTranslationDisabled();
->>>>>>> refs/tags/v6.7.8
 		} else {
 			checkRecognized({});
 			stopAndRevert();
 		}
 	}, _lifetime);
+
+	AyuSettings::getInstance().translationProviderChanges(
+	) | rpl::on_next([=](TranslationProvider) {
+		resetProvider();
+	}, _lifetime);
+}
 
 	AyuSettings::getInstance().translationProviderChanges(
 	) | rpl::on_next([=](TranslationProvider) {

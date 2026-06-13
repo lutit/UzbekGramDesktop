@@ -35,7 +35,6 @@
 #include "history/history.h"
 #include "history/history_item.h"
 #include "history/history_item_components.h"
-#include "ui/text/format_values.h"
 #include "history/history_item_text.h"
 #include "history/view/history_view_context_menu.h"
 #include "history/view/history_view_cursor_state.h"
@@ -481,7 +480,9 @@ QString InnerWidget::tooltipText() const {
 				dateText += '\n' + tr::lng_sent_date(
 					tr::now,
 					lt_date,
-					Ui::FormatDateTimeLocal(base::unixtime::parse(sentIt->second)));
+					QLocale().toString(
+						base::unixtime::parse(sentIt->second),
+						QLocale::LongFormat));
 			}
 			return dateText;
 		}

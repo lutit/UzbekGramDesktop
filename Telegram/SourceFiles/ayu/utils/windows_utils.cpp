@@ -45,14 +45,9 @@ void processIcon(QString shortcut, QString iconPath) {
 	}
 }
 
-<<<<<<< HEAD
-void processLegacy(const QString &appdata, const QString &iconPath) {
-	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/UzbekGram Desktop.lnk";
-=======
 void processLegacy(const QString &iconPath) {
 	const auto appdata = QDir::fromNativeSeparators(qgetenv("APPDATA"));
-	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/AyuGram Desktop.lnk";
->>>>>>> refs/tags/v6.7.8
+	auto shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/UzbekGram Desktop.lnk";
 	if (!QFile::exists(shortcut)) {
 		shortcut = appdata + "/Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Telegram.lnk";
 	}

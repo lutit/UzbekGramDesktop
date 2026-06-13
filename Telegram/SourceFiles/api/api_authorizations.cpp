@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_authorizations.h"
 
 #include "apiwrap.h"
-#include "ui/text/format_values.h"
 #include "base/unixtime.h"
 #include "core/application.h"
 #include "core/changelogs.h"
@@ -262,7 +261,7 @@ QString Authorizations::ActiveDateString(TimeId active) {
 	const auto nowDate = now.date();
 	const auto lastDate = lastTime.date();
 	return (lastDate == nowDate)
-		? Ui::FormatTime(lastTime.time())
+		? QLocale().toString(lastTime.time(), QLocale::ShortFormat)
 		: (lastDate.year() == nowDate.year()
 			&& lastDate.weekNumber() == nowDate.weekNumber())
 		? langDayOfWeek(lastDate)
@@ -405,3 +404,4 @@ void Authorizations::apply(const MTPUpdate &update) {
 }
 
 } // namespace Api
+

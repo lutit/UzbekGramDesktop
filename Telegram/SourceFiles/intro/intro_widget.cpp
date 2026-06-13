@@ -94,12 +94,9 @@ Widget::Widget(
 		this,
 		account,
 		rpl::single(true))) {
-<<<<<<< HEAD
 	setAttribute(Qt::WA_TranslucentBackground, true);
 	_background = QPixmap(QStringLiteral(":/gui/art/uzbek.jpg"));
-=======
 	_settings->entity()->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
->>>>>>> refs/tags/v6.7.8
 	controller->setDefaultFloatPlayerDelegate(floatPlayerDelegate());
 
 	getData()->country = ComputeNewAccountCountry();

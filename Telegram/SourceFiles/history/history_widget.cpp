@@ -209,11 +209,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/utils/telegram_helpers.h"
 #include "ayu/features/message_shot/message_shot.h"
 #include "ayu/features/forward/ayu_forward.h"
-<<<<<<< HEAD
-#include "ayu/ui/boxes/message_shot_box.h"
 #include "ayu/ui/uzbek_ad_widget.h"
-=======
->>>>>>> refs/tags/v6.7.8
 #include "boxes/abstract_box.h"
 
 #include <unordered_set>

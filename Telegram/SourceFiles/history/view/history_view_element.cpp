@@ -22,7 +22,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/view/reactions/history_view_reactions_button.h"
 #include "history/view/history_view_reply_button.h"
 #include "history/view/reactions/history_view_reactions.h"
-#include "ui/text/format_values.h"
 #include "history/view/history_view_cursor_state.h"
 #include "history/view/history_view_reply.h"
 #include "history/view/history_view_text_helper.h"
@@ -655,11 +654,10 @@ TextSelection ShiftItemSelection(
 }
 
 QString DateTooltipText(not_null<Element*> view) {
-	const auto formatDateTime = [](const QDateTime &dateTime) {
-		return Ui::FormatDateTimeLocal(dateTime);
-	};
+	const auto locale = QLocale();
+	const auto format = QLocale::LongFormat;
 	const auto item = view->data();
-	auto dateText = formatDateTime(view->dateTime());
+	auto dateText = locale.toString(view->dateTime(), format);
 	if (item->awaitingVideoProcessing()) {
 		dateText += '\n' + tr::lng_approximate_about(tr::now);
 	}
@@ -667,14 +665,16 @@ QString DateTooltipText(not_null<Element*> view) {
 		dateText += '\n' + tr::lng_edited_date(
 			tr::now,
 			lt_date,
-			formatDateTime(base::unixtime::parse(editedDate)));
+			locale.toString(base::unixtime::parse(editedDate), format));
 	}
 	if (const auto forwarded = item->Get<HistoryMessageForwarded>()) {
 		if (!forwarded->story && forwarded->psaType.isEmpty()) {
 			dateText += '\n' + tr::lng_forwarded_date(
 				tr::now,
 				lt_date,
-				formatDateTime(base::unixtime::parse(forwarded->originalDate)));
+				locale.toString(
+					base::unixtime::parse(forwarded->originalDate),
+					format));
 			if (forwarded->imported) {
 				dateText = tr::lng_forwarded_imported(tr::now)
 					+ "\n\n" + dateText;
@@ -687,7 +687,7 @@ QString DateTooltipText(not_null<Element*> view) {
 					dateText += '\n' + tr::lng_forwarded_forwarded_date(
 						tr::now,
 						lt_date,
-						formatDateTime(parsed));
+						locale.toString(parsed, format));
 				}
 			}
 		}

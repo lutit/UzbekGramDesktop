@@ -19,7 +19,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lang/lang_keys.h"
 #include "main/main_session.h"
 #include "ui/boxes/confirm_box.h"
-#include "ui/text/format_values.h"
 #include "ui/chat/attach/attach_prepare.h"
 #include "ui/layers/generic_box.h"
 #include "ui/text/format_values.h" // FormatDurationWordsSlowmode.
@@ -347,7 +346,9 @@ SendError RestrictionError(
 				auto date = QLocale().toString(
 					restrictedUntilDateTime.date(),
 					QLocale::ShortFormat);
-				auto time = Ui::FormatTime(restrictedUntilDateTime.time());
+				auto time = QLocale().toString(
+					restrictedUntilDateTime.time(),
+					QLocale::ShortFormat);
 
 				switch (restriction) {
 				case Flag::SendPolls:

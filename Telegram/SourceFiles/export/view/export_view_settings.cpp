@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "export/view/export_view_settings.h"
 
 #include "export/output/export_output_abstract.h"
-#include "ui/text/format_values.h"
 #include "export/view/export_view_panel_controller.h"
 #include "lang/lang_keys.h"
 #include "ui/widgets/checkbox.h"
@@ -409,7 +408,9 @@ void SettingsWidget::addLimitsLabel(
 
 	const auto mapToTime = [](TimeId id, const QString &link) {
 		return rpl::single(id
-			? Ui::FormatTime(base::unixtime::parse(id).time())
+			? QLocale().toString(
+				base::unixtime::parse(id).time(),
+				QLocale::ShortFormat)
 			: QString()
 		) | rpl::map(tr::url(link));
 	};

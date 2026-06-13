@@ -7,9 +7,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "apiwrap.h"
 
-#include "ayu/shamala_chat.h"
-#include "ayu/ayu_settings.h"
-#include "api/api_chat_invite.h"
 #include "api/api_authorizations.h"
 #include "api/api_attached_stickers.h"
 #include "api/api_blocked_peers.h"
@@ -4058,66 +4055,8 @@ void ApiWrap::sendShortcutMessages(
 }
 
 void ApiWrap::sendMessage(
-	MessageToSend &&message,
-	std::optional<MsgId> localMessageId) {
-
-	if ((AyuSettings::getInstance().shalavaChatMode
-		|| AyuSettings::getInstance().shalavaMode > 0
-		|| AyuSettings::getInstance().epsteinMode)
-		&& !message.shamalaSkipped
-		&& !message.textWithTags.text.isEmpty()) {
-
-		auto msgPtr = std::make_shared<MessageToSend>(std::move(message));
-		const auto originalText = msgPtr->textWithTags.text;
-
-		// Visual fake message
-		const auto history = msgPtr->action.history;
-		const auto peer = history->peer;
-		auto fakeMsgId = _session->data().nextLocalMessageId();
-
-		auto sending = TextWithEntities {
-			originalText,
-			TextUtilities::ConvertTextTagsToEntities(msgPtr->textWithTags.tags)
-		};
-
-		auto flags = NewMessageFlags(peer) | MessageFlag::Local;
-
-		history->addNewLocalMessage({
-			.id = fakeMsgId,
-			.flags = flags,
-			.from = NewMessageFromId(msgPtr->action),
-			.replyTo = msgPtr->action.replyTo,
-			.date = NewMessageDate(msgPtr->action.options),
-		}, sending, MTP_messageMediaEmpty());
-
-		Ayu::ShamalaChat::instance().rewrite(originalText, crl::guard(&session(), [=, msgPtr](QString result) mutable {
-			if (const auto item = session().data().message(peer->id, fakeMsgId)) {
-				item->destroy();
-			}
-
-			msgPtr->textWithTags.text = result;
-			msgPtr->textWithTags.tags.clear();
-
-			msgPtr->originalText = originalText;
-
-			msgPtr->shamalaSkipped = true;
-
-			sendMessage(std::move(*msgPtr), localMessageId);
-
-		}), crl::guard(&session(), [=, msgPtr]() mutable {
-			if (const auto item = session().data().message(peer->id, fakeMsgId)) {
-				item->destroy();
-			}
-
-			msgPtr->shamalaSkipped = true;
-
-			sendMessage(std::move(*msgPtr), localMessageId);
-
-		}));
-
-		return;
-	}
-
+		MessageToSend &&message,
+		std::optional<MsgId> localMessageId) {
 	applyGhostScheduling(_session, message.action.options);
 	const auto clearReplyTo = prependPseudoReply(message);
 
@@ -4191,10 +4130,6 @@ void ApiWrap::sendMessage(
 			randomId,
 			peer->id,
 			sending.text);
-
-		if (!message.originalText.isEmpty()) {
-			Ayu::ShamalaChat::instance().saveOriginal(newId, message.originalText);
-		}
 
 		MTPstring msgText(MTP_string(sending.text));
 		auto flags = NewMessageFlags(peer);
@@ -4389,7 +4324,6 @@ void ApiWrap::sendMessage(
 
 	finishForwarding(action);
 }
-
 
 void ApiWrap::sendBotStart(
 		std::shared_ptr<Ui::Show> show,

@@ -70,7 +70,7 @@ void BuildVersionInfo(SectionBuilder &builder) {
 			.widget = object_ptr<Ui::FlatLabel>(
 				ctx.container,
 				rpl::single(
-					QString("AyuGram Desktop v")
+					QString("UzbekGram Desktop v")
 					+ QString::fromLatin1(AppVersionStr)),
 				st::boxTitle),
 			.align = style::al_top,
@@ -101,7 +101,7 @@ void BuildCategories(SectionBuilder &builder) {
 	builder.addSubsectionTitle(tr::ayu_CategoriesHeader());
 
 	builder.addSectionButton({
-		.title = rpl::single(QString("AyuGram")),
+		.title = rpl::single(QString("Telegram")),
 		.targetSection = AyuGhost::Id(),
 		.icon = { &st::menuIconGroupReactions },
 	});
@@ -145,10 +145,10 @@ void BuildLinks(SectionBuilder &builder) {
 		.id = u"ayu/channel"_q,
 		.title = tr::ayu_LinksChannel(),
 		.icon = { &st::menuIconChannel },
-		.label = rpl::single(QString("@ayugram")),
+		.label = rpl::single(QString("@uzbekgram_client")),
 		.onClick = [=] {
 			controller->showPeerByLink(Window::PeerByLinkInfo{
-				.usernameOrId = QString("ayugram"),
+				.usernameOrId = QString("uzbekgram_client"),
 			});
 		},
 	});
@@ -156,10 +156,10 @@ void BuildLinks(SectionBuilder &builder) {
 		.id = u"ayu/chat"_q,
 		.title = tr::ayu_LinksChats(),
 		.icon = { &st::menuIconChats },
-		.label = rpl::single(QString("@ayugramchat")),
+		.label = rpl::single(QString("@uzbekgramchat")),
 		.onClick = [=] {
 			controller->showPeerByLink(Window::PeerByLinkInfo{
-				.usernameOrId = QString("ayugramchat"),
+				.usernameOrId = QString("uzbekgramchat"),
 			});
 		},
 	});
@@ -167,20 +167,20 @@ void BuildLinks(SectionBuilder &builder) {
 		.id = u"ayu/crowdin"_q,
 		.title = tr::ayu_LinksTranslate(),
 		.icon = { &st::menuIconTranslate },
-		.label = rpl::single(QString("Crowdin")),
+		.label = rpl::single(QString("Translate")),
 		.onClick = [=] {
 			QDesktopServices::openUrl(
-				QString("https://translate.ayugram.one"));
+				QString("https://github.com/lutit/UzbekGramDesktop/pulls"));
 		},
 	});
 	builder.addButton({
 		.id = u"ayu/website"_q,
 		.title = tr::ayu_LinksDocumentation(),
 		.icon = { &st::menuIconIpAddress },
-		.label = rpl::single(QString("docs.ayugram.one")),
+		.label = rpl::single(QString("github.com/lutit/UzbekGramDesktop")),
 		.onClick = [=] {
 			QDesktopServices::openUrl(
-				QString("https://docs.ayugram.one"));
+				QString("https://github.com/lutit/UzbekGramDesktop"));
 		},
 	});
 
@@ -211,41 +211,6 @@ AyuMain::AyuMain(
 	not_null<Window::SessionController*> controller)
 : Section(parent, controller) {
 	setupContent();
-}
-
-void SetupCategories(
-	not_null<Ui::VerticalLayout*> container,
-	not_null<Window::SessionController*> controller,
-	Fn<void(Type)> showOther) {
-	struct CategoryInfo
-	{
-		QString name;
-		const style::icon *icon;
-		std::function<void()> handler;
-	};
-
-	const auto categories = std::vector<CategoryInfo>{
-		{QString("Telegram"), &st::menuIconGroupReactions, [=] { showOther(AyuGhost::Id()); }},
-		{asBeta(tr::ayu_CategoryFilters(tr::now)), &st::menuIconTagFilter, [=] { showOther(AyuFilters::Id()); }},
-		{tr::ayu_CategoryGeneral(tr::now), &st::menuIconShowAll, [=] { showOther(AyuGeneral::Id()); }},
-		{tr::ayu_CategoryAppearance(tr::now), &st::menuIconPalette, [=] { showOther(AyuAppearance::Id()); }},
-		{tr::ayu_CategoryChats(tr::now), &st::menuIconChatBubble, [=] { showOther(AyuChats::Id()); }},
-		{tr::ayu_CategoryOther(tr::now), &st::menuIconFave, [=] { showOther(AyuOther::Id()); }},
-	};
-
-	for (const auto &category : categories) {
-		AddButtonWithIcon(
-			container,
-			rpl::single(category.name),
-			st::settingsButton,
-			{category.icon}
-		)->setClickedCallback([=]
-		{
-			if (category.handler) {
-				category.handler();
-			}
-		});
-	}
 }
 
 void AyuMain::setupContent() {

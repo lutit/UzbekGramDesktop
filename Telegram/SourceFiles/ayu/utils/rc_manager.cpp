@@ -33,6 +33,7 @@ void RCManager::start() {
 
 void RCManager::makeRequest() {
 	return;
+}
 
 void RCManager::sendRequest() {
 	if (!_manager) {
@@ -60,7 +61,6 @@ void RCManager::sendRequest() {
 			{
 				gotFailure(e);
 			});
->>>>>>> refs/tags/v6.7.8
 }
 
 bool RCManager::tryRetryWithExteraFallback() {

@@ -19,7 +19,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/history_item_components.h"
 #include "history/history_item_helpers.h"
 #include "history/history_unread_things.h"
-#include "ui/text/format_values.h"
 #include "history/history.h"
 #include "iv/iv_data.h"
 #include "mtproto/mtproto_config.h"
@@ -35,7 +34,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "menu/menu_ttl_validator.h"
 #include "apiwrap.h"
 #include "ayu/ayu_settings.h"
-#include "ayu/epstein_mode.h"
+// #include "ayu/epstein_mode.h"
 #include "media/audio/media_audio.h"
 #include "core/application.h"
 #include "window/window_controller.h"
@@ -3585,12 +3584,12 @@ const TextWithEntities &HistoryItem::translatedText() const {
 	if (isService()) {
 		static const auto kEmpty = TextWithEntities();
 		return kEmpty;
-	} else if (AyuSettings::getInstance().epsteinMode) {
-		static thread_local TextWithEntities kEpstein;
-		kEpstein = TextWithEntities();
-		kEpstein.text = Ayu::Epstein::Obfuscate(originalText().text);
-		kEpstein.entities.clear();
-		return kEpstein;
+	// } else if (AyuSettings::getInstance().epsteinMode) {
+	// 	static thread_local TextWithEntities kEpstein;
+	// 	kEpstein = TextWithEntities();
+	// 	kEpstein.text = Ayu::Epstein::Obfuscate(originalText().text);
+	// 	kEpstein.entities.clear();
+	// 	return kEpstein;
 	} else if (const auto translation = this->translation()
 		; translation
 		&& translation->used
@@ -7901,7 +7900,9 @@ PreparedServiceText HistoryItem::prepareCallScheduledText(
 				tr::marked);
 		}
 	};
-	const auto time = Ui::FormatTime(scheduled.time());
+	const auto time = QLocale().toString(
+		scheduled.time(),
+		QLocale::ShortFormat);
 	const auto prepareGeneric = [&] {
 		prepareWithDate(tr::lng_group_call_starts_date(
 			tr::now,

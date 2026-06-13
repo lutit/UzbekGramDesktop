@@ -25,42 +25,6 @@
 
 namespace AyuUrlHandlers {
 
-bool HandleUzbek(
-	Window::SessionController *controller,
-	const Match &match,
-	const QVariant &context) {
-	if (!controller) {
-		return false;
-	}
-
-	auto window = controller->window().widget();
-	auto overlay = new QWidget(window);
-	overlay->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
-	overlay->setAttribute(Qt::WA_TranslucentBackground);
-	overlay->setAttribute(Qt::WA_DeleteOnClose);
-	overlay->setGeometry(window->rect()); // Cover the main window
-
-	auto label = new QLabel(overlay);
-	QPixmap pixmap(":/gui/art/uzbekchan.png");
-	if (pixmap.isNull()) {
-		// Fallback if png not found, try svg or just show a red box
-		pixmap.load(":/gui/art/ayu/shalava/uzbekchan.svg");
-	}
-	label->setPixmap(pixmap);
-	label->setScaledContents(true);
-	label->setGeometry(overlay->rect());
-	label->show();
-
-	overlay->show();
-	overlay->raise();
-
-	QTimer::singleShot(3000, overlay, [=] {
-		overlay->close();
-	});
-
-	return true;
-}
-
 bool ResolveUser(
 	Window::SessionController *controller,
 	const Match &match,

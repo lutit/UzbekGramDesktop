@@ -618,10 +618,10 @@ MainMenu::MainMenu(
 
 	setupSwipe();
 
-	Ayu::HalalFm::EnsureStartupPopup(_controller);
-
-	// Show SHALAVA PRO welcome popup if needed
-	Ayu::ShalavaPro::instance().showWelcomePopup(_controller);
+	// Ayu::HalalFm::EnsureStartupPopup(_controller);
+ //
+	// // Show SHALAVA PRO welcome popup if needed
+	// Ayu::ShalavaPro::instance().showWelcomePopup(_controller);
 }
 
 MainMenu::~MainMenu() = default;
@@ -880,48 +880,48 @@ void MainMenu::setupMenu() {
 			std::move(descriptor));
 	};
 
-	// Shalava Mod Buttons
-	// Logic:
-	// 0 - OFF (Default)
-	// 1 - SHALAVA
-	// 2 - SUPER
-	// 3 - ULTRA
-	const auto toggleShalava = [=](int selectedMode) {
-		const auto currentMode = AyuSettings::getInstance().shalavaMode;
-		int newMode = 0;
-
-		if (currentMode == selectedMode) {
-			newMode = 0; // Toggle OFF
-		} else {
-			newMode = selectedMode; // Switch directly
-		}
-		
-		auto activate = [=](int m) {
-			AyuSettings::set_shalavaMode(m);
-			AyuSettings::set_shalavaModePro(m == 3);
-			AyuSettings::save();
-		};
-
-		if (newMode == 3) {
-			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
-				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
-				return;
-			}
-			if (!settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
-				ShowEpilepsyWarning([=] { activate(3); });
-			} else {
-				activate(3);
-			}
-		} else {
-			activate(newMode);
-		}
-	};
-
-	auto shalavaToggle = [=](int targetMode) {
-		return AyuSettings::get_shalavaModeReactive()
-			| rpl::map([=](int mode) { return mode == targetMode; })
-			| rpl::distinct_until_changed();
-	};
+// 	// Shalava Mod Buttons
+// 	// Logic:
+// 	// 0 - OFF (Default)
+// 	// 1 - SHALAVA
+// 	// 2 - SUPER
+// 	// 3 - ULTRA
+// 	const auto toggleShalava = [=](int selectedMode) {
+// 		const auto currentMode = AyuSettings::getInstance().shalavaMode;
+// 		int newMode = 0;
+//
+// 		if (currentMode == selectedMode) {
+// 			newMode = 0; // Toggle OFF
+// 		} else {
+// 			newMode = selectedMode; // Switch directly
+// 		}
+//
+// 		auto activate = [=](int m) {
+// 			AyuSettings::set_shalavaMode(m);
+// 			AyuSettings::set_shalavaModePro(m == 3);
+// 			AyuSettings::save();
+// 		};
+//
+// 		if (newMode == 3) {
+// 			if (!Ayu::ShalavaPro::instance().isUnlocked()) {
+// 				Ayu::ShalavaPro::instance().showUnlockPopup(controller);
+// 				return;
+// 			}
+// 			if (!settings.shalavaEpilepsyWarningShown && !settings.shalavaSafeMode) {
+// 				ShowEpilepsyWarning([=] { activate(3); });
+// 			} else {
+// 				activate(3);
+// 			}
+// 		} else {
+// 			activate(newMode);
+// 		}
+// 	};
+//
+// 	auto shalavaToggle = [=](int targetMode) {
+// 		return AyuSettings::get_shalavaModeReactive()
+// 			| rpl::map([=](int mode) { return mode == targetMode; })
+// 			| rpl::distinct_until_changed();
+// 	};
 
 	const auto createToggleButton = [&](
 			rpl::producer<QString> text,
@@ -948,9 +948,9 @@ void MainMenu::setupMenu() {
 		}, check->lifetime());
 	};
 
-	createToggleButton(rpl::single(u"Shalava Mod"_q), st::ayuGhostIcon, 1);
-	createToggleButton(rpl::single(u"Super Shalava"_q), st::ayuGhostIcon, 2);
-	createToggleButton(rpl::single(u"Ultra Shalava"_q), st::ayuGhostIcon, 3);
+	// createToggleButton(rpl::single(u"Shalava Mod"_q), st::ayuGhostIcon, 1);
+	// createToggleButton(rpl::single(u"Super Shalava"_q), st::ayuGhostIcon, 2);
+	// createToggleButton(rpl::single(u"Ultra Shalava"_q), st::ayuGhostIcon, 3);
 
 
 	// Epstein Mode
@@ -1135,10 +1135,10 @@ void MainMenu::setupMenu() {
 		});
 	});
 
-	// Check for Porn TV feature announcement
-	if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {
-		Ayu::ShalavaPro::instance().showPornTvPopup(controller);
-	}
+	// // Check for Porn TV feature announcement
+	// if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {
+	// 	Ayu::ShalavaPro::instance().showPornTvPopup(controller);
+	// }
 
 	addAction(
 		rpl::single(u"Мулоқотни бошлаш"_q),

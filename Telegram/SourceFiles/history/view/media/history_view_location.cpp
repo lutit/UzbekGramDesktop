@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/view/media/history_view_location.h"
 
 #include "base/unixtime.h"
-#include "ui/text/format_values.h"
 #include "history/history.h"
 #include "history/history_item_components.h"
 #include "history/history_item.h"
@@ -214,24 +213,22 @@ void Location::updateLiveStatus() {
 			next = nowFull.secsTo(QDateTime(tomorrow, QTime(0, 0)));
 		};
 		const auto locale = QLocale();
-		const auto formatTime = [](const QTime &time) {
-			return Ui::FormatTime(time);
-		};
+		const auto format = QLocale::ShortFormat;
 		if (dateFull.date() == nowFull.date()) {
 			nextTomorrow();
-			const auto time = formatTime(dateFull.time());
+			const auto time = locale.toString(dateFull.time(), format);
 			return tr::lng_live_location_today(tr::now, lt_time, time);
 		} else if (dateFull.date().addDays(1) == nowFull.date()) {
 			nextTomorrow();
-			const auto time = formatTime(dateFull.time());
+			const auto time = locale.toString(dateFull.time(), format);
 			return tr::lng_live_location_yesterday(tr::now, lt_time, time);
 		}
 		return tr::lng_live_location_date_time(
 			tr::now,
 			lt_date,
-			locale.toString(dateFull.date(), QLocale::ShortFormat),
+			locale.toString(dateFull.date(), format),
 			lt_time,
-			formatTime(dateFull.time()));
+			locale.toString(dateFull.time(), format));
 	}();
 	_description.setMarkedText(
 		st::webPageDescriptionStyle,

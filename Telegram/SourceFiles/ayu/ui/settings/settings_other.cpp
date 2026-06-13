@@ -21,12 +21,14 @@
 #include "styles/style_settings.h"
 #include "ui/integration.h"
 #include "ui/painter.h"
+#include "ui/rect.h"
 #include "ui/vertical_list.h"
 #include "ui/boxes/confirm_box.h"
 #include "ui/text/text_utilities.h"
 #include "ui/widgets/buttons.h"
 #include "ui/wrap/vertical_layout.h"
 #include "window/window_session_controller.h"
+#include "window/themes/window_theme.h"
 
 #include <QDesktopServices>
 #include <QGuiApplication>
@@ -134,44 +136,44 @@ void AddCryptoDonate(
 	});
 }
 
-void BuildDonations(SectionBuilder &builder) {
-	builder.add([](const BuildContext &ctx) {
-		v::match(ctx, [&](const WidgetContext &wctx) {
-			const auto container = wctx.container;
-
-			AddSubsectionTitle(container, tr::ayu_SupportHeader());
-			AddDonate(
-				AddButtonWithIcon(
-					container,
-					rpl::single(QString("UZBEK")),
-					st::settingsButton),
-				"boosty"
-			)->setClickedCallback([=] {
-				QDesktopServices::openUrl(QString("https://github.com/lutit/UzbekGramDesktop"));
-			});
-			AddCryptoDonate("UZBEK", QString("UZBEK"), container);
-			AddCryptoDonate("UZBEK", QString("UZBEK"), container);
-			AddCryptoDonate("UZBEK", QString("UZBEK"), container);
-			AddCryptoDonate("UZBEK", QString("UZBEK"), container);
-			AddCryptoDonate("UZBEK", QString("UZBEK"), container);
-			AddSkip(container);
-
-			AddDividerText(container,
-				tr::ayu_SupportDescription2(
-					lt_item,
-					rpl::single(
-						Ui::Text::Link(tr::ayu_SupportDescription1(tr::now), QString("tg://support"))
-					),
-					tr::marked));
-		}, [&](const SearchContext &sctx) {
-			sctx.entries->push_back({
-				.id = u"ayu/donate"_q,
-				.title = tr::ayu_SupportHeader(tr::now),
-				.section = sctx.sectionId,
-			});
-		});
-	});
-}
+// void BuildDonations(SectionBuilder &builder) {
+// 	builder.add([](const BuildContext &ctx) {
+// 		v::match(ctx, [&](const WidgetContext &wctx) {
+// 			const auto container = wctx.container;
+//
+// 			AddSubsectionTitle(container, tr::ayu_SupportHeader());
+// 			AddDonate(
+// 				AddButtonWithIcon(
+// 					container,
+// 					rpl::single(QString("Boosty")),
+// 					st::settingsButton),
+// 				"boosty"
+// 			)->setClickedCallback([=] {
+// 				QDesktopServices::openUrl(QString("https://boosty.to/alexeyzavar"));
+// 			});
+// 			AddCryptoDonate("TON", QString("UQA4i8U8vP3mYUZSV3KqDQEHPwmhninEqCkkKc7BITQ652de"), container);
+// 			AddCryptoDonate("Bitcoin", QString("bc1qdk6qq4mzq5yap3fpy0qau3246w3m3uwac9f0xd"), container);
+// 			AddCryptoDonate("Ethereum", QString("0x405589857C8DFAb45B2027c68ad1e58877FDa347"), container);
+// 			AddCryptoDonate("Solana", QString("8ZHQpPxpsdRjsWoBcF1dmvRM5dB6zEhJ3jMBFZjYfyHs"), container);
+// 			AddCryptoDonate("Tron", QString("TRpbajq38qU8joThgAfKJLyEPbNjzsdPJ1"), container);
+// 			AddSkip(container);
+//
+// 			AddDividerText(container,
+// 				tr::ayu_SupportDescription2(
+// 					lt_item,
+// 					rpl::single(
+// 						Ui::Text::Link(tr::ayu_SupportDescription1(tr::now), QString("tg://support"))
+// 					),
+// 					tr::marked));
+// 		}, [&](const SearchContext &sctx) {
+// 			sctx.entries->push_back({
+// 				.id = u"ayu/donate"_q,
+// 				.title = tr::ayu_SupportHeader(tr::now),
+// 				.section = sctx.sectionId,
+// 			});
+// 		});
+// 	});
+// }
 
 void BuildCrashReporting(SectionBuilder &builder, AyuSectionBuilder &ayu) {
 #ifndef TDESKTOP_DISABLE_AUTOUPDATE
@@ -232,7 +234,7 @@ const auto kMeta = BuildHelper({
 	auto ayu = AyuSectionBuilder(builder);
 
 	builder.addSkip();
-	BuildDonations(builder);
+	// BuildDonations(builder);
 	BuildCrashReporting(builder, ayu);
 	BuildOtherThings(builder);
 });

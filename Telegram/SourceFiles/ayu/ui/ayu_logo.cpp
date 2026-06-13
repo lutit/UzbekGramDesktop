@@ -21,14 +21,14 @@ namespace AyuAssets {
 QString appIcoPath() {
 	const auto &settings = AyuSettings::getInstance();
 	return cWorkingDir()
-		+ u"tdata/AyuGram-"_q
+		+ u"tdata/Telegram-"_q
 		+ settings.appIcon()
 		+ u".ico"_q;
 }
 
 void loadAppIco() {
 	const auto &settings = AyuSettings::getInstance();
-	const auto iconPath = appDataPath + "/Telegram.ico";
+	const auto iconPath = appIcoPath();
 
 	auto f = QFile(iconPath);
 	if (f.exists()) {

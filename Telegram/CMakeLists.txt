@@ -143,14 +143,14 @@ set(ayugram_files
         ayu/ui/porn_tv_box.h
         ayu/ui/uzbek_ad_widget.cpp
         ayu/ui/uzbek_ad_widget.h
-        ayu/ui/shalava_overlay.cpp
-        ayu/ui/shalava_overlay.h
-        ayu/shalava_pro.cpp
-        ayu/shalava_pro.h
-        ayu/epstein_mode.cpp
-        ayu/epstein_mode.h
-        ayu/shamala_chat.cpp
-        ayu/shamala_chat.h
+        # ayu/ui/shalava_overlay.cpp
+        # ayu/ui/shalava_overlay.h
+        # ayu/shalava_pro.cpp
+        # ayu/shalava_pro.h
+        # ayu/epstein_mode.cpp
+        # ayu/epstein_mode.h
+        # ayu/shamala_chat.cpp
+        # ayu/shamala_chat.h
         ayu/ui/toasts.cpp
         ayu/ui/toasts.h
         ayu/ui/ayu_userpic.cpp
