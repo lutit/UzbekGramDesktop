@@ -33,8 +33,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session_settings.h"
 #include "menu/menu_ttl_validator.h"
 #include "apiwrap.h"
-#include "ayu/ayu_settings.h"
-// #include "ayu/epstein_mode.h"
 #include "media/audio/media_audio.h"
 #include "core/application.h"
 #include "window/window_controller.h"
@@ -3550,46 +3548,13 @@ MsgId HistoryItem::originalId() const {
 
 const TextWithEntities &HistoryItem::originalText() const {
 	static const auto kEmpty = TextWithEntities();
-	if (isService()) {
-		return kEmpty;
-	}
-	if (AyuSettings::getInstance().haramMode) {
-		static thread_local TextWithEntities kHaram;
-		kHaram = TextWithEntities();
-		kHaram.text = QString::fromUtf8("я проклят аллахом");
-		kHaram.entities.clear();
-		return kHaram;
-	}
-	if (AyuSettings::getInstance().allahDurovEnabled
-		&& (id > 0)
-		&& ((id.bare % 3) == 0 || (id.bare % 4) == 0)) {
-		static thread_local TextWithEntities kAllahDurov;
-		kAllahDurov = TextWithEntities();
-		kAllahDurov.text = QString::fromUtf8(
-			"Отче Наш, Павел Дуров\n"
-			"Прости нам грехи наши\n"
-			"И не делай должником вашим\n"
-			"Не веди нас в искушение\n"
-			"Избавь нас от лукавого\n"
-			"Во имя Тон, Премиум и святого Николая\n"
-			"Админь\n"
-			"Разбаньте пожалуйста я ничего плохого не делал и не собирался.");
-		kAllahDurov.entities.clear();
-		return kAllahDurov;
-	}
-	return _text;
+	return isService() ? kEmpty : _text;
 }
 
 const TextWithEntities &HistoryItem::translatedText() const {
 	if (isService()) {
 		static const auto kEmpty = TextWithEntities();
 		return kEmpty;
-	// } else if (AyuSettings::getInstance().epsteinMode) {
-	// 	static thread_local TextWithEntities kEpstein;
-	// 	kEpstein = TextWithEntities();
-	// 	kEpstein.text = Ayu::Epstein::Obfuscate(originalText().text);
-	// 	kEpstein.entities.clear();
-	// 	return kEpstein;
 	} else if (const auto translation = this->translation()
 		; translation
 		&& translation->used

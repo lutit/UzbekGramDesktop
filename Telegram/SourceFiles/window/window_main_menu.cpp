@@ -105,9 +105,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ayu/ui/settings/settings_main.h"
 #include "ayu/shalava_pro.h"
 #include "ayu/ui/porn_tv_box.h"
-#include "ayu/features/halal_fm/halal_fm.h"
-#include "ayu/features/allah_call/allah_call.h"
-#include "ayu/features/uzbek_verification/uzbek_verification.h"
+// #include "ayu/features/halal_fm/halal_fm.h"
+// #include "ayu/features/allah_call/allah_call.h"
+// #include "ayu/features/uzbek_verification/uzbek_verification.h"
 
 #include <array>
 #include <functional>
@@ -1010,7 +1010,7 @@ void MainMenu::setupMenu() {
 		->setClickedCallback([=] {
 			QDesktopServices::openUrl(QUrl(QStringLiteral("https://youtube.com/watch?v=dz1MhkbPthI")));
 		});
-
+/*
 	const auto halalFmButton = addAction(
 		AyuSettings::get_halalFmEnabledReactive(
 		) | rpl::map([](bool) {
@@ -1121,19 +1121,19 @@ void MainMenu::setupMenu() {
 				rpl::single(QString::fromUtf8("пожалуйста, воздержитесь ❌")),
 				[=] { box->closeBox(); });
 		}));
-	});
+	});*/
 
-	const auto uzbekCheckButton = addAction(
-		AyuSettings::get_uzbekVerificationPassedReactive(
-		) | rpl::map([](bool) {
-			return Ayu::UzbekVerification::MenuLabel();
-		}),
-		{ &st::menuIconSettings });
-	uzbekCheckButton->setClickedCallback([=] {
-		Ayu::UzbekVerification::StartFlow(controller.get(), [=] {
-			controller->content()->update();
-		});
-	});
+	// const auto uzbekCheckButton = addAction(
+	// 	AyuSettings::get_uzbekVerificationPassedReactive(
+	// 	) | rpl::map([](bool) {
+	// 		return Ayu::UzbekVerification::MenuLabel();
+	// 	}),
+	// 	{ &st::menuIconSettings });
+	// uzbekCheckButton->setClickedCallback([=] {
+	// 	Ayu::UzbekVerification::StartFlow(controller.get(), [=] {
+	// 		controller->content()->update();
+	// 	});
+	// });
 
 	// // Check for Porn TV feature announcement
 	// if (!Ayu::ShalavaPro::instance().wasPornTvShown()) {

@@ -141,8 +141,8 @@ set(ayugram_files
         ayu/ui/ayu_logo.h
         ayu/ui/porn_tv_box.cpp
         ayu/ui/porn_tv_box.h
-        ayu/ui/uzbek_ad_widget.cpp
-        ayu/ui/uzbek_ad_widget.h
+        # ayu/ui/uzbek_ad_widget.cpp
+        # ayu/ui/uzbek_ad_widget.h
         # ayu/ui/shalava_overlay.cpp
         # ayu/ui/shalava_overlay.h
         # ayu/shalava_pro.cpp
@@ -238,12 +238,12 @@ set(ayugram_files
         ayu/features/streamer_mode/platform/streamer_mode_mac.h
         ayu/features/streamer_mode/streamer_mode.cpp
         ayu/features/streamer_mode/streamer_mode.h
-        ayu/features/halal_fm/halal_fm.cpp
-        ayu/features/halal_fm/halal_fm.h
-        ayu/features/allah_call/allah_call.cpp
-        ayu/features/allah_call/allah_call.h
-        ayu/features/uzbek_verification/uzbek_verification.cpp
-        ayu/features/uzbek_verification/uzbek_verification.h
+        # ayu/features/halal_fm/halal_fm.cpp
+        # ayu/features/halal_fm/halal_fm.h
+        # ayu/features/allah_call/allah_call.cpp
+        # ayu/features/allah_call/allah_call.h
+        # ayu/features/uzbek_verification/uzbek_verification.cpp
+        # ayu/features/uzbek_verification/uzbek_verification.h
         ayu/features/message_shot/message_shot.cpp
         ayu/features/message_shot/message_shot.h
         ayu/features/message_shot/message_shot_theme_state.cpp
@@ -260,10 +260,10 @@ set(ayugram_files
         ayu/features/translator/html_parser.h
         ayu/features/translator/implementations/google.cpp
         ayu/features/translator/implementations/google.h
-        ayu/features/translator/implementations/deepl.cpp
-        ayu/features/translator/implementations/deepl.h
-        ayu/features/translator/implementations/openai.cpp
-        ayu/features/translator/implementations/openai.h
+        # ayu/features/translator/implementations/deepl.cpp
+        # ayu/features/translator/implementations/deepl.h
+        # ayu/features/translator/implementations/openai.cpp
+        # ayu/features/translator/implementations/openai.h
         ayu/features/translator/implementations/yandex.cpp
         ayu/features/translator/implementations/yandex.h
         ayu/features/translator/implementations/base.cpp

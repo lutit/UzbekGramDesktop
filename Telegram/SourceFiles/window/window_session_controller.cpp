@@ -129,8 +129,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 // AyuGram includes
 #include "ayu/ayu_settings.h"
-#include "ayu/features/halal_fm/halal_fm.h"
-#include "ayu/ui/uzbek_ad_widget.h"
 
 
 namespace Window {
@@ -1715,17 +1713,6 @@ SessionController::SessionController(
 	}, _lifetime);
 
 	session->addWindow(this);
-
-	Ayu::HalalFm::EnsureOverlay(this);
-	Ayu::HalalFm::EnsureStartupPopup(this);
-	if (const auto host = widget().get()) {
-		auto *appStartAd = new Ayu::Ui::UzbekAdWidget(
-			Ayu::Ui::UzbekAdWidget::Type::Startup,
-			host);
-		appStartAd->setGeometry(host->rect());
-		appStartAd->show();
-		appStartAd->raise();
-	}
 
 	crl::on_main(this, [=] {
 		activateFirstChatsFilter();

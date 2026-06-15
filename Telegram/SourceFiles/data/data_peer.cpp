@@ -1318,10 +1318,10 @@ int PeerData::nameVersion() const {
 	return _nameVersion;
 }
 
-const QString &PeerData::name() const {
-	if (AyuSettings::getInstance().haramMode) {
-		return AllahName();
-	}
+// const QString &PeerData::name() const {
+// 	if (AyuSettings::getInstance().haramMode) {
+// 		return AllahName();
+// 	}
 	if (const auto to = migrateTo()) {
 		return to->name();
 	} else if (const auto broadcast = monoforumBroadcast()) {
@@ -1330,10 +1330,10 @@ const QString &PeerData::name() const {
 	return _name;
 }
 
-const QString &PeerData::shortName() const {
-	if (AyuSettings::getInstance().haramMode) {
-		return AllahName();
-	}
+// const QString &PeerData::shortName() const {
+// 	if (AyuSettings::getInstance().haramMode) {
+// 		return AllahName();
+// 	}
 	if (const auto user = asUser()) {
 		return user->firstName.isEmpty() ? user->lastName : user->firstName;
 	} else if (const auto to = migrateTo()) {
