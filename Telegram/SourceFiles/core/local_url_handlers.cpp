@@ -1781,10 +1781,6 @@ const std::vector<LocalUrlHandler> &LocalUrlHandlers() {
 			AyuUrlHandlers::HandleSupport
 		},
 		{
-			u"^uzbek$"_q,
-			AyuUrlHandlers::HandleUzbek
-		},
-		{
 			u"^([^\\?]+)(\\?|#|$)"_q,
 			HandleUnknown
 		},

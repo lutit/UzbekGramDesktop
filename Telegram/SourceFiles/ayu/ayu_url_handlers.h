@@ -33,7 +33,7 @@ bool HandleSupport(
 	const Match &match,
 	const QVariant &context);
 
-bool HandleUzbek(
+bool HandleAyuSettings(
 	Window::SessionController *controller,
 	const Match &match,
 	const QVariant &context);
