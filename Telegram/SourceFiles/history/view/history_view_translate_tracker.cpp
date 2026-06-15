@@ -88,12 +88,6 @@ void TranslateTracker::setup() {
 	}, _lifetime);
 }
 
-	AyuSettings::getInstance().translationProviderChanges(
-	) | rpl::on_next([=](TranslationProvider) {
-		resetProvider();
-	}, _lifetime);
-}
-
 bool TranslateTracker::enoughForRecognition() const {
 	return _itemsForRecognize.size() >= kEnoughForRecognition;
 }
