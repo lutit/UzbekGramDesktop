@@ -33,7 +33,7 @@ class Session;
 } // namespace Main
 
 namespace Ayu::Ui {
-class UzbekAdWidget;
+// class UzbekAdWidget;
 } // namespace Ayu::Ui
 
 namespace HistoryView {

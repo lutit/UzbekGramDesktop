@@ -355,10 +355,10 @@ HistoryWidget::HistoryWidget(
 	}))
 , _topShadow(this) {
 	setAcceptDrops(true);
-	_chatAd = new Ayu::Ui::UzbekAdWidget(
-		Ayu::Ui::UzbekAdWidget::Type::Chat,
-		this);
-	_chatAd->show();
+	// _chatAd = new Ayu::Ui::UzbekAdWidget(
+	// 	Ayu::Ui::UzbekAdWidget::Type::Chat,
+	// 	this);
+	// _chatAd->show();
 
 	session().downloaderTaskFinished() | rpl::on_next([=] {
 		update();
@@ -7355,12 +7355,12 @@ void HistoryWidget::updateControlsGeometry() {
 		_topBar->bottomNoMargins(),
 		width - topShadowLeft - topShadowRight,
 		st::lineWidth);
-	if (_chatAd) {
-		const auto chatAdTop = _topBar->bottomNoMargins() + 100;
-		const auto chatAdHeight = _chatAd->sizeHint().height();
-		_chatAd->setGeometry(0, chatAdTop, width, chatAdHeight);
-		_chatAd->raise();
-	}
+// 	if (_chatAd) {
+// 		const auto chatAdTop = _topBar->bottomNoMargins() + 100;
+// 		const auto chatAdHeight = _chatAd->sizeHint().height();
+// 		_chatAd->setGeometry(0, chatAdTop, width, chatAdHeight);
+// 		_chatAd->raise();
+// 	}
 }
 
 void HistoryWidget::itemRemoved(not_null<const HistoryItem*> item) {

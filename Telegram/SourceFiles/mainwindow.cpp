@@ -754,7 +754,7 @@ void MainWindow::updateControlsGeometry() {
 	// if (_shalavaOverlay) {
 	// 	_shalavaOverlay->setGeometry(body);
 	// 	_shalavaOverlay->raise();
-	}
+	// }
 	if (_intro) _intro->raise();
 	if (_layer) _layer->raise();
 	if (_mediaPreview) _mediaPreview->raise();

@@ -239,7 +239,7 @@ void Widget::refreshLang() {
 		_settings->entity()->setText(rpl::single<QString>(u"Sozlamalar"_q));
 	}
 	if (_next) {
-		_next->entity()->setTextTransform(Ui::RoundButton::TextTransform::NoTransform);
+		_next->entity()->setTextTransform(Ui::RoundButtonTextTransform::NoTransform);
 		_next->entity()->setText(rpl::single<QString>(u"Keyingi"_q));
 	}
 	if (_back) {

@@ -830,39 +830,39 @@ void MainMenu::showFinished() {
 		_nightThemeToggle);
 }
 
-namespace {
-
-void ShowEpilepsyWarning(Fn<void()> onConfirm) {
-	auto box = Box([=](not_null<Ui::GenericBox*> box) {
-		box->setTitle(rpl::single(u"Epilepsy Warning"_q));
-		box->addRow(object_ptr<Ui::FlatLabel>(
-			box,
-			rpl::single(u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q),
-			st::boxLabel
-		));
-
-		auto checkbox = box->addRow(object_ptr<Ui::Checkbox>(
-			box,
-			rpl::single(u"Don't show again"_q),
-			false,
-			st::defaultCheckbox
-		));
-
-		box->addButton(tr::lng_box_ok(), [=] {
-			if (checkbox->checked()) {
-				AyuSettings::set_shalavaEpilepsyWarningShown(true);
-			}
-			onConfirm();
-			box->closeBox();
-		});
-		box->addButton(tr::lng_cancel(), [=] {
-			box->closeBox();
-		});
-	});
-	Ui::show(std::move(box));
-}
-
-} // namespace
+// namespace {
+//
+// void ShowEpilepsyWarning(Fn<void()> onConfirm) {
+// 	auto box = Box([=](not_null<Ui::GenericBox*> box) {
+// 		box->setTitle(rpl::single(u"Epilepsy Warning"_q));
+// 		box->addRow(object_ptr<Ui::FlatLabel>(
+// 			box,
+// 			rpl::single(u"Warning: This mode contains intense flashing animations. It may cause seizures in photosensitive people."_q),
+// 			st::boxLabel
+// 		));
+//
+// 		auto checkbox = box->addRow(object_ptr<Ui::Checkbox>(
+// 			box,
+// 			rpl::single(u"Don't show again"_q),
+// 			false,
+// 			st::defaultCheckbox
+// 		));
+//
+// 		box->addButton(tr::lng_box_ok(), [=] {
+// 			if (checkbox->checked()) {
+// 				AyuSettings::set_shalavaEpilepsyWarningShown(true);
+// 			}
+// 			onConfirm();
+// 			box->closeBox();
+// 		});
+// 		box->addButton(tr::lng_cancel(), [=] {
+// 			box->closeBox();
+// 		});
+// 	});
+// 	Ui::show(std::move(box));
+// }
+//
+// } // namespace
 
 void MainMenu::setupMenu() {
 	using namespace Settings;
@@ -923,30 +923,30 @@ void MainMenu::setupMenu() {
 // 			| rpl::distinct_until_changed();
 // 	};
 
-	const auto createToggleButton = [&](
-			rpl::producer<QString> text,
-			const style::icon &icon,
-			int mode) {
-		auto button = addAction(std::move(text), { &icon });
-		button->setClickedCallback([=] { toggleShalava(mode); });
-
-		const auto check = Ui::CreateChild<Ui::RpWidget>(button.get());
-		check->setAttribute(Qt::WA_TransparentForMouseEvents);
-		check->resize(st::menuIconSelect.size());
-		check->paintRequest(
-		) | rpl::on_next([=] {
-			QPainter p(check);
-			st::menuIconSelect.paint(p, 0, 0, check->width());
-		}, check->lifetime());
-
-		rpl::combine(
-			button->heightValue(),
-			shalavaToggle(mode)
-		) | rpl::on_next([=](int height, bool toggled) {
-			check->setVisible(toggled);
-			check->moveToRight(st::mainMenuButton.padding.right(), (height - check->height()) / 2);
-		}, check->lifetime());
-	};
+	// const auto createToggleButton = [&](
+	// 		rpl::producer<QString> text,
+	// 		const style::icon &icon,
+	// 		int mode) {
+	// 	auto button = addAction(std::move(text), { &icon });
+	// 	button->setClickedCallback([=] { toggleShalava(mode); });
+ //
+	// 	const auto check = Ui::CreateChild<Ui::RpWidget>(button.get());
+	// 	check->setAttribute(Qt::WA_TransparentForMouseEvents);
+	// 	check->resize(st::menuIconSelect.size());
+	// 	check->paintRequest(
+	// 	) | rpl::on_next([=] {
+	// 		QPainter p(check);
+	// 		st::menuIconSelect.paint(p, 0, 0, check->width());
+	// 	}, check->lifetime());
+ //
+	// 	rpl::combine(
+	// 		button->heightValue(),
+	// 		shalavaToggle(mode)
+	// 	) | rpl::on_next([=](int height, bool toggled) {
+	// 		check->setVisible(toggled);
+	// 		check->moveToRight(st::mainMenuButton.padding.right(), (height - check->height()) / 2);
+	// 	}, check->lifetime());
+	// };
 
 	// createToggleButton(rpl::single(u"Shalava Mod"_q), st::ayuGhostIcon, 1);
 	// createToggleButton(rpl::single(u"Super Shalava"_q), st::ayuGhostIcon, 2);
@@ -954,15 +954,15 @@ void MainMenu::setupMenu() {
 
 
 	// Epstein Mode
-	addAction(
-		rpl::single(u"Epstein Mode"_q),
-		{ &st::menuIconChannel }
-	)->toggleOn(AyuSettings::get_epsteinModeReactive())
-	->toggledChanges(
-	) | rpl::on_next([=](bool val) {
-		AyuSettings::set_epsteinMode(val);
-		AyuSettings::save();
-	}, _menu->lifetime());
+	// addAction(
+	// 	rpl::single(u"Epstein Mode"_q),
+	// 	{ &st::menuIconChannel }
+	// )->toggleOn(AyuSettings::get_epsteinModeReactive())
+	// ->toggledChanges(
+	// ) | rpl::on_next([=](bool val) {
+	// 	AyuSettings::set_epsteinMode(val);
+	// 	AyuSettings::save();
+	// }, _menu->lifetime());
 
 
 	_menu->add(
