@@ -96,6 +96,7 @@ Widget::Widget(
 		rpl::single(true))) {
 	setAttribute(Qt::WA_TranslucentBackground, true);
 	_background = QPixmap(QStringLiteral(":/gui/art/uzbek.jpg"));
+	_settings->entity()->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
 	controller->setDefaultFloatPlayerDelegate(floatPlayerDelegate());
 
 	getData()->country = ComputeNewAccountCountry();
@@ -238,7 +239,7 @@ void Widget::refreshLang() {
 		_settings->entity()->setText(rpl::single<QString>(u"Sozlamalar"_q));
 	}
 	if (_next) {
-		_next->entity()->setTextTransform(Ui::RoundButton::TextTransform::NoTransform);
+		_next->entity()->setTextTransform(Ui::RoundButtonTextTransform::NoTransform);
 		_next->entity()->setText(rpl::single<QString>(u"Keyingi"_q));
 	}
 	if (_back) {
@@ -342,6 +343,7 @@ void Widget::checkUpdateStatus() {
 				this,
 				tr::lng_menu_update(),
 				st::defaultBoxButton));
+		_update->entity()->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
 		if (!_showAnimation) {
 			_update->setVisible(true);
 		}
@@ -516,6 +518,7 @@ void Widget::showResetButton() {
 			this,
 			tr::lng_signin_reset_account(),
 			st::introResetButton);
+		entity->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
 		_resetAccount.create(this, std::move(entity));
 		_resetAccount->hide(anim::type::instant);
 		_resetAccount->entity()->setClickedCallback([this] { resetAccount(); });
@@ -746,8 +749,6 @@ void Widget::showControls() {
 
 void Widget::setupNextButton() {
 	_next->entity()->setClickedCallback([=] { getStep()->submit(); });
-	_next->entity()->setTextTransform(
-		Ui::RoundButton::TextTransform::NoTransform);
 
 	_next->entity()->setText(getStep()->nextButtonText(
 	) | rpl::filter([](const QString &text) {

@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "boxes/peers/edit_peer_invite_link.h"
 
 #include "api/api_invite_links.h"
-#include "ui/text/format_values.h"
 #include "apiwrap.h"
 #include "base/unixtime.h"
 #include "boxes/gift_premium_box.h"
@@ -1523,7 +1522,7 @@ object_ptr<Ui::BoxContent> ShareInviteLinkBox(
 			comment.text = link;
 		}
 		auto &api = session->api();
-		for (const auto thread : result) {
+		for (const auto &thread : result) {
 			auto message = Api::MessageToSend(
 				Api::SendAction(thread, options));
 			message.textWithTags = comment;
@@ -1738,7 +1737,7 @@ QString PrepareRequestedRowStatus(TimeId date) {
 	const auto now = QDateTime::currentDateTime();
 	const auto parsed = base::unixtime::parse(date);
 	const auto parsedDate = parsed.date();
-	const auto time = Ui::FormatTime(parsed.time());
+	const auto time = QLocale().toString(parsed.time(), QLocale::ShortFormat);
 	const auto generic = [&] {
 		return tr::lng_group_requests_status_date_time(
 			tr::now,

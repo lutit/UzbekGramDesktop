@@ -3,28 +3,28 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
+// Copyright @Radolyn, 2026
 #pragma once
-#include <QString>
-#include <QtNetwork/QNetworkReply>
 
 #include "ayu/data/entities.h"
 #include "core/application.h"
-
 #include "data/data_session.h"
 #include "history/history_item_components.h"
+
+#include <QString>
+#include <QtNetwork/QNetworkReply>
 
 struct ApplyChanges
 {
 	std::vector<RegexFilter> newFilters;
-	std::vector<QString> removeFiltersById;
+	std::vector<std::vector<char>> removeFiltersById;
 
 	std::vector<RegexFilter> filtersOverrides;
 
 	std::vector<RegexFilterGlobalExclusion> newExclusions;
 	std::vector<RegexFilterGlobalExclusion> removeExclusions;
 
-	std::map<long long, QString> peersToBeResolved;
+	std::vector<QString> peersToBeResolved;
 
 	bool operator==(const ApplyChanges &) const = default;
 };
@@ -45,7 +45,7 @@ public:
 	FilterUtils &operator=(FilterUtils &&) = delete;
 
 	void importFromLink(const QString &link);
-	bool importFromJson(const QByteArray &json);
+	void importFromJson(const QByteArray &json);
 
 	void publishFilters();
 	static QString exportFilters();
@@ -57,14 +57,11 @@ private:
 		: _manager(std::make_unique<QNetworkAccessManager>()) {
 	}
 
-	bool handleResponse(const QByteArray &response);
+	void handleResponse(const QByteArray &response);
 	void gotFailure(const QNetworkReply::NetworkError &error);
 
 	ApplyChanges prepareChanges(const QJsonObject &response);
 	void applyChanges(const ApplyChanges &changes);
 
-	QTimer *_timer = nullptr;
-
 	std::unique_ptr<QNetworkAccessManager> _manager = nullptr;
-	QNetworkReply *_reply = nullptr;
 };

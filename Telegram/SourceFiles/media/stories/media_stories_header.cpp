@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "media/stories/media_stories_header.h"
 
 #include "base/unixtime.h"
-#include "ui/text/format_values.h"
 #include "chat_helpers/compose/compose_show.h"
 #include "core/ui_integration.h"
 #include "data/stickers/data_custom_emoji.h"
@@ -221,18 +220,23 @@ struct MadePrivacyBadge {
 	}
 	const auto whenFull = base::unixtime::parse(when);
 	const auto nowFull = base::unixtime::parse(now);
+	const auto locale = QLocale();
 	auto tomorrow = nowFull;
 	tomorrow.setDate(nowFull.date().addDays(1));
 	tomorrow.setTime(QTime(0, 0, 1));
 	const auto seconds = int(nowFull.secsTo(tomorrow));
 	if (whenFull.date() == nowFull.date()) {
-		const auto whenTime = Ui::FormatTime(whenFull.time());
+		const auto whenTime = locale.toString(
+			whenFull.time(),
+			QLocale::ShortFormat);
 		return {
 			tr::lng_mediaview_today(tr::now, lt_time, whenTime),
 			seconds,
 		};
 	} else if (whenFull.date().addDays(1) == nowFull.date()) {
-		const auto whenTime = Ui::FormatTime(whenFull.time());
+		const auto whenTime = locale.toString(
+			whenFull.time(),
+			QLocale::ShortFormat);
 		return {
 			tr::lng_mediaview_yesterday(tr::now, lt_time, whenTime),
 			seconds,
@@ -245,19 +249,23 @@ struct MadePrivacyBadge {
 	const auto index = data.fullIndex + 1;
 	const auto count = data.fullCount;
 	return count
-		? QString::fromUtf8(" \xE2\x80\xA2 %1/%2").arg(index).arg(count)
+		? QString::fromUtf8(" %3 %1/%2")
+			.arg(index)
+			.arg(count)
+			.arg(Ui::kQBullet)
 		: QString();
 }
 
 [[nodiscard]] Timestamp ComposeDetails(HeaderData data, TimeId now) {
 	auto result = ComposeTimestamp(data.date, now);
 	if (data.edited) {
-		result.text.append(
-			QString::fromUtf8(" \xE2\x80\xA2 ") + tr::lng_edited(tr::now));
+		result.text.append(' '
+			+ Ui::kQBullet
+			+ ' '
+			+ tr::lng_edited(tr::now));
 	}
 	if (data.fromPeer || !data.repostFrom.isEmpty()) {
-		result.text = QString::fromUtf8("\xE2\x80\xA2 ")
-			+ result.text;
+		result.text = Ui::kQBullet + ' ' + result.text;
 	}
 	return result;
 }
@@ -545,7 +553,7 @@ void Header::setVideoStreamViewers(rpl::producer<int> viewers) {
 	auto helper = Ui::Text::CustomEmojiHelper();
 	const auto badge = helper.paletteDependent(
 		Ui::Text::CustomEmojiTextBadge(
-			tr::lng_video_stream_live(tr::now),
+			tr::lng_video_stream_live(tr::now).toUpper(),
 			st::groupCallMessageBadge,
 			st::groupCallMessageBadgeMargin));
 	const auto context = helper.context();

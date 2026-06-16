@@ -3,7 +3,7 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
+// Copyright @Radolyn, 2026
 #pragma once
 
 #include "base/qthelp_regex.h"
@@ -33,7 +33,7 @@ bool HandleSupport(
 	const Match &match,
 	const QVariant &context);
 
-bool HandleUzbek(
+bool HandleAyuSettings(
 	Window::SessionController *controller,
 	const Match &match,
 	const QVariant &context);

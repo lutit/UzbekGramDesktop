@@ -37,6 +37,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mtproto/mtproto_config.h"
 #include "core/application.h"
 #include "core/click_handler_types.h"
+#include "window/notifications_manager.h"
 #include "window/window_session_controller.h"
 #include "window/main_window.h" // Window::LogoNoMargin.
 #include "ui/image/image.h"
@@ -54,6 +55,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/storage_facade.h"
 #include "storage/storage_shared_media.h"
 #include "ayu/ayu_settings.h"
+
+// AyuGram includes
+#include "ayu/ui/ayu_userpic.h"
+
 
 namespace {
 
@@ -418,7 +423,7 @@ QImage *PeerData::userpicCloudImage(Ui::PeerUserpicView &view) const {
 	} else if (isNotificationsUser()) {
 		static auto result = Window::LogoTelegramDefault().scaledToWidth(
 			kUserpicSize,
-			Qt::SmoothTransformation);
+			Qt::SmoothTransformation).convertToFormat(QImage::Format_RGB32);
 		return &result;
 	}
 	return nullptr;
@@ -439,7 +444,7 @@ void PeerData::paintUserpic(
 	const auto cloud = userpicCloudImage(view);
 	const auto ratio = style::DevicePixelRatio();
 	if (context.shape == Ui::PeerUserpicShape::Auto) {
-		context.shape = isForum()
+		context.shape = (isForum() && !isBot())
 			? Ui::PeerUserpicShape::Forum
 			: isMonoforum()
 			? Ui::PeerUserpicShape::Monoforum
@@ -490,6 +495,14 @@ QImage PeerData::GenerateUserpicImage(
 		Ui::PeerUserpicView &view,
 		int size,
 		std::optional<int> radius) {
+	if (!radius) {
+		const auto shape = peer->isForum()
+			? Ui::PeerUserpicShape::Forum
+			: Ui::PeerUserpicShape::Circle;
+		if (AyuUserpic::ShouldOverrideShape(shape)) {
+			radius = AyuUserpic::ComputeRadius(size);
+		}
+	}
 	if (const auto userpic = peer->userpicCloudImage(view)) {
 		auto image = userpic->scaled(
 			{ size, size },
@@ -559,7 +572,7 @@ Data::FileOrigin PeerData::userpicOrigin() const {
 
 Data::FileOrigin PeerData::userpicPhotoOrigin() const {
 	return (isUser() && userpicPhotoId())
-		? Data::FileOriginUserPhoto(peerToUser(id).bare, userpicPhotoId())
+		? Data::FileOriginFullUser(peerToUser(id))
 		: Data::FileOrigin();
 }
 
@@ -1031,8 +1044,9 @@ bool PeerData::changeColorCollectible(
 
 bool PeerData::changeColor(
 		const tl::conditional<MTPPeerColor> &cloudColor) {
-	const auto changed1 = cloudColor
-		? changeColorIndex(Data::ColorIndexFromColor(cloudColor))
+	const auto maybeColorIndex = Data::ColorIndexFromColor(cloudColor);
+	const auto changed1 = maybeColorIndex
+		? changeColorIndex(*maybeColorIndex)
 		: clearColorIndex();
 	const auto changed2 = changeBackgroundEmojiId(
 		Data::BackgroundEmojiIdFromColor(cloudColor));
@@ -1042,8 +1056,9 @@ bool PeerData::changeColor(
 
 bool PeerData::changeColorProfile(
 		const tl::conditional<MTPPeerColor> &cloudColor) {
-	const auto changed1 = cloudColor
-		? changeColorProfileIndex(Data::ColorIndexFromColor(cloudColor))
+	const auto maybeColorIndex = Data::ColorIndexFromColor(cloudColor);
+	const auto changed1 = maybeColorIndex
+		? changeColorProfileIndex(*maybeColorIndex)
 		: clearColorProfileIndex();
 	const auto changed2 = changeProfileBackgroundEmojiId(
 		Data::BackgroundEmojiIdFromColor(cloudColor));
@@ -1268,7 +1283,7 @@ not_null<const PeerData*> PeerData::userpicPaintingPeer() const {
 }
 
 Ui::PeerUserpicShape PeerData::userpicShape() const {
-	return isForum()
+	return isForum() && !isBot()
 		? Ui::PeerUserpicShape::Forum
 		: isMonoforum()
 		? Ui::PeerUserpicShape::Monoforum
@@ -1286,9 +1301,9 @@ ChannelData *PeerData::broadcastMonoforum() const {
 }
 
 const QString &PeerData::topBarNameText() const {
-	if (AyuSettings::getInstance().haramMode) {
-		return AllahName();
-	}
+	// if (AyuSettings::getInstance().haramMode) {
+	// 	return AllahName();
+	// }
 	if (const auto to = migrateTo()) {
 		return to->topBarNameText();
 	} else if (const auto user = asUser()) {
@@ -1304,9 +1319,9 @@ int PeerData::nameVersion() const {
 }
 
 const QString &PeerData::name() const {
-	if (AyuSettings::getInstance().haramMode) {
-		return AllahName();
-	}
+	// if (AyuSettings::getInstance().haramMode) {
+	// 	return AllahName();
+	// }
 	if (const auto to = migrateTo()) {
 		return to->name();
 	} else if (const auto broadcast = monoforumBroadcast()) {
@@ -1316,9 +1331,9 @@ const QString &PeerData::name() const {
 }
 
 const QString &PeerData::shortName() const {
-	if (AyuSettings::getInstance().haramMode) {
-		return AllahName();
-	}
+	// if (AyuSettings::getInstance().haramMode) {
+	// 	return AllahName();
+	// }
 	if (const auto user = asUser()) {
 		return user->firstName.isEmpty() ? user->lastName : user->firstName;
 	} else if (const auto to = migrateTo()) {
@@ -1696,8 +1711,8 @@ void PeerData::processTopics(const MTPVector<MTPForumTopic> &topics) {
 }
 
 bool PeerData::isAyuNoForwards() const {
-	if (asUser()) {
-		return false;
+	if (const auto user = asUser()) {
+		return user->isAyuNoForwards();
 	} else if (const auto channel = asChannel()) {
 		return channel->isAyuNoForwards();
 	} else if (const auto chat = asChat()) {
@@ -1707,8 +1722,8 @@ bool PeerData::isAyuNoForwards() const {
 }
 
 bool PeerData::allowsForwarding() const {
-	if (isUser()) {
-		return true;
+	if (const auto user = asUser()) {
+		return user->allowsForwarding();
 	} else if (const auto channel = asChannel()) {
 		return channel->allowsForwarding();
 	} else if (const auto chat = asChat()) {
@@ -1861,6 +1876,17 @@ bool PeerData::canManageGroupCall() const {
 			|| (group->adminRights() & ChatAdminRight::ManageCall);
 	}
 	Unexpected("Peer type in PeerData::canManageGroupCall.");
+}
+
+bool PeerData::canManageRanks() const {
+	if (const auto chat = asChat()) {
+		return chat->amCreator()
+			|| (chat->adminRights() & ChatAdminRight::ManageRanks);
+	} else if (const auto channel = asChannel()) {
+		return channel->amCreator()
+			|| (channel->adminRights() & ChatAdminRight::ManageRanks);
+	}
+	return false;
 }
 
 bool PeerData::amMonoforumAdmin() const {
@@ -2060,6 +2086,7 @@ void PeerData::setIsBlocked(bool is) {
 			}
 		}
 		session().changes().peerUpdated(this, UpdateFlag::IsBlocked);
+		Core::App().notifications().checkDelayed();
 	}
 }
 
@@ -2203,17 +2230,22 @@ uint64 BackgroundEmojiIdFromColor(const MTPPeerColor *color) {
 	});
 }
 
-uint8 ColorIndexFromColor(const MTPPeerColor *color) {
+std::optional<uint8> ColorIndexFromColor(const MTPPeerColor *color) {
 	if (!color) {
-		return 0;
+		return std::nullopt;
 	}
-	return color->match([](const MTPDpeerColor &data) -> uint8 {
-		return data.vcolor().value_or_empty();
-	}, [](const MTPDpeerColorCollectible &data) -> uint8 {
-		return 0;
-	}, [](const MTPDinputPeerColorCollectible &) -> uint8 {
-		return 0;
+	return color->match([](const MTPDpeerColor &d) -> std::optional<uint8> {
+		return d.vcolor() ? std::make_optional(d.vcolor()->v) : std::nullopt;
+	}, [](const auto &) -> std::optional<uint8> {
+		return std::nullopt;
 	});
+}
+
+bool IsBotUserCreatesTopics(not_null<PeerData*> peer) {
+	if (const auto user = peer->asUser()) {
+		return user->botInfo && user->botInfo->userCreatesTopics;
+	}
+	return false;
 }
 
 } // namespace Data

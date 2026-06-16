@@ -124,11 +124,11 @@ const QPixmap &Image::cached(
 		int h,
 		const Images::PrepareArgs &args,
 		bool single) const {
-	if (AyuSettings::getInstance().allahDurovEnabled) {
-		static thread_local QPixmap forced;
-		forced = prepare(w, h, args);
-		return forced;
-	}
+	// if (AyuSettings::getInstance().allahDurovEnabled) {
+	// 	static thread_local QPixmap forced;
+	// 	forced = prepare(w, h, args);
+	// 	return forced;
+	// }
 	const auto ratio = style::DevicePixelRatio();
 	if (w <= 0 || !width() || !height()) {
 		w = width();
@@ -149,12 +149,12 @@ const QPixmap &Image::cached(
 }
 
 QPixmap Image::prepare(int w, int h, const Images::PrepareArgs &args) const {
-	if (AyuSettings::getInstance().allahDurovEnabled) {
-		const auto durov = DurovImage();
-		if (!durov.isNull()) {
-			return Ui::PixmapFromImage(Prepare(durov, w, h, args));
-		}
-	}
+	// if (AyuSettings::getInstance().allahDurovEnabled) {
+	// 	const auto durov = DurovImage();
+	// 	if (!durov.isNull()) {
+	// 		return Ui::PixmapFromImage(Prepare(durov, w, h, args));
+	// 	}
+	// }
 	if (_data.isNull()) {
 		if (h <= 0 && height() > 0) {
 			h = qRound(width() * w / float64(height()));

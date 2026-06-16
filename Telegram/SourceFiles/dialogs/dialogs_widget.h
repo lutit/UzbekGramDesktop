@@ -33,7 +33,7 @@ class Session;
 } // namespace Main
 
 namespace Ayu::Ui {
-class UzbekAdWidget;
+// class UzbekAdWidget;
 } // namespace Ayu::Ui
 
 namespace HistoryView {
@@ -220,7 +220,7 @@ private:
 	void setupShortcuts();
 	void setupStories();
 	void setupSwipeBack();
-	void setupTopBarSuggestions(not_null<Ui::VerticalLayout*> dialogs);
+	void setupTopBarSuggestions();
 	void storiesExplicitCollapse();
 	void collectStoriesUserpicsViews(Data::StorySourcesList list);
 	void storiesToggleExplicitExpand(bool expand);
@@ -338,10 +338,10 @@ private:
 	std::unique_ptr<HistoryView::ContactStatus> _forumReportBar;
 
 	base::unique_qptr<Ui::RpWidget> _chatFilters;
-	QPointer<QPushButton> _halalFmBanner;
-	QPointer<QPushButton> _allahCallShortcut;
-	QPointer<QPushButton> _uzbekVerificationBanner;
-	QPointer<Ayu::Ui::UzbekAdWidget> _dialogsAd;
+	// QPointer<QPushButton> _halalFmBanner;
+	// QPointer<QPushButton> _allahCallShortcut;
+	// QPointer<QPushButton> _uzbekVerificationBanner;
+	// QPointer<Ayu::Ui::UzbekAdWidget> _dialogsAd;
 
 	QPointer<Ui::SlideWrap<Ui::RpWidget>> _topBarSuggestion;
 	rpl::event_stream<int> _topBarSuggestionHeightChanged;
@@ -349,7 +349,8 @@ private:
 	rpl::event_stream<bool> _openedFolderOrForumChanges;
 
 	object_ptr<Ui::ElasticScroll> _scroll;
-	QPointer<InnerWidget> _inner;
+	Ui::VerticalLayout *_innerList = nullptr;
+	InnerWidget *_inner = nullptr;
 	std::unique_ptr<Suggestions> _suggestions;
 	std::vector<std::unique_ptr<Suggestions>> _hidingSuggestions;
 	class BottomButton;
@@ -418,6 +419,9 @@ private:
 
 	Api::PeerSearch _peerSearch;
 	Api::SingleMessageSearch _singleMessageSearch;
+
+	std::vector<not_null<PeerData*>> _idSearchResults;
+	QString _idSearchQuery;
 
 	QPixmap _widthAnimationCache;
 

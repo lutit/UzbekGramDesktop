@@ -45,7 +45,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "window/window_session_controller.h"
 #include "window/window_setup_email.h"
 #include "window/window_media_preview.h"
-#include "ayu/ui/shalava_overlay.h"
+// #include "ayu/ui/shalava_overlay.h"
 #include "styles/style_dialogs.h"
 #include "styles/style_layers.h"
 #include "styles/style_window.h"
@@ -107,8 +107,8 @@ MainWindow::MainWindow(not_null<Window::Controller*> controller)
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	_shalavaOverlay.create(bodyWidget());
-	_shalavaOverlay->show();
+	// _shalavaOverlay.create(bodyWidget());
+	// _shalavaOverlay->show();
 }
 
 void MainWindow::initHook() {
@@ -751,10 +751,10 @@ void MainWindow::updateControlsGeometry() {
 	if (_layer) _layer->setGeometry(body);
 	if (_mediaPreview) _mediaPreview->setGeometry(body);
 	if (_testingThemeWarning) _testingThemeWarning->setGeometry(body);
-	if (_shalavaOverlay) {
-		_shalavaOverlay->setGeometry(body);
-		_shalavaOverlay->raise();
-	}
+	// if (_shalavaOverlay) {
+	// 	_shalavaOverlay->setGeometry(body);
+	// 	_shalavaOverlay->raise();
+	// }
 	if (_intro) _intro->raise();
 	if (_layer) _layer->raise();
 	if (_mediaPreview) _mediaPreview->raise();

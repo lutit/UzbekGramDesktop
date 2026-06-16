@@ -3,13 +3,14 @@
 // We do not and cannot prevent the use of our code,
 // but be respectful and credit the original author.
 //
-// Copyright @Radolyn, 2025
-#include "edit_filter.h"
+// Copyright @Radolyn, 2026
+#include "ayu/ui/settings/filters/edit_filter.h"
 
 #include "lang_auto.h"
 #include "ayu/ayu_settings.h"
 #include "ayu/data/ayu_database.h"
 #include "ayu/features/filters/filters_cache_controller.h"
+#include "ayu/ui/toasts.h"
 #include "base/event_filter.h"
 #include "base/platform/base_platform_info.h"
 #include "boxes/delete_messages_box.h"
@@ -23,16 +24,13 @@
 #include "styles/style_window.h"
 #include "ui/ui_utility.h"
 #include "ui/boxes/confirm_box.h"
-#include "ui/effects/animations.h"
 #include "ui/text/text.h"
-#include "ui/text/text_utilities.h"
 #include "ui/toast/toast.h"
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/labels.h"
 #include "ui/widgets/fields/input_field.h"
 #include "ui/wrap/slide_wrap.h"
 #include "ui/wrap/vertical_layout.h"
-
 
 namespace Settings {
 
@@ -136,10 +134,12 @@ void RegexEditBuilder(
 	RegexFilter data;
 
 	if (filter) {
-		box->setTitle(tr::ayu_RegexFiltersEdit());
+		box->setTitle(showToast ? tr::ayu_RegexFiltersAdd() : tr::ayu_RegexFiltersEdit());
 		data = *filter;
 	} else {
 		box->setTitle(tr::ayu_RegexFiltersAdd());
+		data.enabled = true;
+		data.caseInsensitive = true;
 		data.reversed = false;
 	}
 
@@ -217,29 +217,29 @@ void RegexEditBuilder(
 				if (onDone) {
 					onDone(newFilter);
 				}
-				AyuSettings::fire_filtersUpdate();
+				FiltersCacheController::fireUpdate();
 
 				if (showToast) {
-					const auto onClick = [=](const auto &...) mutable
-					{
-						newFilter.dialogId = dialogId;
-
-						AyuDatabase::updateRegexFilter(newFilter);
-						FiltersCacheController::rebuildCache();
-						AyuSettings::fire_filtersUpdate();
-
-						return true;
-					};
-					// todo: custom toast with "Move to shared" button
-					// based on `PaidReactionToast`
-					Ui::Toast::Show(Ui::Toast::Config{
+					auto config = Ui::Toast::Config{
 						.text = tr::ayu_RegexFilterBulletinText(
 							tr::now,
-							tr::rich
-						),
-						.filter = onClick,
-						.adaptive = true
-					});
+							tr::rich),
+						.adaptive = true,
+					};
+					if (dialogId.has_value()) {
+						Ayu::Ui::ShowToastWithAction(
+							std::move(config),
+							tr::ayu_RegexFilterBulletinAction(tr::now),
+							[=]() mutable {
+								newFilter.dialogId = dialogId;
+
+								AyuDatabase::updateRegexFilter(newFilter);
+								FiltersCacheController::rebuildCache();
+								FiltersCacheController::fireUpdate();
+							});
+					} else {
+						Ui::Toast::Show(std::move(config));
+					}
 				}
 			});
 		});

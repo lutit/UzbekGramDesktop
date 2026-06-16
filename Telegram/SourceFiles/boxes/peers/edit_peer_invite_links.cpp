@@ -16,7 +16,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session.h"
 #include "api/api_invite_links.h"
 #include "settings/settings_credits_graphics.h"
-#include "ui/text/format_values.h"
 #include "ui/wrap/slide_wrap.h"
 #include "ui/widgets/buttons.h"
 #include "ui/widgets/popup_menu.h"
@@ -174,7 +173,7 @@ private:
 			link.usageLimit)
 		: tr::lng_group_invite_no_joined(tr::now);
 	const auto add = [&](const QString &text) {
-		result += QString::fromUtf8(" \xE2\x80\xA2 ") + text;
+		result += ' ' + Ui::kQBullet + ' ' + text;
 	};
 	if (revoked) {
 		return result;
@@ -207,7 +206,7 @@ private:
 				left / 86400));
 		} else {
 			const auto time = base::unixtime::parse(link.expireDate).time();
-			add(Ui::FormatTime(time));
+			add(QLocale().toString(time, QLocale::LongFormat));
 		}
 	}
 	return result;

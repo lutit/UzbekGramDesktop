@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/view/media/history_view_suggest_decision.h"
 
 #include "base/unixtime.h"
-#include "ui/text/format_values.h"
 #include "data/data_channel.h"
 #include "data/data_session.h"
 #include "history/view/media/history_view_media_generic.h"
@@ -207,7 +206,9 @@ auto GenerateSuggestDecisionMedia(
 								date.date(),
 								QLocale::ShortFormat),
 							lt_time,
-							Ui::FormatTime(date.time()))),
+							QLocale().toString(
+								date.time(),
+								QLocale::ShortFormat))),
 						tr::marked)),
 				(price
 					? st::chatSuggestInfoMiddleMargin

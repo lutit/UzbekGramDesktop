@@ -25,13 +25,13 @@ namespace {
 ShalavaOverlay::ShalavaOverlay(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setAttribute(Qt::WA_NoSystemBackground);
-    
+
     _timer.setInterval(16); // ~60 FPS
     connect(&_timer, &QTimer::timeout, this, [=] {
         updateParticles();
         update();
     });
-    
+
     // Load icons
     _starIcon.load(":/gui/art/ayu/shalava/star.svg");
     _checkmarkIcon.load(":/gui/art/ayu/shalava/checkmark.svg");
@@ -54,15 +54,15 @@ ShalavaOverlay::ShalavaOverlay(QWidget *parent) : QWidget(parent) {
 void ShalavaOverlay::updateSettings() {
     auto &settings = AyuSettings::getInstance();
     int newMode = settings.shalavaMode;
-    
+
     // Check if other settings changed that might require updates
     _safeMode = settings.shalavaSafeMode;
     _particleLimit = settings.shalavaParticleLimit;
     _textOverlay = settings.shalavaTextOverlay;
     _captureMouse = settings.shalavaOverlayCapturesMouse;
-    
+
     setAttribute(Qt::WA_TransparentForMouseEvents, !_captureMouse);
-    
+
     if (newMode != _mode) {
         setMode(newMode);
     } else {
@@ -97,7 +97,7 @@ void ShalavaOverlay::updateParticles() {
     // Mode specific logic
     int targetParticles = 0;
     float speedMult = 1.0f;
-    
+
     // Hard cap to prevent crashes
     int safeLimit = std::clamp(_particleLimit, 10, 150);
 

@@ -30,29 +30,3 @@ docker run --rm -it \
 ```
 
 **[Windows](docs/building-win-x64.md)**
-
-**[macOS](docs/building-mac.md)**
-
-## Использованные материалы
-
-### Телеграм клиенты
-
-- [Telegram Desktop](https://github.com/telegramdesktop/tdesktop)
-- [AyuGram Desktop](https://github.com/AyuGram/AyuGramDesktop)
-- [Kotatogram](https://github.com/kotatogram/kotatogram-desktop)
-- [64Gram](https://github.com/TDesktop-x64/tdesktop)
-- [Forkgram](https://github.com/forkgram/tdesktop)
-
-### Использованные библиотеки
-
-- [JSON for Modern C++](https://github.com/nlohmann/json)
-- [SQLite](https://github.com/sqlite/sqlite)
-- [sqlite_orm](https://github.com/fnc12/sqlite_orm)
-
-### Иконки
-
-- [Solar Icon Set](https://www.figma.com/community/file/1166831539721848736)
-
-### Боты
-
-- [TelegramDB](https://t.me/tgdatabase) для получения юзернейма по ID

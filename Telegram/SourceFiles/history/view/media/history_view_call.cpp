@@ -8,7 +8,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/view/media/history_view_call.h"
 
 #include "lang/lang_keys.h"
-#include "ui/text/format_values.h"
 #include "ui/chat/chat_style.h"
 #include "ui/text/format_values.h"
 #include "ui/painter.h"
@@ -49,7 +48,9 @@ Call::Call(
 , _video(call->video) {
 	const auto item = parent->data();
 	_text = Data::MediaCall::Text(item, _state, _conference, _video);
-	_status = Ui::FormatTime(parent->dateTime().time());
+	_status = QLocale().toString(
+		parent->dateTime().time(),
+		QLocale::ShortFormat);
 	if (_duration) {
 		_status = tr::lng_call_duration_info(
 			tr::now,
@@ -75,7 +76,7 @@ QSize Call::countOptimalSize() {
 				strong->resolveConferenceCall(id, contextId);
 			}
 		} else if (user) {
-			Core::App().calls().startOutgoingCall(user, video);
+			Core::App().calls().startOutgoingCall(user, { video });
 		}
 	});
 	auto maxWidth = st::historyCallWidth;

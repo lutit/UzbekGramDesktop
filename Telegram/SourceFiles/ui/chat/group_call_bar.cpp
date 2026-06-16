@@ -11,7 +11,6 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/widgets/shadow.h"
 #include "ui/widgets/buttons.h"
 #include "ui/painter.h"
-#include "ui/text/format_values.h"
 #include "lang/lang_keys.h"
 #include "base/unixtime.h"
 #include "styles/style_chat.h"
@@ -22,6 +21,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/palette.h"
 
 #include <QtGui/QtEvents>
+#include <QtCore/QLocale>
 
 namespace Ui {
 
@@ -200,6 +200,7 @@ void GroupCallBar::refreshScheduledProcess() {
 			_inner.get(),
 			_scheduledProcess->text(GroupCallScheduledLeft::Negative::Show),
 			st::groupCallTopBarOpen);
+		_open->setTextTransform(RoundButtonTextTransform::ToUpper);
 		setupRightButton(_open.get());
 		_open->widthValue(
 		) | rpl::on_next([=] {
@@ -311,7 +312,9 @@ void GroupCallBar::paintTitleAndStatus(Painter &p) {
 		}
 		const auto parsed = base::unixtime::parse(_content.scheduleDate);
 		const auto date = parsed.date();
-		const auto time = FormatTime(parsed.time());
+		const auto time = QLocale().toString(
+			parsed.time(),
+			QLocale::ShortFormat);
 		const auto today = QDate::currentDate();
 		if (date == today) {
 			return tr::lng_group_call_starts_today(tr::now, lt_time, time);
